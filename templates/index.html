@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <title>Beth</title>
+
+        <link rel="stylesheet" href="/static/bootstrap-4.3.1-dist/css/bootstrap.min.css">
+        <style>
+          html, body {
+            height: 100%;
+          }
+        </style>
+
+        <script src="/static/jquery-3.4.1.min.js"></script>
+        <script src="/static/popper.min.js"></script>
+        <script src="/static/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+        <script src="/static/svg.js/svg.min.js"></script>
+
+        <script>
+            $(function() {
+                $("#import").click(function(){
+                    // TODO
+                    /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+                      alert('The File APIs are not fully supported in this browser.');
+                      return;
+                    }
+
+                    input = document.getElementById('fileinput');
+                    if (!input) {
+                      alert("Um, couldn't find the fileinput element.");
+                    }
+                    else if (!input.files) {
+                      alert("This browser doesn't seem to support the `files` property of file inputs.");
+                    }
+                    else if (!input.files[0]) {
+                      alert("Please select a file before clicking 'Load'");
+                    } else {*/
+                        var file = $("#file")[0].files[0];
+                        var reader = new FileReader();
+
+                        var senddata = new Object();
+                        senddata.name = file.name;
+                        senddata.date = file.lastModified;
+                        senddata.size = file.size;
+                        senddata.type = file.type;
+
+                        reader.onload = function(theFileData) {
+                            senddata.fileData = theFileData.target.result;
+                            $.post("load", {file: senddata.fileData, order: "in"}, function(data, status){
+                                //alert("Data: " + data + "\nStatus: " + status);
+                                data = JSON.parse(data)
+                                data.forEach(function(item, index, array){
+                                    if (item["name"] != "None") {
+                                        draw.plain(item["name"]).move(item["total_distance"] * 100, 0).attr({'dominant-baseline' : 'middle', 'y' : 0 + index * 40 + 20});
+                                    } else {
+                                        above = (index - 1) * 40 + 20;
+                                        below = (index + 1) * 40 + 20;
+                                        here = item["total_distance"] * 100;
+                                        draw.line(here, above, here, below).stroke({ color: 'black', width: 1 });
+                                        draw.line(here, above, array[index - 1]["total_distance"] * 100, above).stroke({ color: 'black', width: 1 });
+                                        draw.line(here, below, array[index + 1]["total_distance"] * 100, below).stroke({ color: 'black', width: 1 });
+                                    }
+                                });
+                            });
+                            /*$.post("load", {file: senddata.fileData, order: "in"}, function(data, status){
+                                //alert("Data: " + data + "\nStatus: " + status);
+                                data = JSON.parse(data)
+                                data.forEach(function(item, index, array){
+                                    if (item["name"] != "None") {
+                                        draw.plain(item["name"]).move(item["total_distance"] * 100, 0).attr({'dominant-baseline' : 'middle', 'y' : 0 + index * 40 + 20});
+                                    } else {
+                                        above = (index - 1) * 40 + 20;
+                                        below = (index + 1) * 40 + 20;
+                                        here = item["total_distance"] * 100;
+                                        draw.line(here, above, here, below).stroke({ color: 'black', width: 1 });
+                                        draw.line(here, above, array[index - 1]["total_distance"] * 100, above).stroke({ color: 'black', width: 1 });
+                                        draw.line(here, below, array[index + 1]["total_distance"] * 100, below).stroke({ color: 'black', width: 1 });
+                                    }
+                                });
+                            });*/
+                        }
+
+                        reader.readAsDataURL(file);
+                    // }
+
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <form enctype="multipart/form-data"><input type="file" id="file" accept=".treefile"> <input type="button" id="import" value="Import"></form>
+
+        <!-- MOVE TO HEAD TOO -->
+        <script>
+            var draw = SVG().addTo('body').size('100%', '100%')
+            draw.rect('50%', '50%').fill('#f06')
+            draw.rect('50%', '50%').move('50%', '50%').fill('#f06')
+            draw.rect('50%', '50%').move('0%', '50%').fill('#60f')
+            draw.rect('50%', '50%').move('50%', '0%').fill('#60f')
+        </script>
+
+        <!--<svg xlmns="http://www.w3.org/2000/svg" vesion="1.1" xlmns:link="http://www.w3.org/1999/xlink" width="300" height="300">
+        </svg>-->
+        <!--<div class="containter-fluid">
+        </div>-->
+
+
+
+
+    <script>
+/*function dateiupload(evt) {
+    var dateien = evt.target.files; // FileList objekt
+
+    // erste Datei auswählen (wichtig, weil IMMER ein FileList Objekt generiert wird)
+    var uploadDatei = dateien[0];
+
+    // Ein Objekt um Dateien einzulesen
+    var reader = new FileReader();
+
+    var senddata = new Object();
+    // Auslesen der Datei-Metadaten
+    senddata.name = uploadDatei.name;
+    senddata.date = uploadDatei.lastModified;
+    senddata.size = uploadDatei.size;
+    senddata.type = uploadDatei.type;
+
+    // Wenn der Dateiinhalt ausgelesen wurde...
+    reader.onload = function(theFileData) {
+      senddata.fileData = theFileData.target.result; // Ergebnis vom FileReader auslesen
+
+      /*
+      Code für AJAX-Request hier einfügen
+      */
+    //}
+
+    // Die Datei einlesen und in eine Data-URL konvertieren
+    //reader.readAsDataURL(uploadDatei);
+  //}*/
+   </script>
+
+
+    </body>
+</html>

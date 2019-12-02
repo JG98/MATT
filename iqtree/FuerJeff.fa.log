@@ -1,0 +1,28 @@
+IQ-TREE multicore version 1.6.12 for Windows 64-bit built Aug 15 2019
+Developed by Bui Quang Minh, Nguyen Lam Tung, Olga Chernomor,
+Heiko Schmidt, Dominik Schrempf, Michael Woodhams.
+
+Host:    TABLET-R5H5SBLP (SSE4.2, 3 GB RAM)
+Command: bin\iqtree -s ../FuerJeff.fa
+Seed:    450338 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Thu Nov 21 13:19:38 2019
+Kernel:  SSE2 - 1 threads (4 CPU cores detected)
+
+HINT: Use -nt option to specify number of threads because your CPU has 4 cores!
+HINT: -nt AUTO will automatically determine the best number of threads to use.
+
+Reading alignment file ../FuerJeff.fa ... Fasta format detected
+ERROR: Sequence P36120|THOR3@1706445@2|THOR3KXH77398|1 contains too many characters (947)
+ERROR: Sequence P36120|ODINL@1841599@2|ODINLOLS17413|1 contains too many characters (959)
+ERROR: Sequence P36120|HEIMB@2012493@2|HEIMBPWI47305|1 contains not enough characters (939)
+ERROR: Sequence P36120|ARATH@3702@1|Q7XJN0|1 contains not enough characters (609)
+ERROR: Sequence P36120|araly_3473@59689@1|2047|1 contains not enough characters (609)
+ERROR: Sequence P36120|MONDO@13616@1|F6PLQ6|1 contains not enough characters (730)
+ERROR: Sequence P36120|BOVIN@9913@1|F1N5H8|1 contains not enough characters (736)
+ERROR: Sequence P36120|TRICA@7070@1|D6X4S5|1 contains not enough characters (722)
+ERROR: Sequence P36120|ANOGA@7165@1|Q7QE39|1 contains not enough characters (569)
+ERROR: Sequence P36120|PANTR@9598@1|H2R3Z1|1 contains not enough characters (851)
+ERROR: Sequence P36120|HUMAN@9606@1|Q9H8H2|1 contains not enough characters (851)
+ERROR: Sequence P36120|GORGO@9595@1|G3QZ32|1 contains not enough characters (851)
+ERROR: Sequence P36120|DROME@7227@1|Q86B47|1 contains too many characters (975)
+ERROR: 
