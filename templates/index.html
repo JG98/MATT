@@ -48,11 +48,24 @@
 
                         reader.onload = function(theFileData) {
                             senddata.fileData = theFileData.target.result;
-                            $.post("load", {file: senddata.fileData, order: "in"}, function(data, status){
+                            $.post("load", {file: senddata.fileData}, function(data, status){
                                 //alert("Data: " + data + "\nStatus: " + status);
                                 data = JSON.parse(data)
                                 data.forEach(function(item, index, array){
+                                    offset = 20;
+                                    scale = 500;
                                     if (item["name"] != "None") {
+                                        draw.plain(item["name"]).attr({'dominant-baseline': 'middle', 'x': item["total_distance"] * scale + offset*1.5, 'y': index * 20 + offset});
+                                    } else {
+                                        here = item["total_distance"] * scale;
+                                        l_child = array.findIndex((elem) => elem.id == item["l_child"]);
+                                        r_child = array.findIndex((elem) => elem.id == item["r_child"]);
+
+                                        draw.line(here + offset, l_child * 20 + offset, here + offset, r_child * 20 + offset).stroke({color: 'black', width: 2});
+                                        draw.line(here + offset, l_child * 20 + offset, array[l_child]["total_distance"] * scale + offset, l_child * 20 + offset).stroke({color: 'black', width: 2});
+                                        draw.line(here + offset, r_child * 20 + offset, array[r_child]["total_distance"] * scale + offset, r_child * 20 + offset).stroke({color: 'black', width: 2});
+                                    }
+                                    /*if (item["name"] != "None") {
                                         draw.plain(item["name"]).move(item["total_distance"] * 100, 0).attr({'dominant-baseline' : 'middle', 'y' : 0 + index * 40 + 20});
                                     } else {
                                         above = (index - 1) * 40 + 20;
@@ -61,7 +74,7 @@
                                         draw.line(here, above, here, below).stroke({ color: 'black', width: 1 });
                                         draw.line(here, above, array[index - 1]["total_distance"] * 100, above).stroke({ color: 'black', width: 1 });
                                         draw.line(here, below, array[index + 1]["total_distance"] * 100, below).stroke({ color: 'black', width: 1 });
-                                    }
+                                    }*/
                                 });
                             });
                             /*$.post("load", {file: senddata.fileData, order: "in"}, function(data, status){
@@ -95,10 +108,10 @@
         <!-- MOVE TO HEAD TOO -->
         <script>
             var draw = SVG().addTo('body').size('100%', '100%')
-            draw.rect('50%', '50%').fill('#f06')
-            draw.rect('50%', '50%').move('50%', '50%').fill('#f06')
-            draw.rect('50%', '50%').move('0%', '50%').fill('#60f')
-            draw.rect('50%', '50%').move('50%', '0%').fill('#60f')
+            //draw.rect('50%', '50%').fill('#f06')
+            //draw.rect('50%', '50%').move('50%', '50%').fill('#f06')
+            //draw.rect('50%', '50%').move('0%', '50%').fill('#60f')
+            //draw.rect('50%', '50%').move('50%', '0%').fill('#60f')
         </script>
 
         <!--<svg xlmns="http://www.w3.org/2000/svg" vesion="1.1" xlmns:link="http://www.w3.org/1999/xlink" width="300" height="300">

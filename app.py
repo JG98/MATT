@@ -16,9 +16,8 @@ def home():
 
 @app.route("/load", methods=["POST"])
 def load():
-    order = request.form.get("order")
     tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode())
-    response = make_response(tree.to_json(order))
+    response = make_response(tree.to_json())
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"

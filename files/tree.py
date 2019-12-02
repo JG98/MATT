@@ -10,8 +10,8 @@ class Tree:
     # Change this to the opposite of the reverse
     def __init__(self, newick):
         getcontext().prec = 10
-        self.l_root = None
-        self.r_root = None
+        self.root = Node(0, 0, Decimal(0))
+
         tokens = findall(r"([^:;,()\s]*)(?:\s*:\s*([\d.]+)\s*)?([,);])|(\S)", newick)
 
         def recurse(next_id=0, parent_id=-1):
@@ -28,6 +28,31 @@ class Tree:
                     "parent_id": parent_id, "children": children}, delimiter, next_id
 
         result = recurse()[0]["children"]
+
+        if len(result) == 3:
+            level = 0
+            commas = 0
+            counter = 0
+            position = 0
+            last_colon = 0
+            new_newick = newick[1:-2]
+            for char in new_newick:
+                if char == "(":
+                    level += 1
+                elif char == ")":
+                    level -= 1
+                elif char == "," and level == 0:
+                    commas += 1
+                    if commas == 2:
+                        position = counter - 1
+                elif char == ":" and level == 0:
+                    last_colon = counter
+                counter += 1
+            length = Decimal(new_newick[last_colon + 1:-2])
+            new_newick = "((" + new_newick[:position + 1] + "):" + str(Decimal(length/2)) + new_newick[position + 1:last_colon] + ":" + str(Decimal(length/2)) + ");"
+            tokens = findall(r"([^:;,()\s]*)(?:\s*:\s*([\d.]+)\s*)?([,);])|(\S)", new_newick)
+            result = recurse()[0]["children"]
+
         nodes = []
         while result:
             new_result = result.copy()
@@ -38,8 +63,7 @@ class Tree:
                 if children:
                     result.extend(children)
 
-        if not nodes[3].get("parent_id") == 0:
-            pass #do
+        print(nodes)
 
         previous_layer = {}
         current_layer = {}
@@ -52,10 +76,10 @@ class Tree:
                     current_node = Node(id, Decimal(distance), Decimal(distance), name=node.get("name"))
                 else:
                     current_node = Node(id, Decimal(distance), Decimal(distance))
-                if not self.l_root:
-                    self.l_root = current_node
+                if not self.root.l_child:
+                    self.root.l_child = current_node
                 else:
-                    self.r_root = current_node
+                    self.root.r_child = current_node
                 current_layer[node.get("id")] = current_node
                 continue
             if not node.get("parent_id") in previous_layer:
@@ -72,33 +96,25 @@ class Tree:
             else:
                 parent.r_child = current_node
             current_layer[node.get("id")] = current_node
+        self.by_level = nodes
 
-    def in_order(self, root):
-        result = []
-        if root.l_child:
-            result.extend(self.in_order(root.l_child))
-        result.append(root)
-        if root.r_child:
-            result.extend(self.in_order(root.r_child))
-        return result
+        def in_order(root):
+            result = []
+            if root.l_child:
+                result.extend(in_order(root.l_child))
+            result.append(root)
+            if root.r_child:
+                result.extend(in_order(root.r_child))
+            return result
 
-    def pre_order(self, root):
-        result = [root]
-        if root.l_child:
-            result.extend(self.pre_order(root.l_child))
-        if root.r_child:
-            result.extend(self.pre_order(root.r_child))
-        return result
+        self.by_order = in_order(self.root)
 
-    def to_json(self, order):
-        if order == "in":
-            ordered_list = self.in_order(self.l_root) + [Node(0, 0, 0)] + self.in_order(self.r_root)
-        elif order == "pre":
-            ordered_list = Node(0, 0, 0) + self.pre_order(self.l_root) + self.pre_order(self.r_root)
+    def to_json(self):
         output = []
-        counter = 0
-        for node in ordered_list:
-            output.append({'id': str(node.id), 'name': str(node.name), 'total_distance': str(node.total_distance), 'counter': counter})
-            counter += 1
+        for node in self.by_order:
+            if node.l_child and node.r_child:
+                output.append({'id': str(node.id), 'name': str(node.name), 'total_distance': str(node.total_distance), 'l_child': str(node.l_child.id), 'r_child': str(node.r_child.id)})
+            else:
+                output.append({'id': str(node.id), 'name': str(node.name), 'total_distance': str(node.total_distance)})
         return dumps(output)
         #sorted(output.items(), key=lambda out: (out[1], out[0]))
