@@ -12,26 +12,23 @@
                 height: 100%;
                 width: 100%;
             }
-            /*svg {
-                position: absolute;
-                left: 0;
-                top: 0;
-                z-index: -1;
-            }
-            input {
-                position: relative;
-            }*/
         </style>
 
         <script src="/static/jquery-3.4.1.min.js"></script>
         <script src="/static/popper.min.js"></script>
         <script src="/static/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
-        <script src="/static/svg.js/svg.min.js"></script>
-        <script src="/static/jquery.svg.pan.zoom.js"></script>
+        <script src="/static/snap.svg-min.js"></script>
+        <!--<script src="/static/svg.js/svg.min.js"></script>
+        <script src="/static/svg.js/svg.panzoom.min.js"></script>
+        <script src="/static/jquery.svg.pan.zoom.js"></script>-->
 
         <script>
             $(function() {
-                var svgPanZoom;
+                var maxHeight = $(window).height();
+                var maxWidth = $(window).width();
+                var svg = Snap(maxWidth, maxHeight);
+                var input = svg.group().append(Snap.parse('<svg><foreignObject width="400" height="30"><body><form enctype="multipart/form-data"><input type="file" id="file" accept=".treefile"> <input type="button" id="import" value="Import"></form></body></foreignObject></svg>'));
+                //var svgPanZoom;
                 $("#import").click(function(){
                     // TODO
                     /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
@@ -70,35 +67,104 @@
                                 maxDistance = extraData["max_distance"];
                                 longestName = extraData["longest_name"];
 
-                                maxHeight = $(window).height();
-                                maxWidth = $(window).width();
                                 amount = data.length;
 
-                                var svg = SVG().addTo('body').size(maxWidth, maxHeight);
-
-                                longestNameTest = svg.plain("w".repeat(longestName));
-                                longestName = Math.ceil(longestNameTest.length());
+                                longestNameTest = svg.text(0, 0, "w".repeat(longestName));
+                                longestName = Math.ceil(longestNameTest.getBBox().width);
                                 longestNameTest.remove();
 
-                                offset = maxHeight / (amount + 2);
+                                offset = maxHeight / (amount + 1);
                                 scale = (maxWidth - longestName) / maxDistance;
-                                alert(longestName);
+
+                                //var paths = [];
+
+                                var currentPath;
+                                var currentLine;
 
                                 data.forEach(function(item, index, array){
                                     if (item["name"] != "None") {
                                         // TODO draw all texts at the right
-                                        svg.plain(item["name"]).attr({'dominant-baseline': 'middle', 'x': item["total_distance"] * scale, 'y': (index + 1) * offset});
+                                        // with path stroke dasharray
+                                        svg.text(item["total_distance"] * scale, (index + 1) * offset, item["name"]).attr({dominantBaseline: 'middle'});
                                     } else {
                                         here = item["total_distance"] * scale;
                                         l_child = array.findIndex((elem) => elem.id == item["l_child"]);
                                         r_child = array.findIndex((elem) => elem.id == item["r_child"]);
 
-                                        svg.line(here, (l_child + 1) * offset, here, (r_child + 1) * offset).stroke({color: 'black', width: 1});
-                                        svg.line(here, (l_child + 1) * offset, array[l_child]["total_distance"] * scale, (l_child + 1) * offset).stroke({color: 'black', width: 1});
-                                        svg.line(here, (r_child + 1) * offset, array[r_child]["total_distance"] * scale, (r_child + 1) * offset).stroke({color: 'black', width: 1});
+                                        left = svg.path("M" + here + "," + (index + 1) * offset + "V" + (l_child + 1) * offset + "H" + array[l_child]["total_distance"] * scale);
+                                        right = svg.path("M" + here + "," + (index + 1) * offset + "V" + (r_child + 1) * offset + "H" + array[r_child]["total_distance"] * scale);
+
+                                        //paths = paths.concat([left, right]);
+                                        paths = [left, right];
+
+                                        paths.forEach(function(itemPath, indexPath, arrayPath) {
+                                            itemPath.attr({fill: 'none', stroke: 'black', strokeWidth: 2});
+                                            //itemPath.data({'posX': array[l_child]["total_distance"] * scale, 'posY': (l_child + 1) * offset});
+                                            itemPath.hover(function() {
+                                                itemPath.attr({stroke: 'darkgray', strokeWidth: 4});
+                                                currentPath = itemPath.use();
+                                            }, function() {
+                                                itemPath.attr({stroke: 'black', strokeWidth: 2});
+                                                currentPath.remove();
+                                            });
+                                            itemPath.drag(function(dx, dy, x, y, event) {
+                                                pos = itemPath.attr("d");
+                                                posX = pos.split("H")[1];
+                                                posY = pos.split("H")[0].split("V")[1];
+                                                currentLine.remove();
+                                                currentLine = svg.line(posX, posY, x, y);
+                                                currentLine.attr({stroke: 'black', strokeWidth: 2});
+                                            }, function(x, y, event) {
+                                                pos = itemPath.attr("d");
+                                                posX = pos.split("H")[1];
+                                                posY = pos.split("H")[0].split("V")[1];
+                                                currentPath.remove();
+                                                itemPath.remove();
+                                                currentLine = svg.line(posX, posY, x, y);
+                                                currentLine.attr({stroke: 'black', strokeWidth: 2});
+                                            }, function(event) {
+                                                //
+                                            });
+                                        });
+                                        /*both = svg.line(here, (l_child + 1) * offset, here, (r_child + 1) * offset);
+                                        left = svg.line(here, (l_child + 1) * offset, array[l_child]["total_distance"] * scale, (l_child + 1) * offset);
+                                        right = svg.line(here, (r_child + 1) * offset, array[r_child]["total_distance"] * scale, (r_child + 1) * offset);
+
+                                        lines = [both, left, right];
+
+                                        lines.forEach(function(itemLine) {
+                                            itemLine.attr({
+                                                stroke: 'black',
+                                                strokeWidth: 2,
+                                                strokeLinecap: 'square'
+                                            });
+                                            itemLine.hover(function() {
+                                                itemLine.attr({
+                                                    stroke: 'darkgray',
+                                                    strokeWidth: 4
+                                                });
+                                                currentLine = this.use();
+                                            }, function() {
+                                                itemLine.attr({
+                                                    stroke: 'black',
+                                                    strokeWidth: 2
+                                                });
+                                                currentLine.remove();
+                                            });
+                                            itemLine.click(function() {
+                                                itemLine.attr({
+                                                    stroke: 'black',
+                                                    strokeWidth: 0
+                                                });
+                                                currentLine.remove();
+                                            });
+                                        });*/
+
+                                        //left.append(Snap.parse('<title>' + array[l_child]["total_distance"] - item["total_distance"] + '</title>'));
+                                        //right.append(Snap.parse('<title>' + array[r_child]["total_distance"] - item["total_distance"] + '</title>'));
                                     }
                                 });
-                                var options = {
+                                /*var options = {
                                     limits: {
                                         x: 0,
                                         y: 0,
@@ -114,26 +180,13 @@
                                 svgPanZoom.panLeft(maxWidth);
                                 svgPanZoom.panUp(maxHeight);
                                 // TODO
+                                */
+                                // TODO Do an own panzoom
                             });
-                            /*$.post("load", {file: senddata.fileData, order: "in"}, function(data, status){
-                                //alert("Data: " + data + "\nStatus: " + status);
-                                data = JSON.parse(data)
-                                data.forEach(function(item, index, array){
-                                    if (item["name"] != "None") {
-                                        svg.plain(item["name"]).move(item["total_distance"] * 100, 0).attr({'dominant-baseline' : 'middle', 'y' : 0 + index * 40 + 20});
-                                    } else {
-                                        above = (index - 1) * 40 + 20;
-                                        below = (index + 1) * 40 + 20;
-                                        here = item["total_distance"] * 100;
-                                        svg.line(here, above, here, below).stroke({ color: 'black', width: 2 });
-                                        svg.line(here, above, array[index - 1]["total_distance"] * 100, above).stroke({ color: 'black', width: 2 });
-                                        svg.line(here, below, array[index + 1]["total_distance"] * 100, below).stroke({ color: 'black', width: 2 });
-                                    }
-                                });
-                            });*/
                         }
 
                         reader.readAsDataURL(file);
+                        input.remove();
                     // }
 
                 });
@@ -145,48 +198,5 @@
 
         </script>
     </head>
-    <body>
-        <form enctype="multipart/form-data"><input type="file" id="file" accept=".treefile"> <input type="button" id="import" value="Import"></form>
-
-        <!--<svg xlmns="http://www.w3.org/2000/svg" vesion="1.1" xlmns:link="http://www.w3.org/1999/xlink" width="300" height="300">
-        </svg>-->
-        <!--<div class="containter-fluid">
-        </div>-->
-
-
-
-
-    <script>
-/*function dateiupload(evt) {
-    var dateien = evt.target.files; // FileList objekt
-
-    // erste Datei auswählen (wichtig, weil IMMER ein FileList Objekt generiert wird)
-    var uploadDatei = dateien[0];
-
-    // Ein Objekt um Dateien einzulesen
-    var reader = new FileReader();
-
-    var senddata = new Object();
-    // Auslesen der Datei-Metadaten
-    senddata.name = uploadDatei.name;
-    senddata.date = uploadDatei.lastModified;
-    senddata.size = uploadDatei.size;
-    senddata.type = uploadDatei.type;
-
-    // Wenn der Dateiinhalt ausgelesen wurde...
-    reader.onload = function(theFileData) {
-      senddata.fileData = theFileData.target.result; // Ergebnis vom FileReader auslesen
-
-      /*
-      Code für AJAX-Request hier einfügen
-      */
-    //}
-
-    // Die Datei einlesen und in eine Data-URL konvertieren
-    //reader.readAsDataURL(uploadDatei);
-  //}*/
-   </script>
-
-
-    </body>
+    <body></body>
 </html>
