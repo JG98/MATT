@@ -114,20 +114,31 @@
                                         paths.forEach(function(itemPath, indexPath, arrayPath) {
                                             itemPath.attr({fill: 'none', stroke: 'black', strokeWidth: 4, strokeLinecap: 'square'});
                                             //itemPath.data({'posX': array[l_child]["total_distance"] * scale, 'posY': (l_child + 1) * offset});
-                                            itemPath.hover(function() {
+                                            itemPath.mouseover(function() {
                                                 itemPath.attr({stroke: 'dodgerblue', strokeWidth: 8});
-                                                currentPath = itemPath.use();
-                                            }, function() {
+                                                if (typeof currentPath === "undefined" || (typeof currentPath === "object" && !currentPath)) {
+                                                    currentPath = itemPath.use().attr({pointerEvents: 'none'});
+                                                }
+                                            });
+                                            itemPath.mouseout(function() {
                                                 itemPath.attr({stroke: 'black', strokeWidth: 4});
                                                 currentPath.remove();
+                                                currentPath = null;
                                             });
-                                            itemPath.drag(function(dx, dy, x, y, event) {
+                                            itemPath.click(function() {
+                                                currentPath.remove();
+                                                itemPath.attr({strokeOpacity: 0.25});
+                                            });
+
+                                            /*itemPath.drag(function(dx, dy, x, y, event) {
+                                                //does not have to be set every frame
                                                 pos = itemPath.attr("d");
                                                 posX = pos.split("H")[1];
                                                 posY = pos.split("H")[0].split("V")[1];
                                                 currentLine.remove();
                                                 currentLine = svg.line(posX, posY, x, y);
                                                 currentLine.attr({stroke: 'black', strokeWidth: 4});
+                                                console.log("move");
                                             }, function(x, y, event) {
                                                 pos = itemPath.attr("d");
                                                 posX = pos.split("H")[1];
@@ -136,9 +147,11 @@
                                                 itemPath.remove();
                                                 currentLine = svg.line(posX, posY, x, y);
                                                 currentLine.attr({stroke: 'black', strokeWidth: 4});
+                                                console.log("start");
                                             }, function(event) {
-                                                //
-                                            });
+                                                console.log("stop");
+                                            });*/
+
                                         });
                                         /*both = svg.line(here, (l_child + 1) * offset, here, (r_child + 1) * offset);
                                         left = svg.line(here, (l_child + 1) * offset, array[l_child]["total_distance"] * scale, (l_child + 1) * offset);
