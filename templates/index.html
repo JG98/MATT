@@ -11,6 +11,7 @@
             html, body {
                 height: 100%;
                 width: 100%;
+                background-color: lightgray;
             }
         </style>
 
@@ -26,6 +27,7 @@
             $(function() {
                 var maxHeight = $(window).height();
                 var maxWidth = $(window).width();
+                //var svg = Snap("100%", "100%").attr({viewBox: "0 0 " + maxWidth + " " + maxHeight});
                 var svg = Snap(maxWidth, maxHeight);
                 var input = svg.group().append(Snap.parse('<svg><foreignObject width="400" height="30"><body><form enctype="multipart/form-data"><input type="file" id="file" accept=".treefile"> <input type="button" id="import" value="Import"></form></body></foreignObject></svg>'));
                 //var svgPanZoom;
@@ -64,17 +66,22 @@
                                 data = JSON.parse(data);
 
                                 extraData = data.pop();
+
                                 maxDistance = extraData["max_distance"];
                                 longestName = extraData["longest_name"];
 
+                                var fontSize = '1.375em';
+                                longestNameTester = svg.text(0, 0, longestName).attr({fontSize: fontSize});
+                                longestNameWidth = Math.ceil(longestNameTester.getBBox().width);
+                                longestNameTester.remove();
+
                                 amount = data.length;
 
-                                longestNameTest = svg.text(0, 0, "w".repeat(longestName));
-                                longestName = Math.ceil(longestNameTest.getBBox().width);
-                                longestNameTest.remove();
-
-                                offset = maxHeight / (amount + 1);
-                                scale = (maxWidth - longestName) / maxDistance;
+                                offset = 10;
+                                //scaleX = 200;
+                                //scaleY = 30;
+                                scaleX = (maxWidth - longestNameWidth - (2.5 * offset)) / maxDistance;
+                                scaleY = maxHeight / (amount + 1);
 
                                 //var paths = [];
 
@@ -85,26 +92,33 @@
                                     if (item["name"] != "None") {
                                         // TODO draw all texts at the right
                                         // with path stroke dasharray
-                                        svg.text(item["total_distance"] * scale, (index + 1) * offset, item["name"]).attr({dominantBaseline: 'middle'});
+                                        svg.text(item["total_distance"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize});
                                     } else {
-                                        here = item["total_distance"] * scale;
                                         l_child = array.findIndex((elem) => elem.id == item["l_child"]);
                                         r_child = array.findIndex((elem) => elem.id == item["r_child"]);
 
-                                        left = svg.path("M" + here + "," + (index + 1) * offset + "V" + (l_child + 1) * offset + "H" + array[l_child]["total_distance"] * scale);
-                                        right = svg.path("M" + here + "," + (index + 1) * offset + "V" + (r_child + 1) * offset + "H" + array[r_child]["total_distance"] * scale);
+                                        mX = (item["total_distance"] * scaleX) + offset;
+                                        mY = (index + 1) * scaleY;
+                                        vLeft = (l_child + 1) * scaleY;
+                                        vRight = (r_child + 1) * scaleY;
+                                        hLeft = array[l_child]["total_distance"] * scaleX + offset;
+                                        hRight = array[r_child]["total_distance"] * scaleX + offset;
+
+                                        //TODO
+                                        left = svg.path("M" + mX + "," + mY + "V" + vLeft + "H" + hLeft);
+                                        right = svg.path("M" + mX + "," + mY + "V" + vRight + "H" + hRight);
 
                                         //paths = paths.concat([left, right]);
                                         paths = [left, right];
 
                                         paths.forEach(function(itemPath, indexPath, arrayPath) {
-                                            itemPath.attr({fill: 'none', stroke: 'black', strokeWidth: 2});
+                                            itemPath.attr({fill: 'none', stroke: 'black', strokeWidth: 4, strokeLinecap: 'square'});
                                             //itemPath.data({'posX': array[l_child]["total_distance"] * scale, 'posY': (l_child + 1) * offset});
                                             itemPath.hover(function() {
-                                                itemPath.attr({stroke: 'darkgray', strokeWidth: 4});
+                                                itemPath.attr({stroke: 'dodgerblue', strokeWidth: 8});
                                                 currentPath = itemPath.use();
                                             }, function() {
-                                                itemPath.attr({stroke: 'black', strokeWidth: 2});
+                                                itemPath.attr({stroke: 'black', strokeWidth: 4});
                                                 currentPath.remove();
                                             });
                                             itemPath.drag(function(dx, dy, x, y, event) {
@@ -113,7 +127,7 @@
                                                 posY = pos.split("H")[0].split("V")[1];
                                                 currentLine.remove();
                                                 currentLine = svg.line(posX, posY, x, y);
-                                                currentLine.attr({stroke: 'black', strokeWidth: 2});
+                                                currentLine.attr({stroke: 'black', strokeWidth: 4});
                                             }, function(x, y, event) {
                                                 pos = itemPath.attr("d");
                                                 posX = pos.split("H")[1];
@@ -121,7 +135,7 @@
                                                 currentPath.remove();
                                                 itemPath.remove();
                                                 currentLine = svg.line(posX, posY, x, y);
-                                                currentLine.attr({stroke: 'black', strokeWidth: 2});
+                                                currentLine.attr({stroke: 'black', strokeWidth: 4});
                                             }, function(event) {
                                                 //
                                             });

@@ -110,14 +110,14 @@ class Tree:
     def to_json(self):
         output = []
         max_distance = 0
-        longest_name = 0
+        longest_name = ""
         for node in self.by_order:
             if node.l_child and node.r_child:
                 output.append({'id': str(node.id), 'name': str(node.name), 'total_distance': str(node.total_distance), 'l_child': str(node.l_child.id), 'r_child': str(node.r_child.id)})
             else:
                 output.append({'id': str(node.id), 'name': str(node.name), 'total_distance': str(node.total_distance)})
-                if len(node.name) > longest_name:
-                    longest_name = len(node.name)
+                if len(node.name) > len(longest_name):
+                    longest_name = node.name
             if node.total_distance > max_distance:
                 max_distance = node.total_distance
         return dumps(output + [{"max_distance": str(max_distance), "longest_name": str(longest_name)}])
