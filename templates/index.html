@@ -71,6 +71,7 @@
                                 longestName = extraData["longest_name"];
 
                                 var fontSize = '1.375em';
+                                var strokeWidth = 4;
                                 longestNameTester = svg.text(0, 0, longestName).attr({fontSize: fontSize});
                                 longestNameWidth = Math.ceil(longestNameTester.getBBox().width);
                                 longestNameTester.remove();
@@ -98,46 +99,50 @@
                                         r_child = array.findIndex((elem) => elem.id == item["r_child"]);
 
                                         mX = (item["total_distance"] * scaleX) + offset;
-                                        mY = (index + 1) * scaleY;
+                                        mYLeft = (index + 1) * scaleY - (strokeWidth / 2);
+                                        mYRight = (index + 1) * scaleY + (strokeWidth / 2);
                                         vLeft = (l_child + 1) * scaleY;
                                         vRight = (r_child + 1) * scaleY;
-                                        hLeft = array[l_child]["total_distance"] * scaleX + offset;
-                                        hRight = array[r_child]["total_distance"] * scaleX + offset;
+                                        hLeft = array[l_child]["total_distance"] * scaleX + offset - strokeWidth;
+                                        hRight = array[r_child]["total_distance"] * scaleX + offset - strokeWidth;
 
                                         //TODO
-                                        left = svg.path("M" + mX + "," + mY + "V" + vLeft + "H" + hLeft);
-                                        right = svg.path("M" + mX + "," + mY + "V" + vRight + "H" + hRight);
+                                        left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft);
+                                        right = svg.path("M" + mX + "," + mYRight + "V" + vRight + "H" + hRight);
 
                                         //paths = paths.concat([left, right]);
                                         paths = [left, right];
 
                                         paths.forEach(function(itemPath, indexPath, arrayPath) {
-                                            itemPath.attr({fill: 'none', stroke: 'black', strokeWidth: 4, strokeLinecap: 'square'});
+                                            itemPath.attr({fill: 'none', stroke: 'black', strokeWidth: strokeWidth, strokeLinecap: 'square'});
                                             //itemPath.data({'posX': array[l_child]["total_distance"] * scale, 'posY': (l_child + 1) * offset});
                                             itemPath.mouseover(function() {
-                                                itemPath.attr({stroke: 'dodgerblue', strokeWidth: 8});
+                                                itemPath.attr({stroke: 'dodgerblue', strokeWidth: strokeWidth * 2});
                                                 if (typeof currentPath === "undefined" || (typeof currentPath === "object" && !currentPath)) {
                                                     currentPath = itemPath.use().attr({pointerEvents: 'none'});
                                                 }
                                             });
                                             itemPath.mouseout(function() {
-                                                itemPath.attr({stroke: 'black', strokeWidth: 4});
+                                                itemPath.attr({stroke: 'black', strokeWidth: strokeWidth});
                                                 currentPath.remove();
                                                 currentPath = null;
                                             });
                                             itemPath.click(function() {
                                                 currentPath.remove();
                                                 itemPath.attr({strokeOpacity: 0.25});
+                                                // TODO
+                                                // opacity on all children and the texts
+                                                // disable interaction for all children
                                             });
 
                                             /*itemPath.drag(function(dx, dy, x, y, event) {
-                                                //does not have to be set every frame
+                                                // TODO does not have to be set every frame
                                                 pos = itemPath.attr("d");
                                                 posX = pos.split("H")[1];
                                                 posY = pos.split("H")[0].split("V")[1];
                                                 currentLine.remove();
                                                 currentLine = svg.line(posX, posY, x, y);
-                                                currentLine.attr({stroke: 'black', strokeWidth: 4});
+                                                currentLine.attr({stroke: 'black', strokeWidth: strokeWidth});
                                                 console.log("move");
                                             }, function(x, y, event) {
                                                 pos = itemPath.attr("d");
@@ -146,7 +151,7 @@
                                                 currentPath.remove();
                                                 itemPath.remove();
                                                 currentLine = svg.line(posX, posY, x, y);
-                                                currentLine.attr({stroke: 'black', strokeWidth: 4});
+                                                currentLine.attr({stroke: 'black', strokeWidth: strokeWidth});
                                                 console.log("start");
                                             }, function(event) {
                                                 console.log("stop");
