@@ -1,9 +1,9 @@
-from flask import Flask, make_response, render_template, request
+from flask import Flask, make_response, render_template, request, session, escape
 from base64 import b64decode
 from files.tree import Tree
 
 app = Flask(__name__, static_url_path="/static")
-
+app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
 
 @app.route("/")
 def home():
@@ -14,10 +14,17 @@ def home():
     return response
 
 
-@app.route("/load", methods=["POST"])
+@app.route("/load", methods=["POST", "GET"])
 def load():
-    tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode())
-    response = make_response(tree.to_json())
+    if request.method == "POST":
+        session["tree"] = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
+    elif request.method == "GET":
+        rehang_from = request.args.get("from")
+        rehang_to = request.args.get("to")
+        print(rehang_from, rehang_to)
+    else:
+        pass # TODO
+    response = make_response(session["tree"])
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
