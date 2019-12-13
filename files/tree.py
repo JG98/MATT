@@ -8,6 +8,7 @@ class Tree:
 
     # Shoutout to trincot at https://stackoverflow.com/a/51375562
     # Change this to the opposite of the reverse
+    # and make sure we can handle every possible character (especially e-...)
     def __init__(self, newick):
         getcontext().prec = 10
         self.root = Node(0, 0, Decimal(0))
@@ -28,6 +29,7 @@ class Tree:
                     "parent_id": parent_id, "children": children}, delimiter, next_id
 
         result = recurse()[0]["children"]
+        print(result)
 
         if len(result) == 3:
             level = 0
@@ -66,6 +68,8 @@ class Tree:
         previous_layer = {}
         current_layer = {}
 
+        print(nodes)
+
         for node in nodes:
             id = node.get("id")
             distance = node.get("distance")
@@ -85,6 +89,7 @@ class Tree:
                 previous_layer = current_layer.copy()
                 current_layer.clear()
             parent = previous_layer.get(node.get("parent_id"))
+            print("a", node.get("name"), node.get("distance"))
             if node.get("name"):
                 current_node = Node(id, distance, Decimal(parent.total_distance) + Decimal(distance), parent, name=node.get("name"))
             else:
