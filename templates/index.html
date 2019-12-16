@@ -98,7 +98,8 @@
                             amount = data.length;
 
                             offset = 10;
-                            scaleX = 200;
+                            //scaleX = 200;
+                            scaleX = 500;
                             scaleY = 30;
 
                             svg.remove();
@@ -166,7 +167,7 @@
                                             hoveredPath = null;
                                         });
                                         itemPath.click(function() {
-                                            if (typeof clickedPath === "undefined") {
+                                            if (typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath)) {
                                                 hoveredPath.remove();
                                                 clickedPath = itemPath;
                                                 itemPath.attr({strokeOpacity: 0.25});
@@ -183,6 +184,25 @@
                                                     childText = svg.select("text[data-id='" + childId + "']");
                                                     if (childText) {
                                                         childText.attr({opacity: 0.25, pointerEvents: 'none'});
+                                                    }
+                                                }
+                                            } else if (clickedPath == itemPath) {
+                                                hoveredPath.remove();
+                                                clickedPath = null;
+                                                itemPath.attr({strokeOpacity: ''});
+                                                childrenIds = [itemPath.attr("data-l_child"), itemPath.attr("data-r_child")];
+                                                while ((typeof childrenIds !== "undefined") && (childrenIds.length > 0)) {
+                                                    childId = childrenIds.shift();
+                                                    childPath = svg.select("path[data-id='" + childId + "']");
+                                                    if (childPath) {
+                                                        childPath.attr({strokeOpacity: '', pointerEvents: ''});
+                                                        if (childPath.attr("data-l_child") && childPath.attr("data-r_child")) {
+                                                            childrenIds.push(childPath.attr("data-l_child"), childPath.attr("data-r_child"));
+                                                        }
+                                                    }
+                                                    childText = svg.select("text[data-id='" + childId + "']");
+                                                    if (childText) {
+                                                        childText.attr({opacity: '', pointerEvents: ''});
                                                     }
                                                 }
                                             } else {
