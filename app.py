@@ -19,9 +19,7 @@ def load():
     if request.method == "POST":
         session["tree"] = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
     elif request.method == "GET":
-        rehang_from = request.args.get("from")
-        rehang_to = request.args.get("to")
-        print(rehang_from, rehang_to)
+        session["tree"] = Tree(session["tree"]).rehang(request.args.get("from"), request.args.get("to")).to_json()
     else:
         pass # TODO
     response = make_response(session["tree"])
