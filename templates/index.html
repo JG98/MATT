@@ -121,12 +121,17 @@
                     var clickedPath;
 
                     data.forEach(function(item, index, array){
-                        // TODO BOOTSTRAPS
                         if (item["name"] != "None") {
                             // TODO draw all texts at the right
                             // with path stroke dasharray
                             svg.text(item["total_distance"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize, 'data-id': item["id"]});
                         } else {
+                            if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
+                                parent = array.findIndex((elem) => elem.id == item["parent"]);
+                                // TODO could be put exactly in the middle, now only puts the beginning in the middle
+                                svg.text((parseFloat(array[parent]["total_distance"]) + (item["distance"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({dominantBaseline: 'baseline', fontSize: 0.5 * fontSize});
+                            }
+
                             l_child = array.findIndex((elem) => elem.id == item["l_child"]);
                             r_child = array.findIndex((elem) => elem.id == item["r_child"]);
 
@@ -148,6 +153,10 @@
                             //TODO
                             left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft).attr("data-id", array[l_child]["id"]);
                             right = svg.path("M" + mX + "," + mYRight + "V" + vRight + "H" + hRight).attr("data-id", array[r_child]["id"]);
+
+                            // TODO if necessary?
+                            left.append(Snap.parse('<title>' + array[l_child]["bootstrap"] + '</title>'));
+                            right.append(Snap.parse('<title>' + array[r_child]["bootstrap"] + '</title>'));
 
                             if (("l_child" in array[l_child]) && ("r_child" in array[l_child])) {
                                 left.attr({"data-l_child": array[l_child]["l_child"], "data-r_child": array[l_child]["r_child"]});
