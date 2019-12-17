@@ -8,6 +8,7 @@ getcontext().prec = 10
 class Tree:
 
     def __init__(self, string, from_id=None, to_id=None):
+        self.node_counter = 0
         if string[-1] == ";":
             self.from_newick(string[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
@@ -15,7 +16,6 @@ class Tree:
             self.from_json(string, from_id, to_id)
 
     def from_newick(self, newick):
-        self.node_counter = 0
         self.root = Node(self.node_counter, Decimal(0), Decimal(0))  # TODO BOOTSTRAP FOR EVEN THE FIRST TWO NODES?
         self.node_counter += 1
         level = 0
@@ -57,6 +57,8 @@ class Tree:
             nodes[int(node["id"])] = Node(node.get("id"), Decimal(node.get("distance")),
                                           Decimal(node.get("total_distance")), node.get("parent"), node.get("l_child"),
                                           node.get("r_child"), node.get("name"), node.get("bootstrap"))
+            if self.node_counter <= int(node.get("id")):
+                self.node_counter = int(node.get("id")) + 1
         for node in nodes.values():
             if node.parent != "":
                 node.parent = nodes[int(node.parent)]
@@ -66,19 +68,64 @@ class Tree:
                 node.r_child = nodes[int(node.r_child)]
         self.root = nodes[0]
 
-        for node in nodes.values():
-            print(node.__dict__)
-
         # REHANG
-        # TODO
-
+        from_node = None
+        to_node = None
         for node in nodes.values():
-            print(node.__dict__)
+            if node.id == from_id:
+                from_node = node
+            elif node.id == to_id:
+                to_node = node
+            else:
+                pass  # TODO
+        if from_node and to_node:
+            from_path = self.find_node(from_node)
+            to_path = self.find_node(to_node)
+            from_neighbor = None
+
+            # TODO What if from and to are neighbors?
+            # TODO What if from has only the root as parent?
+            # TODO What if to has no children?
+            from_parent_parent = from_node.parent.parent
+            if from_path[-1] == "L":
+                from_neighbor = from_node.parent.r_child
+            elif from_path[-1] == "R":
+                from_neighbor = from_node.parent.l_child
+            else:
+                pass  # TODO
+            from_neighbor.parent = from_parent_parent
+            if from_path[-2] == "L":
+                from_parent_parent.l_child = from_neighbor
+            elif from_path[-2] == "R":
+                from_parent_parent.r_child = from_neighbor
+            else:
+                pass  # TODO
+
+            to_parent = to_node.parent
+            distance = Decimal(to_node.distance) / 2
+            new_node = Node(self.node_counter, distance, Decimal(to_parent.total_distance) + distance, to_parent)
+            self.node_counter += 1
+            if to_path[-1] == "L":
+                to_parent.l_child = new_node
+            elif to_path[-1] == "R":
+                to_parent.r_child = new_node
+            else:
+                pass  # TODO
+            to_node.parent = new_node
+            if to_path < from_path:
+                new_node.l_child = to_node
+                new_node.r_child = from_node
+            elif to_path > from_path:
+                new_node.l_child = from_node
+                new_node.r_child = to_node
+            else:
+                pass  # TODO
 
     def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
         last_parenthesis = string.rfind(")")
         distance = Decimal(string[colon + 1:])
+        node = None
         if "(" in string:
             level = 0
             comma = -1
@@ -91,17 +138,19 @@ class Tree:
                 elif char == "," and level == 0:
                     comma = i
                     break
-            if comma != -1: # TODO ELSE?
+            if comma != -1:
                 node = Node(self.node_counter, Decimal(distance), Decimal(parent.total_distance) + Decimal(distance),
                             parent, bootstrap=string[last_parenthesis + 1:colon])
                 self.node_counter += 1
                 node.l_child = self.make_node_from_newick(inner_string[:comma], node)
                 node.r_child = self.make_node_from_newick(inner_string[comma + 1:], node)
+            else:
+                pass  # TODO ?
         else:
             node = Node(self.node_counter, Decimal(distance), Decimal(parent.total_distance) + Decimal(distance),
                         parent, name=string[:colon])
             self.node_counter += 1
-        return node # TODO
+        return node  # TODO none?
 
     def in_order(self, root):
         result = []
@@ -143,3 +192,26 @@ class Tree:
             if node.total_distance > max_distance:
                 max_distance = node.total_distance
         return dumps(output + [{"max_distance": str(max_distance), "longest_name": longest_name}])
+
+    def get_node(self, string):
+        node = self.root
+        for char in string:
+            if char == "L":
+                node = node.l_child
+            elif char == "R":
+                node = node.r_child
+            else:
+                pass  # TODO
+        return node
+
+    def find_node(self, node):
+        string = ""
+        while node != self.root:
+            if node == node.parent.l_child:
+                string = "L" + string
+            elif node == node.parent.r_child:
+                string = "R" + string
+            else:
+                pass  # TODO
+            node = node.parent
+        return string
