@@ -7,16 +7,16 @@ getcontext().prec = 10
 
 class Tree:
 
-    def __init__(self, string):
-        self.node_counter = 0
+    def __init__(self, string, from_id=None, to_id=None):
         if string[-1] == ";":
             self.from_newick(string[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
         else:
-            self.from_json(string)
+            self.from_json(string, from_id, to_id)
 
     def from_newick(self, newick):
-        self.root = Node(self.node_counter, Decimal(0), Decimal(0)) # TODO BOOTSTRAP FOR EVEN THE FIRST TWO NODES?
+        self.node_counter = 0
+        self.root = Node(self.node_counter, Decimal(0), Decimal(0))  # TODO BOOTSTRAP FOR EVEN THE FIRST TWO NODES?
         self.node_counter += 1
         level = 0
         # TODO PREPARE newick, e.g. remove all \n
@@ -38,27 +38,44 @@ class Tree:
                 level -= 1
             elif char == "," and level == 0:
                 if i == last_comma:
-                    self.root.l_child = self.make_node(newick[:i], self.root)
-                    self.root.r_child = self.make_node(newick[i + 1:], self.root)
+                    self.root.l_child = self.make_node_from_newick(newick[:i], self.root)
+                    self.root.r_child = self.make_node_from_newick(newick[i + 1:], self.root)
                     return
                 else:
                     distance = Decimal(newick[last_colon + 1:]) / 2
-                    self.root.l_child = self.make_node("(" + newick[:last_comma] + "):" + str(distance), self.root)
-                    self.root.r_child = self.make_node(newick[last_comma+1:last_colon] + ":" + str(distance), self.root)
+                    self.root.l_child = self.make_node_from_newick(
+                        "(" + newick[:last_comma] + "):" + str(distance), self.root)
+                    self.root.r_child = self.make_node_from_newick(
+                        newick[last_comma+1:last_colon] + ":" + str(distance), self.root)
                     return
 
-    def from_json(self, string):
+    def from_json(self, string, from_id, to_id):
         json = loads(string)
         json.pop()
         nodes = {}
         for node in json:
-            nodes[int(node["id"])] = (Node(node.get("id"), node.get("distance"), node.get("total_distance"),
-                                           node.get("parent"), node.get("l_child"), node.get("r_child"),
-                                           node.get("name"), node.get("bootstrap")))
-        # TODO update nodes, when their parents or children get added!
-        print(nodes)
+            nodes[int(node["id"])] = Node(node.get("id"), Decimal(node.get("distance")),
+                                          Decimal(node.get("total_distance")), node.get("parent"), node.get("l_child"),
+                                          node.get("r_child"), node.get("name"), node.get("bootstrap"))
+        for node in nodes.values():
+            if node.parent != "":
+                node.parent = nodes[int(node.parent)]
+            if node.l_child != "":
+                node.l_child = nodes[int(node.l_child)]
+            if node.r_child != "":
+                node.r_child = nodes[int(node.r_child)]
+        self.root = nodes[0]
 
-    def make_node(self, string, parent):
+        for node in nodes.values():
+            print(node.__dict__)
+
+        # REHANG
+        # TODO
+
+        for node in nodes.values():
+            print(node.__dict__)
+
+    def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
         last_parenthesis = string.rfind(")")
         distance = Decimal(string[colon + 1:])
@@ -78,8 +95,8 @@ class Tree:
                 node = Node(self.node_counter, Decimal(distance), Decimal(parent.total_distance) + Decimal(distance),
                             parent, bootstrap=string[last_parenthesis + 1:colon])
                 self.node_counter += 1
-                node.l_child = self.make_node(inner_string[:comma], node)
-                node.r_child = self.make_node(inner_string[comma + 1:], node)
+                node.l_child = self.make_node_from_newick(inner_string[:comma], node)
+                node.r_child = self.make_node_from_newick(inner_string[comma + 1:], node)
         else:
             node = Node(self.node_counter, Decimal(distance), Decimal(parent.total_distance) + Decimal(distance),
                         parent, name=string[:colon])
