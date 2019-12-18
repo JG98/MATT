@@ -86,6 +86,7 @@ class Tree:
             # TODO What if from and to are neighbors?
             # TODO What if from has only the root as parent?
             # TODO What if to has no children?
+            # TODO What if one is the ancestor of the other?
             from_parent_parent = from_node.parent.parent
             if from_path[-1] == "L":
                 from_neighbor = from_node.parent.r_child
@@ -103,8 +104,9 @@ class Tree:
 
             to_parent = to_node.parent
             distance = Decimal(to_node.distance) / 2
-            new_node = Node(self.node_counter, distance, Decimal(to_parent.total_distance) + distance, to_parent)
-            self.node_counter += 1
+            new_node = Node(from_node.parent.id, distance, Decimal(to_parent.total_distance) + distance, to_parent)
+            # new_node = Node(self.node_counter, distance, Decimal(to_parent.total_distance) + distance, to_parent)
+            # self.node_counter += 1
             if to_path[-1] == "L":
                 to_parent.l_child = new_node
             elif to_path[-1] == "R":

@@ -6,7 +6,7 @@
 
         <title>Beth</title>
 
-        <link rel="stylesheet" href="/static/bootstrap-4.3.1-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/bootstrap.min.css">
         <style>
             html, body {
                 height: 100%;
@@ -17,21 +17,14 @@
 
         <script src="/static/jquery-3.4.1.min.js"></script>
         <script src="/static/popper.min.js"></script>
-        <script src="/static/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+        <script src="/static/bootstrap.min.js"></script>
         <script src="/static/snap.svg-min.js"></script>
-        <!--<script src="/static/svg.js/svg.min.js"></script>
-        <script src="/static/svg.js/svg.panzoom.min.js"></script>
-        <script src="/static/jquery.svg.pan.zoom.js"></script>-->
 
         <script>
             $(function() {
                 var maxHeight = $(window).height();
                 var maxWidth = $(window).width();
                 var svg;
-                //var svg = Snap("100%", "100%").attr({viewBox: "0 0 " + maxWidth + " " + maxHeight});
-                //var svg = Snap(maxWidth, maxHeight);
-                //var input = svg.group().append(Snap.parse('<svg><foreignObject width="400" height="30"><body><form enctype="multipart/form-data"><input type="file" id="file" accept=".treefile"> <input type="button" id="import" value="Import"></form></body></foreignObject></svg>'));
-                //var svgPanZoom;
                 $("#import").click(function(){
                     // TODO
                     /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
@@ -165,12 +158,10 @@
                                 right.attr({"data-l_child": array[r_child]["l_child"], "data-r_child": array[r_child]["r_child"]});
                             }
 
-                            //paths = paths.concat([left, right]);
                             paths = [left, right];
 
                             paths.forEach(function(itemPath, indexPath, arrayPath) {
                                 itemPath.attr({fill: 'none', stroke: 'black', strokeWidth: strokeWidth, strokeLinecap: 'square'});
-                                //itemPath.data({'posX': array[l_child]["total_distance"] * scale, 'posY': (l_child + 1) * offset});
                                 itemPath.mouseover(function() {
                                     itemPath.attr({stroke: 'dodgerblue', strokeWidth: strokeWidth * 2});
                                     if (typeof hoveredPath === "undefined" || (typeof hoveredPath === "object" && !hoveredPath)) {
@@ -250,62 +241,8 @@
                                 });*/
 
                             });
-                            /*both = svg.line(here, (l_child + 1) * offset, here, (r_child + 1) * offset);
-                            left = svg.line(here, (l_child + 1) * offset, array[l_child]["total_distance"] * scale, (l_child + 1) * offset);
-                            right = svg.line(here, (r_child + 1) * offset, array[r_child]["total_distance"] * scale, (r_child + 1) * offset);
-
-                            lines = [both, left, right];
-
-                            lines.forEach(function(itemLine) {
-                                itemLine.attr({
-                                    stroke: 'black',
-                                    strokeWidth: 2,
-                                    strokeLinecap: 'square'
-                                });
-                                itemLine.hover(function() {
-                                    itemLine.attr({
-                                        stroke: 'darkgray',
-                                        strokeWidth: 4
-                                    });
-                                    hoveredLine = this.use();
-                                }, function() {
-                                    itemLine.attr({
-                                        stroke: 'black',
-                                        strokeWidth: 2
-                                    });
-                                    hoveredLine.remove();
-                                });
-                                itemLine.click(function() {
-                                    itemLine.attr({
-                                        stroke: 'black',
-                                        strokeWidth: 0
-                                    });
-                                    hoveredLine.remove();
-                                });
-                            });*/
-
-                            //left.append(Snap.parse('<title>' + array[l_child]["total_distance"] - item["total_distance"] + '</title>'));
-                            //right.append(Snap.parse('<title>' + array[r_child]["total_distance"] - item["total_distance"] + '</title>'));
                         }
                     });
-                    /*var options = {
-                        limits: {
-                            x: 0,
-                            y: 0,
-                            x2: 1000,
-                            y2: 1000
-                        },
-                        maxZoom: 10
-                    };
-                    svgPanZoom = $("svg").svgPanZoom(options);
-                    // TODO resolve necessity for this
-                    svgPanZoom.zoomIn();
-                    svgPanZoom.zoomIn();
-                    svgPanZoom.panLeft(maxWidth);
-                    svgPanZoom.panUp(maxHeight);
-                    // TODO
-                    */
-                    // TODO Do an own panzoom
                 }
             });
 
