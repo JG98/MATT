@@ -23,9 +23,9 @@ def home():
 @app.route("/load", methods=["POST", "GET"])
 def load():
     if request.method == "POST":
-        uuid = str(uuid4())
-        tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
-        post_id = collection.insert_one({"id": uuid, "tree": tree})
+        #uuid = str(uuid4())
+        #tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
+        #post_id = collection.insert_one({"id": uuid, "tree": tree})
         # TODO localStorage in JS or flask_session or pymongo
         session["tree"] = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
         print(session["tree"])

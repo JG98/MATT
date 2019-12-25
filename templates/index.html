@@ -22,9 +22,11 @@
 
         <script>
             $(function() {
-                var maxHeight = $(window).height();
-                var maxWidth = $(window).width();
-                var svg;
+                // TODO check all lets and maybe make them consts
+                // TODO check all variables and maybe make them lets or consts
+                let maxHeight = $(window).height();
+                let maxWidth = $(window).width();
+                let svg;
                 $("#import").click(function(){
                     // TODO
                     /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
@@ -42,10 +44,10 @@
                     else if (!input.files[0]) {
                       alert("Please select a file before clicking 'Load'");
                     } else {*/
-                        var file = $("#file")[0].files[0];
-                        var reader = new FileReader();
+                        let file = $("#file")[0].files[0];
+                        let reader = new FileReader();
 
-                        var senddata = new Object();
+                        let senddata = new Object();
                         senddata.name = file.name;
                         senddata.date = file.lastModified;
                         senddata.size = file.size;
@@ -91,8 +93,8 @@
                     maxDistance = extraData["max_distance"];
                     longestName = extraData["longest_name"];
 
-                    var fontSize = '1.375em';
-                    var strokeWidth = 4;
+                    let fontSize = '1.375em';
+                    let strokeWidth = 4;
 
                     longestNameTester = svg.text(0, 0, longestName).attr({fontSize: fontSize});
                     longestNameWidth = Math.ceil(longestNameTester.getBBox().width);
@@ -107,26 +109,27 @@
 
                     svg.remove();
                     svg = Snap(((scaleX * maxDistance) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
+                    g = svg.g();
 
                     //scaleX = (maxWidth - longestNameWidth - (2.5 * offset)) / maxDistance;
                     //scaleY = maxHeight / (amount + 1);
 
-                    //var paths = [];
+                    //let paths = [];
 
-                    var hoveredPath;
-                    var hoveredLine;
-                    var clickedPath;
+                    let hoveredPath;
+                    let hoveredLine;
+                    let clickedPath;
 
                     data.forEach(function(item, index, array){
                         if (item["name"] != "None") {
                             // TODO draw all texts at the right
                             // with path stroke dasharray
-                            svg.text(item["total_distance"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize, 'data-id': item["id"]});
+                            g.add(svg.text(item["total_distance"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize, 'data-id': item["id"]}));
                         } else {
                             if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
                                 parent = array.findIndex((elem) => elem.id == item["parent"]);
                                 // TODO could be put exactly in the middle, now only puts the beginning in the middle
-                                svg.text((parseFloat(array[parent]["total_distance"]) + (item["distance"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({dominantBaseline: 'baseline', fontSize: 0.5 * fontSize});
+                                g.add(svg.text((parseFloat(array[parent]["total_distance"]) + (item["distance"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({dominantBaseline: 'baseline', fontSize: 0.5 * fontSize}));
                             }
 
                             l_child = array.findIndex((elem) => elem.id == item["l_child"]);
@@ -150,6 +153,7 @@
                             //TODO
                             left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft).attr("data-id", array[l_child]["id"]);
                             right = svg.path("M" + mX + "," + mYRight + "V" + vRight + "H" + hRight).attr("data-id", array[r_child]["id"]);
+                            g.add(left, right);
 
                             // TODO if necessary?
                             left.append(Snap.parse('<title>' + array[l_child]["bootstrap"] + '</title>'));
@@ -248,6 +252,20 @@
                         }
                     });
                 }
+
+                // MOUSE EVENT has event.altKey event.ctrlKey event.shiftKey!!!
+
+                $(document).mousedown(function(event){
+                    console.log(event.which + " mouse down " + event.ctrlKey);
+                });
+
+                $(document).mouseup(function(event){
+                    console.log(event.which + " mouse up " + event.ctrlKey);
+                });
+
+                $(document).mousemove(function(event){
+                    console.log(event.which + " mouse move " + event.ctrlKey);
+                });
             });
 
             /*$(window).resize(function() {
