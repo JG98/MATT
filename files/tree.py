@@ -9,7 +9,7 @@ class Tree:
 
     def __init__(self, string, from_id=None, to_id=None):
         self.node_counter = 0
-        if string[-1] == ";":
+        if string[-1] == ";":  # TODO POTENTIAL ERROR SOURCE
             self.from_newick(string[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
         else:
@@ -76,52 +76,63 @@ class Tree:
                 from_node = node
             elif node.id == to_id:
                 to_node = node
-            else:
-                pass  # TODO
+
         if from_node and to_node:
             from_path = self.find_node(from_node)
             to_path = self.find_node(to_node)
-            from_neighbor = None
 
-            # TODO What if from and to are neighbors?
-            # TODO What if from has only the root as parent?
-            # TODO What if to has no children?
-            # TODO What if one is the ancestor of the other?
-            from_parent_parent = from_node.parent.parent
+            if (from_node.parent.id == "0" and to_node.parent.id == "0") or \
+                    (len(from_path) == len(to_path) and from_path[-2] == to_path[-2]):
+                return
+
+            if len(from_path) < len(to_path):
+                tmp_node = to_node
+                to_node = from_node
+                from_node = tmp_node
+
+                tmp_path = to_path
+                to_path = from_path
+                from_path = tmp_path
+
             if from_path[-1] == "L":
-                from_neighbor = from_node.parent.r_child
+                from_node.parent.l_child = None
             elif from_path[-1] == "R":
-                from_neighbor = from_node.parent.l_child
-            else:
-                pass  # TODO
-            from_neighbor.parent = from_parent_parent
-            if from_path[-2] == "L":
-                from_parent_parent.l_child = from_neighbor
-            elif from_path[-2] == "R":
-                from_parent_parent.r_child = from_neighbor
-            else:
-                pass  # TODO
+                from_node.parent.r_child = None
 
-            to_parent = to_node.parent
-            distance = Decimal(to_node.distance) / 2
-            new_node = Node(from_node.parent.id, distance, Decimal(to_parent.total_distance) + distance, to_parent)
-            # new_node = Node(self.node_counter, distance, Decimal(to_parent.total_distance) + distance, to_parent)
-            # self.node_counter += 1
-            if to_path[-1] == "L":
-                to_parent.l_child = new_node
-            elif to_path[-1] == "R":
-                to_parent.r_child = new_node
+            if (to_node.l_child and to_node.r_child) or (not to_node.l_child and not to_node.r_child):
+                from_parent_parent = from_node.parent.parent
+                if from_path[-1] == "L":
+                    from_neighbor = from_node.parent.r_child
+                elif from_path[-1] == "R":
+                    from_neighbor = from_node.parent.l_child
+
+                from_neighbor.parent = from_parent_parent
+                if from_path[-2] == "L":
+                    from_parent_parent.l_child = from_neighbor
+                elif from_path[-2] == "R":
+                    from_parent_parent.r_child = from_neighbor
+
+                to_parent = to_node.parent
+                distance = Decimal(to_node.distance) / 2
+                new_node = Node(from_node.parent.id, distance, Decimal(to_parent.total_distance) + distance, to_parent)
+                # new_node = Node(self.node_counter, distance, Decimal(to_parent.total_distance) + distance, to_parent)
+                # self.node_counter += 1
+                if to_path[-1] == "L":
+                    to_parent.l_child = new_node
+                elif to_path[-1] == "R":
+                    to_parent.r_child = new_node
+                to_node.parent = new_node
+                if to_path < from_path:
+                    new_node.l_child = to_node
+                    new_node.r_child = from_node
+                elif to_path > from_path:
+                    new_node.l_child = from_node
+                    new_node.r_child = to_node
             else:
-                pass  # TODO
-            to_node.parent = new_node
-            if to_path < from_path:
-                new_node.l_child = to_node
-                new_node.r_child = from_node
-            elif to_path > from_path:
-                new_node.l_child = from_node
-                new_node.r_child = to_node
-            else:
-                pass  # TODO
+                if from_path[-1] == "L":
+                    from_node.parent.l_child = from_node
+                elif from_path[-1] == "R":
+                    from_node.parent.r_child = from_node
 
     def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
