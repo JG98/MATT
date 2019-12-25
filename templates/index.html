@@ -53,6 +53,7 @@
 
                         reader.onload = function(theFileData) {
                             senddata.fileData = theFileData.target.result;
+                            console.log(senddata.fileData);
                             load("post", {file: senddata.fileData});
                         }
 
@@ -61,6 +62,9 @@
                     // }
 
                 });
+
+                //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpRTowLjIsRjowLjMpSTowLjEsKEc6MC4zLChDOjAuMyxEOjAuNClIOjAuNClKOjAuMik7"});
+                //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpOjAuMixGOjAuMyk6MC4xLChHOjAuMywoQzowLjMsRDowLjQpOjAuNCk6MC4yKTs="});
 
                 function load(method, httpData) {
                     if (method == "post") {
