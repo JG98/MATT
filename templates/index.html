@@ -115,6 +115,7 @@
                     maxY = scaleY * (amount + 1);
                     svg = Snap(maxWidth, maxHeight);
                     g = svg.g();
+                    g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0V0").attr({fill: 'none', stroke: 'black', strokeWidth: 1}));
 
                     //svg.mousedown(funcMouseDown);
                     //svg.mouseup(funcMouseUp);
@@ -264,6 +265,7 @@
                     // TODO think of the boundaries!
                     let startX, startY;
                     let move;
+                    let step = 0.1;
 
                     function funcMouseDown(event){
                         /*console.log(event.which + " mouse move " + event.ctrlKey);
@@ -296,7 +298,6 @@
 
                             currentX = getTransform("x");
                             currentY = getTransform("y");
-                            currentScale = getTransform("scale");
 
                             moveX = currentX + offsetX;
                             moveY = currentY + offsetY;
@@ -310,30 +311,55 @@
                     function funcWheel(event) {
                         currentDeltaY = getTransform("scale");
 
-                        if(event.originalEvent.deltaY < 0){
-                            deltaY = currentDeltaY + 0.1;
-                        } else {
-                            deltaY = currentDeltaY - 0.1;
+                        posX = event.originalEvent.clientX;
+                        posY = event.originalEvent.clientY;
+
+                        if (posX == 0) {
+                            posX = 1;
                         }
 
-                        setTransform("scale", deltaY);
+                        if (posY == 0) {
+                            posY = 1;
+                        }
+
+                        console.log(event.originalEvent.clientX, event.originalEvent.clientY);
+                        offsetX = (posX/maxWidth - 0.5) * step * maxWidth;
+                        offsetY = (posY/maxHeight - 0.5) * step * maxHeight;
+
+                        if(event.originalEvent.deltaY < 0){
+                            deltaY = currentDeltaY + step;
+                            offsetX = -offsetX;
+                            offsetY = -offsetY;
+                        } else {
+                            deltaY = currentDeltaY - step;
+                        }
+
+
+                        console.log(offsetX, offsetY);
+
+                        currentX = getTransform("x");
+                        currentY = getTransform("y");
+
+                        moveX = currentX + offsetX;
+                        moveY = currentY + offsetY;
+
+                        setTransform("scale", deltaY, moveX, moveY);
+                        //setTransform("scale", deltaY);
                     }
 
                     function setTransform() {
-                        scale = 1;
-                        translateX = 0;
-                        translateY = 0;
-                        if (g.transform().total !== "") {
-                            currentTransform = g.transform().totalMatrix;
-                            scale = parseFloat(currentTransform["a"]);
-                            translateX = parseFloat(currentTransform["e"]);
-                            translateY = parseFloat(currentTransform["f"]);
-                        }
+                        originalTranslateX = getTransform("x");
+                        originalTranslateY = getTransform("y");
+                        originalScale = getTransform("scale");
+
                         if (arguments[0] == "translate") {
+                            scale = originalScale;
                             translateX = arguments[1];
                             translateY = arguments[2];
                         } else if (arguments[0] == "scale") {
                             scale = arguments[1];
+                            translateX = arguments[2];
+                            translateY = arguments[3];
                         }
 
                         minScale = 0.1;
@@ -341,8 +367,12 @@
 
                         if (scale < minScale) {
                             scale = minScale;
+                            translateX = originalTranslateX;
+                            translateY = originalTranslateY;
                         } else if (scale > maxScale) {
                             scale = maxScale;
+                            translateX = originalTranslateX;
+                            translateY = originalTranslateY;
                         }
 
                         minTranslateX = 0;
@@ -351,7 +381,7 @@
                         maxTranslateY = maxHeight - maxY * scale;
 
                         // TODO hinder moving to far into any direction
-                        // TODO zoom into where the mouse is
+                        // TODO zooming needs finetuning
 
                         /*if (translateX < minTranslateX) {
                             translateX = minTranslateX;
