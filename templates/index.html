@@ -23,9 +23,11 @@
         <script>
             $(function() {
                 // TODO check all lets and maybe make them consts
-                // TODO check all variables and maybe make them lets or consts
+                // TODO check all variables and maybe make them lets or consts or back to var?
                 let maxHeight = $(window).height();
                 let maxWidth = $(window).width();
+                let maxX;
+                let maxY;
                 let svg;
                 $("#import").click(function(){
                     // TODO
@@ -108,8 +110,15 @@
                     scaleY = 30;
 
                     svg.remove();
-                    svg = Snap(((scaleX * maxDistance) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
+                    //svg = Snap(((scaleX * maxDistance) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
+                    maxX = (scaleX * maxDistance) + (2.5 * offset) + longestNameWidth;
+                    maxY = scaleY * (amount + 1);
+                    svg = Snap(maxWidth, maxHeight);
                     g = svg.g();
+
+                    //svg.mousedown(funcMouseDown);
+                    //svg.mouseup(funcMouseUp);
+                    //svg.mousemove(funcMouseMove);
 
                     //scaleX = (maxWidth - longestNameWidth - (2.5 * offset)) / maxDistance;
                     //scaleY = maxHeight / (amount + 1);
@@ -251,21 +260,140 @@
                             });
                         }
                     });
+
+                    // TODO think of the boundaries!
+                    let startX, startY;
+                    let move;
+
+                    function funcMouseDown(event){
+                        /*console.log(event.which + " mouse move " + event.ctrlKey);
+                        console.log("X: " + event.clientX);
+                        console.log("Y: " + event.clientY);*/
+                        startX = event.clientX;
+                        startY = event.clientY;
+                        move = true;
+                        // TODO only when existing?
+                        $("svg").css("cursor", "move");
+                    }
+
+                    function funcMouseUp(event){
+                        /*console.log(event.which + " mouse move " + event.ctrlKey);
+                        console.log("X: " + event.clientX);
+                        console.log("Y: " + event.clientY);*/
+                        move = false;
+                        // TODO only when existing?
+                        $("svg").removeAttr("style")
+                    }
+
+                    function funcMouseMove(event){
+                        /*console.log(event.which + " mouse move " + event.ctrlKey);
+                        console.log("X: " + event.clientX);
+                        console.log("Y: " + event.clientY);*/
+
+                        if(move) {
+                            offsetX = event.clientX - startX;
+                            offsetY = event.clientY - startY;
+
+                            currentX = getTransform("x");
+                            currentY = getTransform("y");
+                            currentScale = getTransform("scale");
+
+                            moveX = currentX + offsetX;
+                            moveY = currentY + offsetY;
+
+                            setTransform("translate", moveX, moveY);
+                            startX = event.clientX;
+                            startY = event.clientY;
+                        }
+                    }
+
+                    function funcWheel(event) {
+                        currentDeltaY = getTransform("scale");
+
+                        if(event.originalEvent.deltaY < 0){
+                            deltaY = currentDeltaY + 0.1;
+                        } else {
+                            deltaY = currentDeltaY - 0.1;
+                        }
+
+                        setTransform("scale", deltaY);
+                    }
+
+                    function setTransform() {
+                        scale = 1;
+                        translateX = 0;
+                        translateY = 0;
+                        if (g.transform().total !== "") {
+                            currentTransform = g.transform().totalMatrix;
+                            scale = parseFloat(currentTransform["a"]);
+                            translateX = parseFloat(currentTransform["e"]);
+                            translateY = parseFloat(currentTransform["f"]);
+                        }
+                        if (arguments[0] == "translate") {
+                            translateX = arguments[1];
+                            translateY = arguments[2];
+                        } else if (arguments[0] == "scale") {
+                            scale = arguments[1];
+                        }
+
+                        minScale = 0.1;
+                        maxScale = 2;
+
+                        if (scale < minScale) {
+                            scale = minScale;
+                        } else if (scale > maxScale) {
+                            scale = maxScale;
+                        }
+
+                        minTranslateX = 0;
+                        minTranslateY = 0;
+                        maxTranslateX = maxWidth - maxX * scale;
+                        maxTranslateY = maxHeight - maxY * scale;
+
+                        // TODO hinder moving to far into any direction
+                        // TODO zoom into where the mouse is
+
+                        /*if (translateX < minTranslateX) {
+                            translateX = minTranslateX;
+                        } else if (translateX > maxTranslateX) {
+                            translateX = maxTranslateX;
+                        }
+
+                        if (translateY < minTranslateY) {
+                            translateY = minTranslateY;
+                        } else if (translateY > maxTranslateY) {
+                            translateY = maxTranslateY;
+                        }*/
+
+                        g.transform("translate(" + translateX + " " + translateY + ") scale(" + scale + " " + scale + ")");
+                    }
+
+                    function getTransform() {
+                        if (g.transform().total !== "") {
+                            currentTransform = g.transform().totalMatrix;
+                            translateX = parseFloat(currentTransform["e"]);
+                            translateY = parseFloat(currentTransform["f"]);
+                            scale = parseFloat(currentTransform["a"]);
+                        } else {
+                            translateX = 0;
+                            translateY = 0;
+                            scale = 1;
+                        }
+                        switch (arguments[0]) {
+                            case "x":
+                                return translateX;
+                            case "y":
+                                return translateY;
+                            case "scale":
+                                return scale;
+                        }
+                    }
+
+                    $(document).mousedown(funcMouseDown);
+                    $(document).mouseup(funcMouseUp);
+                    $(document).mousemove(funcMouseMove);
+                    $(document).on("wheel", funcWheel);
                 }
-
-                // MOUSE EVENT has event.altKey event.ctrlKey event.shiftKey!!!
-
-                $(document).mousedown(function(event){
-                    console.log(event.which + " mouse down " + event.ctrlKey);
-                });
-
-                $(document).mouseup(function(event){
-                    console.log(event.which + " mouse up " + event.ctrlKey);
-                });
-
-                $(document).mousemove(function(event){
-                    console.log(event.which + " mouse move " + event.ctrlKey);
-                });
             });
 
             /*$(window).resize(function() {
