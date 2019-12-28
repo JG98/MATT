@@ -80,6 +80,7 @@
 
                 function draw(data, status){
                     //alert("Data: " + data + "\nStatus: " + status);
+                    let g;
 
                     if (typeof svg !== "undefined") {
                         svg.remove();
@@ -145,7 +146,6 @@
                             l_child = array.findIndex((elem) => elem.id == item["l_child"]);
                             r_child = array.findIndex((elem) => elem.id == item["r_child"]);
 
-                            // TODO CHECK THIS AGAIN, Example6 seems to be faulty
                             mX = (item["total_distance"] * scaleX) + offset;
                             mYLeft = (index + 1) * scaleY - strokeWidth;
                             mYRight = (index + 1) * scaleY + strokeWidth;
@@ -160,12 +160,10 @@
                             hLeft = array[l_child]["total_distance"] * scaleX + offset;
                             hRight = array[r_child]["total_distance"] * scaleX + offset;
 
-                            //TODO
                             left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft).attr("data-id", array[l_child]["id"]);
                             right = svg.path("M" + mX + "," + mYRight + "V" + vRight + "H" + hRight).attr("data-id", array[r_child]["id"]);
                             g.add(left, right);
 
-                            // TODO if necessary?
                             left.append(Snap.parse('<title>' + array[l_child]["bootstrap"] + '</title>'));
                             right.append(Snap.parse('<title>' + array[r_child]["bootstrap"] + '</title>'));
 
@@ -263,14 +261,11 @@
                     });
 
                     // TODO think of the boundaries!
-                    let startX, startY;
+                    var startX, startY;
                     let move;
                     let step = 0.1;
 
                     function funcMouseDown(event){
-                        /*console.log(event.which + " mouse move " + event.ctrlKey);
-                        console.log("X: " + event.clientX);
-                        console.log("Y: " + event.clientY);*/
                         startX = event.clientX;
                         startY = event.clientY;
                         move = true;
@@ -279,22 +274,17 @@
                     }
 
                     function funcMouseUp(event){
-                        /*console.log(event.which + " mouse move " + event.ctrlKey);
-                        console.log("X: " + event.clientX);
-                        console.log("Y: " + event.clientY);*/
                         move = false;
                         // TODO only when existing?
-                        $("svg").removeAttr("style")
+                        $("svg").removeAttr("style");
                     }
 
                     function funcMouseMove(event){
-                        /*console.log(event.which + " mouse move " + event.ctrlKey);
-                        console.log("X: " + event.clientX);
-                        console.log("Y: " + event.clientY);*/
+                        /*console.log(event.which + event.ctrlKey + event.clientX + event.clientY);*/
 
                         if(move) {
-                            offsetX = event.clientX - startX;
-                            offsetY = event.clientY - startY;
+                            let offsetX = event.clientX - startX;
+                            let offsetY = event.clientY - startY;
 
                             currentX = getTransform("x");
                             currentY = getTransform("y");
@@ -322,9 +312,8 @@
                             posY = 1;
                         }
 
-                        console.log(event.originalEvent.clientX, event.originalEvent.clientY);
-                        offsetX = (posX/maxWidth - 0.5) * step * maxWidth;
-                        offsetY = (posY/maxHeight - 0.5) * step * maxHeight;
+                        let offsetX = (posX/maxWidth - 0.5) * step * maxWidth;
+                        let offsetY = (posY/maxHeight - 0.5) * step * maxHeight;
 
                         if(event.originalEvent.deltaY < 0){
                             deltaY = currentDeltaY + step;
@@ -334,17 +323,14 @@
                             deltaY = currentDeltaY - step;
                         }
 
-
-                        console.log(offsetX, offsetY);
-
                         currentX = getTransform("x");
                         currentY = getTransform("y");
 
                         moveX = currentX + offsetX;
                         moveY = currentY + offsetY;
 
-                        setTransform("scale", deltaY, moveX, moveY);
-                        //setTransform("scale", deltaY);
+                        //setTransform("scale", deltaY, moveX, moveY);
+                        setTransform("scale", deltaY);
                     }
 
                     function setTransform() {
@@ -360,19 +346,19 @@
                             scale = arguments[1];
                             translateX = arguments[2];
                             translateY = arguments[3];
-                        }
 
-                        minScale = 0.1;
-                        maxScale = 2;
+                            minScale = 0.1;
+                            maxScale = 2;
 
-                        if (scale < minScale) {
-                            scale = minScale;
-                            translateX = originalTranslateX;
-                            translateY = originalTranslateY;
-                        } else if (scale > maxScale) {
-                            scale = maxScale;
-                            translateX = originalTranslateX;
-                            translateY = originalTranslateY;
+                            if (scale < minScale) {
+                                scale = minScale;
+                                translateX = originalTranslateX;
+                                translateY = originalTranslateY;
+                            } else if (scale > maxScale) {
+                                scale = maxScale;
+                                translateX = originalTranslateX;
+                                translateY = originalTranslateY;
+                            }
                         }
 
                         minTranslateX = 0;
