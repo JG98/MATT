@@ -103,6 +103,8 @@
                     longestNameWidth = Math.ceil(longestNameTester.getBBox().width);
                     longestNameTester.remove();
 
+                    // TODO instead of checking longest name, we have to check longest combination of line with distance and name for each and get longest total line
+
                     amount = data.length;
 
                     offset = 10;
@@ -116,7 +118,21 @@
                     maxY = scaleY * (amount + 1);
                     svg = Snap(maxWidth, maxHeight);
                     g = svg.g();
-                    g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0V0").attr({fill: 'none', stroke: 'black', strokeWidth: 1}));
+                    g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0V0").attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
+
+
+                    topBottom = [-5, maxY + 15];
+                    topBottom.forEach(function(value) {
+                        for (var i = 0; i < maxDistance + 1; i++) {
+                            g.add(svg.line(10 + scaleX * i, value - 10, 10 + scaleX * i, value).attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
+                            // TODO could be put exactly in the middle, now only puts the beginning above the line
+                            g.add(svg.text(10 + scaleX * i, value - 20, i + ".0").attr({dominantBaseline: 'middle', fontSize: fontSize}));
+                        }
+                        g.add(svg.line(10 + scaleX * maxDistance, value - 10, 10 + scaleX * maxDistance, value).attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
+                        // TODO could be put exactly in the middle, now only puts the beginning above the line
+                        g.add(svg.text(10 + scaleX * maxDistance, value - 20, maxDistance).attr({dominantBaseline: 'middle', fontSize: fontSize}));
+                        g.add(svg.line(10, value - 5, 10 + scaleX * maxDistance, value - 5).attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
+                    });
 
                     //svg.mousedown(funcMouseDown);
                     //svg.mouseup(funcMouseUp);
@@ -419,6 +435,25 @@
         </script>
     </head>
     <body>
+        <!-- TODO
+         +/- option
+         Top right window
+         Scale axis
+        -->
+        <!-- TODO Sidebar
+         Import from newick file
+         Import from database
+         Delete database
+         Colorize (save to db too -> color as attribute in python tree object)
+         Save to file
+         View from database
+         Show/Unshow
+            Bootstraps
+            Lengths
+            Names at the very right/directly behind
+            +/- option
+         Filter
+        -->
         <form enctype="multipart/form-data" style="z-index: 1; position: absolute;"><input type="file" id="file" accept=".treefile">
             <input type="button" id="import" value="Import">
         </form>

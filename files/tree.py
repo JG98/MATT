@@ -200,7 +200,7 @@ class Tree:
             output.append({'id': str_id, 'distance': str_distance, 'total_distance': str_total_distance,
                            'parent': str_parent, 'l_child': str_l_child, 'r_child': str_r_child, 'name': str_name,
                            'bootstrap': str_bootstrap})
-            if len(str_name) > len(longest_name):
+            if str_name != "None" and (len(str_name) > len(longest_name)):
                 longest_name = str_name
             if node.total_distance > max_distance:
                 max_distance = node.total_distance
