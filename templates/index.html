@@ -140,7 +140,8 @@
                             if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
                                 parent = array.findIndex((elem) => elem.id == item["parent"]);
                                 // TODO could be put exactly in the middle, now only puts the beginning in the middle
-                                g.add(svg.text((parseFloat(array[parent]["total_distance"]) + (item["distance"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({dominantBaseline: 'baseline', fontSize: 0.5 * fontSize}));
+                                g.add(svg.text((parseFloat(array[parent]["total_distance"]) + (item["distance"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({dominantBaseline: 'baseline', fontSize: 0.5 * fontSize, 'data-id': item["id"]}));
+                                // TODO data-id added graying out of child bootstraps but not selected bootstrap
                             }
 
                             l_child = array.findIndex((elem) => elem.id == item["l_child"]);
@@ -344,8 +345,8 @@
                             translateY = arguments[2];
                         } else if (arguments[0] == "scale") {
                             scale = arguments[1];
-                            translateX = arguments[2];
-                            translateY = arguments[3];
+                            translateX = 100 * scale; //arguments[2]; // TODO
+                            translateY = 100 * scale; //arguments[3]; // TODO
 
                             minScale = 0.1;
                             maxScale = 2;
@@ -405,18 +406,21 @@
                         }
                     }
 
-                    $(document).mousedown(funcMouseDown);
-                    $(document).mouseup(funcMouseUp);
-                    $(document).mousemove(funcMouseMove);
-                    $(document).on("wheel", funcWheel);
+                    $(svg.node).mousedown(funcMouseDown);
+                    $(svg.node).mouseup(funcMouseUp);
+                    $(svg.node).mousemove(funcMouseMove);
+                    $(svg.node).on("wheel", funcWheel);
                 }
             });
 
             /*$(window).resize(function() {
                 svg.size($(window).width(), $(window).height());
             });*/
-
         </script>
     </head>
-    <body><form enctype="multipart/form-data"><input type="file" id="file" accept=".treefile"> <input type="button" id="import" value="Import"></form></body>
+    <body>
+        <form enctype="multipart/form-data" style="z-index: 1; position: absolute;"><input type="file" id="file" accept=".treefile">
+            <input type="button" id="import" value="Import">
+        </form>
+    </body>
 </html>
