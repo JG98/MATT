@@ -6,6 +6,13 @@ import sqlite3
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
 
+conn = sqlite3.connect('trees.db')
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT)''')
+conn.commit()
+conn.close()
+
+
 @app.route("/")
 def home():
     response = make_response(render_template("index.html"))
@@ -41,9 +48,3 @@ if __name__ == '__main__':
     #app.run(host='127.0.0.1', port=80)
     #app.run(host='0.0.0.0', port=80)
     app.run()
-
-    conn = sqlite3.connect('trees.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT)''')
-    conn.commit()
-    conn.close()
