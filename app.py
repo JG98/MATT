@@ -30,11 +30,11 @@ def load():
         tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
         c.execute('''INSERT INTO trees (json) VALUES (?)''', [tree])
         session["tree"] = c.lastrowid
-    elif request.method == "GET":
+    elif request.method == "GET":  # TODO post too?
         c.execute('''SELECT json FROM trees WHERE id = ?''', [session["tree"]])
         tree = Tree(c.fetchone()[0], request.args.get("from"), request.args.get("to")).to_json()
     else:
-        pass # TODO
+        pass  # TODO
     conn.commit()
     conn.close()
     response = make_response(tree)
