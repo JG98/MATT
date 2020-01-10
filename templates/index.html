@@ -13,6 +13,39 @@
                 width: 100%;
                 background-color: lightgray;
             }
+
+            #mainDiv {
+                /*padding: 10px;*/
+            }
+
+            #slideDivs {
+                right: 0;
+                position: absolute;
+            }
+
+            .comp {
+                display: inline-block;
+            }
+
+            .tabs {
+                background-color: darkgray;
+                width: 25vw;
+                height: 100vh;
+                float: right;
+                display: none;
+            }
+
+            #btnTabs {
+                width: 50px;
+                height: 20vw;
+                margin-top: 10vh;
+            }
+
+            .btnTab{
+                transform: rotate(-90deg);
+                float: left;
+                margin-left: -10px;
+            }
         </style>
 
         <script src="/static/jquery-3.4.1.min.js"></script>
@@ -87,6 +120,7 @@
                     }
 
                     svg = Snap(maxWidth, maxHeight);
+                    $(svg.node).appendTo($("#mainDiv"));
 
                     console.log(data);
                     data = JSON.parse(data);
@@ -114,9 +148,11 @@
 
                     svg.remove();
                     //svg = Snap(((scaleX * maxDistance) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
+                    //$(svg.node).appendTo($("#mainDiv"));
                     maxX = (scaleX * maxDistance) + (2.5 * offset) + longestNameWidth;
                     maxY = scaleY * (amount + 1);
                     svg = Snap(maxWidth, maxHeight);
+                    $(svg.node).appendTo($("#mainDiv"));
                     g = svg.g();
                     g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0V0").attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
 
@@ -440,6 +476,62 @@
                     $(svg.node).mousemove(funcMouseMove);
                     $(svg.node).on("wheel", funcWheel);
                 }
+
+                var onOffBtn1 = "off";
+                var onOffBtn2 = "off";
+                var exnum = 0;
+                var num = 0;
+
+                $("#btnClose").click(function(){
+                    onOffBtn1 = "off";
+                    onOffBtn2 = "off";
+                    exnum = 0;
+                    num = 0;
+                    $("#tab1").hide("fast");
+                    $("#tab2").hide("fast");
+                });
+
+                $("#btn1").click(function(){
+                    num = 1;
+                    switch(onOffBtn1){
+                        case "off": {
+                            $("#tab"+exnum).hide("fast");
+                            $("#tab"+num).show("fast");
+                            onOffBtn2="off";
+                            onOffBtn1="on";
+                            exnum = 1;
+                            break;
+                        }
+                        case "on": {
+                            $("#tab"+num).hide("fast");
+                            $("#tab"+exnum).hide("fast");
+                            onOffBtn2="off";
+                            onOffBtn1="off";
+                            break;
+                        }
+                    }
+                });
+
+                $("#btn2").click(function(){
+                    num = 2;
+                    switch(onOffBtn2){
+                        case "off": {
+                            $("#tab"+exnum).hide("fast");
+                            $("#tab"+num).show("fast");
+                            onOffBtn1="off";
+                            onOffBtn2="on";
+                            exnum = 2;
+                            break;
+                        }
+                        case "on": {
+                            $("#tab"+num).hide("fast");
+                            $("#tab"+exnum).hide("fast");
+                            onOffBtn2="off";
+                            onOffBtn1="off";
+                            break;
+                        }
+                    }
+                });
             });
 
             /*$(window).resize(function() {
@@ -467,8 +559,25 @@
             +/- option
          Filter
         -->
-        <form enctype="multipart/form-data" style="z-index: 1; position: absolute;"><input type="file" id="file" accept=".treefile">
-            <input type="button" id="import" value="Import">
-        </form>
+        <div id="mainDiv">
+            <div id="slideDivs">
+                <div id="btnTabs" class="comp">
+                    <button id="btn1" class="btnTab btn btn-dark">Options</button>
+                </div>
+                <div id="tab1" class="tabs comp">
+                    <strong>Options</strong>
+                    <p>
+                        <form enctype="multipart/form-data">
+                            <!-- TODO, see https://codepen.io/Sebus059/pen/MwMQbP lower part -->
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="file" accept=".treefile">
+                                <label class="custom-file-label" for="file">Choose file</label>
+                            </div>
+                            <input type="button" class="btn btn-primary" id="import" value="Import">Import</input>
+                        </form>
+                    </p>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
