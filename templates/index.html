@@ -120,19 +120,32 @@
                     g = svg.g();
                     g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0V0").attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
 
-
+                    // TODO write this nicer
                     topBottom = [-5, maxY + 15];
+                    let topBottomLine;
                     topBottom.forEach(function(value) {
-                        for (var i = 0; i < maxDistance + 1; i++) {
-                            g.add(svg.line(10 + scaleX * i, value - 10, 10 + scaleX * i, value).attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
+                        for (var i = 0; i < maxDistance * 10; i++) {
+                            topBottomLine = svg.line(10 + scaleX * i / 10, value - 10, 10 + scaleX * i / 10, value).attr({fill: 'none', stroke: 'black', strokeWidth: 2});
+                            topBottomLine.append(Snap.parse('<title>' + i / 10 + '</title>'));
+                            g.add(topBottomLine);
                             // TODO could be put exactly in the middle, now only puts the beginning above the line
-                            g.add(svg.text(10 + scaleX * i, value - 20, i + ".0").attr({dominantBaseline: 'middle', fontSize: fontSize}));
+                            // g.add(svg.text(10 + scaleX * i, value - 20, i + ".0").attr({dominantBaseline: 'middle', fontSize: fontSize}));
                         }
-                        g.add(svg.line(10 + scaleX * maxDistance, value - 10, 10 + scaleX * maxDistance, value).attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
+                        topBottomLine = svg.line(10 + scaleX * maxDistance, value - 10, 10 + scaleX * maxDistance, value).attr({fill: 'none', stroke: 'black', strokeWidth: 2});
+                        topBottomLine.append(Snap.parse('<title>' + maxDistance + '</title>'));
+                        g.add(topBottomLine);
                         // TODO could be put exactly in the middle, now only puts the beginning above the line
-                        g.add(svg.text(10 + scaleX * maxDistance, value - 20, maxDistance).attr({dominantBaseline: 'middle', fontSize: fontSize}));
+                        // g.add(svg.text(10 + scaleX * maxDistance, value - 20, maxDistance).attr({dominantBaseline: 'middle', fontSize: fontSize}));
                         g.add(svg.line(10, value - 5, 10 + scaleX * maxDistance, value - 5).attr({fill: 'none', stroke: 'black', strokeWidth: 2}));
                     });
+                    for (var i = 0; i < maxDistance * 10; i++) {
+                        topBottomLine = svg.line(10 + scaleX * i / 10, topBottom[0], 10 + scaleX * i / 10, topBottom[1] - 10).attr({fill: 'none', stroke: 'black', strokeWidth: 2, strokeOpacity: 0.125});
+                        topBottomLine.append(Snap.parse('<title>' + i / 10 + '</title>'));
+                        g.add(topBottomLine);
+                    }
+                    topBottomLine = svg.line(10 + scaleX * maxDistance, topBottom[0], 10 + scaleX * maxDistance, topBottom[1] - 10).attr({fill: 'none', stroke: 'black', strokeWidth: 2, strokeOpacity: 0.125});
+                    topBottomLine.append(Snap.parse('<title>' + maxDistance + '</title>'));
+                    g.add(topBottomLine);
 
                     //svg.mousedown(funcMouseDown);
                     //svg.mouseup(funcMouseUp);
