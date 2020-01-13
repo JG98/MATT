@@ -26,13 +26,14 @@ html, body {
 }
 
 #btnTabs {
-    width: 50px;
+    width: 0;
     height: 20vw;
     margin-top: 10vh;
 }
 
-.btnTab{
-    transform: rotate(-90deg);
+.btnTab {
+    transform: translateX(-50%) rotate(-90deg);
     float: left;
-    margin-left: -10px;
+    margin-left: -20px;
+    margin-top: 60px;
 }

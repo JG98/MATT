@@ -39,18 +39,26 @@
             <div id="slideDivs">
                 <div id="btnTabs" class="comp">
                     <button id="btn1" class="btnTab btn btn-dark">Options</button>
+                    <button id="btn2" class="btnTab btn btn-dark">Snapshots</button>
                 </div>
                 <div id="tab1" class="tabs comp">
                     <strong>Options</strong>
-                    <p>
+                    <p><!--https://codepen.io/Sebus059/pen/MwMQbP lower part-->
                         <form enctype="multipart/form-data">
-                            <!-- TODO, see https://codepen.io/Sebus059/pen/MwMQbP lower part -->
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input" id="file" accept=".treefile">
                                 <label class="custom-file-label" for="file">Choose file</label>
                             </div>
-                            <input type="button" class="btn btn-primary" id="import" value="Import">Import</input>
+                            <input type="button" class="btn btn-primary" id="import" value="Import">
                         </form>
+                    </p>
+                </div>
+                <div id="tab2" class="tabs comp">
+                    <strong>Snapshots</strong>
+                    <p>
+                    <div id="no-entries">No entries yet!</div><!-- TODO now rly delete them between sessions -->
+                        <table class="table" id="snapshots">
+                        </table>
                     </p>
                 </div>
             </div>

@@ -8,7 +8,7 @@ app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa
 
 conn = sqlite3.connect('trees.db')
 c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT)''')
+c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, datetime TEXT)''')
 conn.commit()
 conn.close()
 
@@ -28,16 +28,22 @@ def load():
     c = conn.cursor()
     if request.method == "POST":
         tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
-        c.execute('''INSERT INTO trees (json) VALUES (?)''', [tree])
-        session["tree"] = c.lastrowid
     elif request.method == "GET":  # TODO post too?
-        c.execute('''SELECT json FROM trees WHERE id = ?''', [session["tree"]])
+        c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree = Tree(c.fetchone()[0], request.args.get("from"), request.args.get("to")).to_json()
     else:
         pass  # TODO
+    c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
+    session["tree"] = c.lastrowid
+    if session.get("trees"):
+        session["trees"].append(session["tree"])
+    else:
+        session["trees"] = [session["tree"]]
+    print(session["trees"])
+    trees = c.execute('SELECT * FROM trees WHERE id IN ({seq})'.format(seq=','.join(['?']*len(session["trees"]))), session["trees"]).fetchall()
     conn.commit()
     conn.close()
-    response = make_response(tree)
+    response = make_response({"tree": tree, "trees": trees})
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
