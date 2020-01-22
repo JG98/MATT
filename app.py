@@ -31,6 +31,9 @@ def load():
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree = Tree(c.fetchone()[0], request.args.get("from"), request.args.get("to")).to_json()
+        #after rehang dont show but rather new with
+        #iqtree -s ../example.phy -te ../test_changed -nt AUTO -redo -pre NAME
+        #and delete this afterwards
     else:
         pass  # TODO
     c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
