@@ -1,6 +1,7 @@
 from flask import Flask, make_response, render_template, request, session
 from base64 import b64decode
 from files.tree import Tree
+import subprocess
 import sqlite3
 
 app = Flask(__name__, static_url_path="/static")
@@ -11,6 +12,9 @@ c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, datetime TEXT)''')
 conn.commit()
 conn.close()
+
+app_location = __file__[:-6] + "iqtree/iqtree-1.6.12-Windows/"
+subprocess.run([app_location + "bin/iqtree.exe", "-s " + app_location + "example.phy", "-te " + app_location + "test_changed", "-nt AUTO -redo -pre TESTPYTHON"])
 
 
 @app.route("/")
