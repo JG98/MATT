@@ -13,8 +13,13 @@ c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREM
 conn.commit()
 conn.close()
 
-app_location = __file__[:-6] + "iqtree/iqtree-1.6.12-Windows/"
-subprocess.run([app_location + "bin/iqtree.exe", "-s " + app_location + "example.phy", "-te " + app_location + "test_changed", "-nt AUTO -redo -pre TESTPYTHON"])
+app_location = __file__[:-6] + "iqtree\\iqtree-1.6.12-Windows\\"
+result = subprocess.run([app_location + "bin\\iqtree.exe", "-s", app_location + "example.phy", "-te", app_location + "test_changed", "-nt", "4", "-redo", "-pre", "TESTPYTHON"], cwd=app_location)#, capture_output=True)
+# Model auswählen nach vorherigem?
+# "-m", "TIM2+F+I+G4" / Weglassen
+# Kerne festsetzen wie vorheriges?
+# "-nt", "4" / "-nt", "AUTO"
+#print(result)
 
 
 @app.route("/")
