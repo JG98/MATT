@@ -3,6 +3,7 @@ from base64 import b64decode
 from files.tree import Tree
 import subprocess
 import sqlite3
+import os.path
 
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
@@ -13,8 +14,8 @@ c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREM
 conn.commit()
 conn.close()
 
-app_location = __file__[:-6] + "iqtree\\iqtree-1.6.12-Windows\\"
-result = subprocess.run([app_location + "bin\\iqtree.exe", "-s", app_location + "example.phy", "-te", app_location + "test_changed", "-nt", "4", "-redo", "-pre", "TESTPYTHON"], cwd=app_location)#, capture_output=True)
+app_location = __file__[:-6] + "iqtree/iqtree-1.6.12-Linux/"
+result = subprocess.run([os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te", app_location + "test_changed", "-nt", "4", "-redo", "-pre", "TESTPYTHON"], cwd=app_location)#, capture_output=True)
 # Model auswählen nach vorherigem?
 # "-m", "TIM2+F+I+G4" / Weglassen
 # Kerne festsetzen wie vorheriges?

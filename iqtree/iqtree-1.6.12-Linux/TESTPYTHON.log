@@ -1,0 +1,67 @@
+IQ-TREE multicore version 1.6.12 for Linux 64-bit built Aug 15 2019
+Developed by Bui Quang Minh, Nguyen Lam Tung, Olga Chernomor,
+Heiko Schmidt, Dominik Schrempf, Michael Woodhams.
+
+Host:    penny (AVX, 7 GB RAM)
+Command: /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/bin/iqtree -s /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy -m TIM2+F+I+G4 -te /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/test_changed -nt 4 -redo -pre TESTPYTHON
+Seed:    461347 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Mon Feb 17 11:02:14 2020
+Kernel:  AVX - 4 threads (4 CPU cores detected)
+
+Reading alignment file /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy ... Phylip format detected
+Alignment most likely contains DNA/RNA sequences
+Alignment has 17 sequences with 1998 columns, 1152 distinct patterns
+1009 parsimony-informative, 303 singleton sites, 686 constant sites
+           Gap/Ambiguity  Composition  p-value
+   1  LngfishAu    0.15%    passed      6.20%
+   2  LngfishSA    0.00%    failed      0.62%
+   3  LngfishAf    0.05%    failed      1.60%
+   4  Frog         0.05%    passed     58.01%
+   5  Turtle       0.15%    passed     44.25%
+   6  Sphenodon    0.10%    passed     59.78%
+   7  Lizard       0.90%    passed     38.67%
+   8  Crocodile    0.35%    failed      2.51%
+   9  Bird         0.00%    failed      0.00%
+  10  Human        0.00%    failed      0.85%
+  11  Seal         0.00%    passed     68.93%
+  12  Cow          0.00%    passed     59.11%
+  13  Whale        0.00%    passed     97.83%
+  14  Mouse        0.05%    failed      1.43%
+  15  Rat          0.00%    passed     39.69%
+  16  Platypus     0.00%    failed      3.46%
+  17  Opossum      0.00%    failed      0.01%
+****  TOTAL        0.11%  8 sequences failed composition chi2 test (p-value<5%; df=3)
+Reading input tree file /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/test_changed ...
+WARNING: 31 undefined/negative branch lengths are initialized with parsimony
+
+NOTE: 2 MB RAM (0 GB) is required!
+Estimate model parameters (epsilon = 0.010)
+Thoroughly optimizing +I+G parameters from 10 start values...
+Init pinv, alpha: 0.000, 1.000 / Estimate: 0.000, 0.457 / LogL: -21379.710
+Init pinv, alpha: 0.038, 1.000 / Estimate: 0.159, 0.698 / LogL: -21371.594
+Init pinv, alpha: 0.076, 1.000 / Estimate: 0.158, 0.697 / LogL: -21371.601
+Init pinv, alpha: 0.114, 1.000 / Estimate: 0.158, 0.696 / LogL: -21371.603
+Init pinv, alpha: 0.153, 1.000 / Estimate: 0.160, 0.702 / LogL: -21371.607
+Init pinv, alpha: 0.191, 1.000 / Estimate: 0.178, 0.747 / LogL: -21371.563
+Init pinv, alpha: 0.229, 1.000 / Estimate: 0.179, 0.750 / LogL: -21371.586
+Init pinv, alpha: 0.267, 1.000 / Estimate: 0.179, 0.750 / LogL: -21371.581
+Init pinv, alpha: 0.305, 1.000 / Estimate: 0.179, 0.750 / LogL: -21371.581
+Init pinv, alpha: 0.343, 1.000 / Estimate: 0.179, 0.749 / LogL: -21371.578
+Optimal pinv,alpha: 0.178, 0.747 / LogL: -21371.563
+
+Parameters optimization took 5.568 sec
+BEST SCORE FOUND : -21371.563
+Total tree length: 4.606
+
+Total number of iterations: 0
+CPU time used for tree search: 0.000 sec (0h:0m:0s)
+Wall-clock time used for tree search: 0.000 sec (0h:0m:0s)
+Total CPU time used: 15.108 sec (0h:0m:15s)
+Total wall-clock time used: 5.591 sec (0h:0m:5s)
+
+Analysis results written to: 
+  IQ-TREE report:                TESTPYTHON.iqtree
+  Maximum-likelihood tree:       TESTPYTHON.treefile
+  Screen log file:               TESTPYTHON.log
+
+Date and Time: Mon Feb 17 11:02:20 2020
