@@ -10,18 +10,13 @@ app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa
 
 conn = sqlite3.connect('trees.db')
 c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, datetime TEXT)''')
+c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, newick TEXT, datetime TEXT)''')
 conn.commit()
 conn.close()
 
-app_location = __file__[:-6] + "iqtree/iqtree-1.6.12-Linux/"
-result = subprocess.run([os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te", app_location + "test_changed", "-nt", "4", "-redo", "-pre", "TESTPYTHON"], cwd=app_location)#, capture_output=True)
-# Model auswählen nach vorherigem?
-# "-m", "TIM2+F+I+G4" / Weglassen
-# Kerne festsetzen wie vorheriges?
-# "-nt", "4" / "-nt", "AUTO"
-#print(result)
-
+# TODO move this to the configs!
+enable_distances = False
+# TODO
 
 @app.route("/")
 def home():
@@ -37,13 +32,23 @@ def load():
     conn = sqlite3.connect('trees.db')
     c = conn.cursor()
     if request.method == "POST":
-        tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode()).to_json()
+        # TODO here already without distances too? Maybe, needs to be checked^^
+        tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode(), enable_distances=enable_distances).to_json()
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
-        tree = Tree(c.fetchone()[0], request.args.get("from"), request.args.get("to")).to_json()
-        #after rehang dont show but rather new with
-        #iqtree -s ../example.phy -te ../test_changed -nt AUTO -redo -pre NAME
-        #and delete this afterwards
+        tree_json = c.fetchone()[0]
+        if enable_distances:
+            app_location = __file__[:-6] + "iqtree/iqtree-1.6.12-Linux/"
+            result = subprocess.run(
+                [os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te",
+                 "(LngfishAu,(LngfishSA,LngfishAf),(Frog,((((Turtle,Crocodile),Sphenodon),Lizard),(((Human,(Seal,(Cow,Whale))),(Bird,(Mouse,Rat))),(Platypus,Opossum)))));", "-nt", "4", "-redo", "-pre", "REMODEL"],
+                cwd=app_location)  # , capture_output=True) # TODO CHANGE CWD
+            # Model auswählen nach vorherigem?
+            # "-m", "TIM2+F+I+G4" / Weglassen
+            # Kerne festsetzen wie vorheriges?
+            # "-nt", "4" / "-nt", "AUTO"
+            print(result)
+        tree = Tree(tree_json, request.args.get("from"), request.args.get("to"), enable_distances).to_json()
     else:
         pass  # TODO
     c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])

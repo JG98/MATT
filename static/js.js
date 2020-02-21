@@ -76,6 +76,7 @@ $(function() {
 
         extraData = data.pop();
 
+        enableDistances = extraData["enable_distances"];
         maxDistance = extraData["max_distance"];
         longestName = extraData["longest_name"];
 
@@ -526,11 +527,11 @@ $(function() {
         console.log(data);
         $("#no-entries").remove();
         $("#snapshots").empty();
-        $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">DateTime</th></tr></thead>');
+        $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">Newick</th><th scope="col">DateTime</th></tr></thead>');
         $("#snapshots").append('<tbody>');
         data.forEach(function(value) {
-            $("#snapshots").append('<tr><th scope="row">' + value[0] + '</th><td>LINK'/*+ value[1]*/
-            + '</td><td>' + value[2] + '</td></tr>');
+            $("#snapshots").append('<tr><th scope="row">' + value[0] + '</th><td>TODO'/*+ value[1]*/
+            + '</th><td>TODO'/*+ value[2]*/ + '</td><td>' + value[3] + '</td></tr>');
         });
         $("#snapshots").append('</tbody>');
     }
