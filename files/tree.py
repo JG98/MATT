@@ -46,12 +46,7 @@ class Tree:
                     if self.enable_distances:
                         distance = Decimal(newick[last_colon + 1:]) / 2
                     else:
-                        # TODO HERE AND EVERYWHERE ELSE: Distance not to -1 but rather to the level
-                        # TODO in order to ease max_level_calculation (remove it, iterate through all and take max)
-                        # TODO AND to draw more easily
-                        # TODO distance will actually mean distance/level afterwards
-                        # TODO yes, it will be harder to calculate around here...
-                        distance = Decimal(-1)
+                        distance = Decimal(1)
                     self.root.l_child = self.make_node_from_newick(
                         "(" + newick[:last_comma] + "):" + str(distance), self.root)
                     self.root.r_child = self.make_node_from_newick(
@@ -67,6 +62,7 @@ class Tree:
                 distance = node.get("distance")
                 total_distance = node.get("total_distance")
             else:
+                # TODO requires new level system overhaul
                 distance = -1
                 total_distance = -1
             nodes[int(node["id"])] = Node(node.get("id"), Decimal(distance), Decimal(total_distance),
@@ -157,12 +153,12 @@ class Tree:
     def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
         last_parenthesis = string.rfind(")")
+        print(string)
         if self.enable_distances:
             distance = Decimal(string[colon + 1:])
-            total_distance = Decimal(parent.total_distance) + Decimal(distance)
         else:
-            distance = Decimal(-1)
-            total_distance = Decimal(-1)
+            distance = Decimal(1)
+        total_distance = Decimal(parent.total_distance) + Decimal(distance)
         node = None
         if "(" in string:
             level = 0
@@ -228,22 +224,7 @@ class Tree:
                 longest_name = str_name
             if node.total_distance > max_distance:
                 max_distance = node.total_distance
-        if not self.enable_distances:
-                max_distance = self.calculate_max_level(self.root, 0)
         return dumps(output + [{"enable_distances": self.enable_distances, "max_distance": str(max_distance), "longest_name": longest_name}])
-
-    def calculate_max_level(self, node, level):
-        print(level, node.id, node.l_child.id if node.l_child else node.name,
-              node.r_child.id if node.r_child else node.name)
-        if node.l_child:
-            left = self.calculate_max_level(node.l_child, level + 1)
-        else:
-            left = level
-        if node.r_child:
-            right = self.calculate_max_level(node.r_child, level + 1)
-        else:
-            right = level
-        return max(left, right)
 
     def to_newick(self):
         pass

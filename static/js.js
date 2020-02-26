@@ -95,7 +95,12 @@ $(function() {
 
         offset = 10;
         //scaleX = 200;
-        scaleX = 500;
+        if(enableDistances) {
+            scaleX = 500;
+        } else {
+            scaleX = 50;
+        }
+
         scaleY = 30;
 
         svg.remove();
