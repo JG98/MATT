@@ -58,13 +58,8 @@ class Tree:
         json.pop()
         nodes = {}
         for node in json:
-            if self.enable_distances:
-                distance = node.get("distance")
-                total_distance = node.get("total_distance")
-            else:
-                # TODO requires new level system overhaul
-                distance = -1
-                total_distance = -1
+            distance = node.get("distance")
+            total_distance = node.get("total_distance")
             nodes[int(node["id"])] = Node(node.get("id"), Decimal(distance), Decimal(total_distance),
                                           node.get("parent"), node.get("l_child"), node.get("r_child"),
                                           node.get("name"), node.get("bootstrap"))
@@ -128,8 +123,15 @@ class Tree:
                     distance = Decimal(to_node.distance) / 2
                     total_distance = Decimal(to_parent.total_distance) + distance
                 else:
-                    distance = Decimal(-1)
-                    total_distance = Decimal(-1)
+                    distance = Decimal(to_node.distance)
+                    total_distance = Decimal(to_parent.total_distance) + distance
+
+                    to_node.distance = Decimal(to_node.distance + 1)
+                    to_node.total_distance = Decimal(to_node.total_distance + 1)
+
+                    from_node.distance = Decimal(to_node.distance)
+                    from_node.total_distance = Decimal(to_node.total_distance)
+                # TODO REMINDER THIS IS THE NEW PARENT IN BETWEEN
                 new_node = Node(from_node.parent.id, distance, total_distance, to_parent)
                 # new_node = Node(self.node_counter, distance, total_distance, to_parent)
                 # self.node_counter += 1
@@ -144,6 +146,15 @@ class Tree:
                 elif to_path > from_path:
                     new_node.l_child = from_node
                     new_node.r_child = to_node
+                if not self.enable_distances:
+                    # all ancestors from from to the left
+                    # all descendants from to to the right
+                    if to_node.l_child:
+                        self.change_children_level(to_node.l_child, 1)
+                    if to_node.r_child:
+                        self.change_children_level(to_node.r_child, 1)
+                    if from_neighbor: # TODO necessary?
+                        self.change_children_level(from_neighbor, -1)
             else:
                 if from_path[-1] == "L":
                     from_node.parent.l_child = from_node
@@ -153,7 +164,6 @@ class Tree:
     def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
         last_parenthesis = string.rfind(")")
-        print(string)
         if self.enable_distances:
             distance = Decimal(string[colon + 1:])
         else:
@@ -229,6 +239,15 @@ class Tree:
     def to_newick(self):
         pass
         # TODO
+
+    # TODO overhaul, does not require this much
+    def change_children_level(self, node, amount):
+        node.distance = Decimal(node.distance + amount)
+        node.total_distance = Decimal(node.total_distance + amount)
+        if node.l_child:
+            self.change_children_level(node.l_child, amount)
+        if node.r_child:
+            self.change_children_level(node.r_child, amount)
 
     '''def get_node(self, string):
         node = self.root

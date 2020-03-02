@@ -94,13 +94,9 @@ $(function() {
         amount = data.length;
 
         offset = 10;
+        multiplier = enableDistances ? 10 : 1;
         //scaleX = 200;
-        if(enableDistances) {
-            scaleX = 500;
-        } else {
-            scaleX = 50;
-        }
-
+        scaleX = 50 * multiplier;
         scaleY = 30;
 
         svg.remove();
@@ -121,7 +117,6 @@ $(function() {
         // TODO write this nicer
         topBottom = [-5, maxY + 15];
         let topBottomLine;
-        let multiplier = enableDistances ? 10 : 1;
         topBottom.forEach(function(value) {
             for (var i = 0; i < maxDistance * multiplier; i++) {
                 topBottomLine = svg.line(10 + scaleX * i / multiplier, value - 10, 10 + scaleX * i / multiplier, value).attr({

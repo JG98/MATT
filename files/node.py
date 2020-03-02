@@ -9,3 +9,5 @@ class Node:
         self.r_child = r_child
         self.name = name
         self.bootstrap = bootstrap
+
+# TODO distances simultaneously increased via node function
