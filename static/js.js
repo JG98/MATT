@@ -121,14 +121,15 @@ $(function() {
         // TODO write this nicer
         topBottom = [-5, maxY + 15];
         let topBottomLine;
+        let multiplier = enableDistances ? 10 : 1;
         topBottom.forEach(function(value) {
-            for (var i = 0; i < maxDistance * 10; i++) {
-                topBottomLine = svg.line(10 + scaleX * i / 10, value - 10, 10 + scaleX * i / 10, value).attr({
+            for (var i = 0; i < maxDistance * multiplier; i++) {
+                topBottomLine = svg.line(10 + scaleX * i / multiplier, value - 10, 10 + scaleX * i / multiplier, value).attr({
                     fill: 'none',
                     stroke: 'black',
                     strokeWidth: 2
                 });
-                topBottomLine.append(Snap.parse('<title>' + i / 10 + '</title>'));
+                topBottomLine.append(Snap.parse('<title>' + i / multiplier + '</title>'));
                 lines.add(topBottomLine);
                 // TODO could be put exactly in the middle, now only puts the beginning above the line
                 // g.add(svg.text(10 + scaleX * i, value - 20, i + ".0").attr({dominantBaseline: 'middle', fontSize: fontSize}));
@@ -148,14 +149,14 @@ $(function() {
                 strokeWidth: 2
             }));
         });
-        for (var i = 0; i < maxDistance * 10; i++) {
-            topBottomLine = svg.line(10 + scaleX * i / 10, topBottom[0], 10 + scaleX * i / 10, topBottom[1] - 10).attr({
+        for (var i = 0; i < maxDistance * multiplier; i++) {
+            topBottomLine = svg.line(10 + scaleX * i / multiplier, topBottom[0], 10 + scaleX * i / multiplier, topBottom[1] - 10).attr({
                 fill: 'none',
                 stroke: 'black',
                 strokeWidth: 2,
                 strokeOpacity: 0.125
             });
-            topBottomLine.append(Snap.parse('<title>' + i / 10 + '</title>'));
+            topBottomLine.append(Snap.parse('<title>' + i / multiplier + '</title>'));
             lines.add(topBottomLine);
         }
         topBottomLine = svg.line(10 + scaleX * maxDistance, topBottom[0], 10 + scaleX * maxDistance, topBottom[1] - 10).attr({
