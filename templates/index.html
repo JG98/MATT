@@ -38,11 +38,12 @@
         <div id="mainDiv">
             <div id="slideDivs">
                 <div id="btnTabs" class="comp">
-                    <button id="btn1" class="btnTab btn btn-dark">Options</button>
-                    <button id="btn2" class="btnTab btn btn-dark">Snapshots</button>
+                    <button id="btn1" class="btnTab btn btn-dark">Import</button>
+                    <button id="btn2" class="btnTab btn btn-dark">Options</button>
+                    <button id="btn3" class="btnTab btn btn-dark">Snapshots</button>
                 </div>
                 <div id="tab1" class="tabs comp">
-                    <strong>Options</strong>
+                    <strong>Import</strong>
                     <p></p><!--https://codepen.io/Sebus059/pen/MwMQbP lower part-->
                     <form enctype="multipart/form-data">
                         <div class="custom-file">
@@ -53,6 +54,17 @@
                     </form>
                 </div>
                 <div id="tab2" class="tabs comp">
+                    <strong>Options</strong>
+                    <p></p>
+                    <form enctype="multipart/form-data">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="enable-distances" name="enable-distances"> <!-- TODO this could be saved somewhere (not the session cookie) to remember the chosen option between sessions -->
+                            <label class="form-check-label" for="enable-distances">Enable distances</label>
+                        </div>
+                        <input type="button" class="btn btn-primary" id="save-options" value="Save options">
+                    </form>
+                </div>
+                <div id="tab3" class="tabs comp">
                     <strong>Snapshots</strong>
                     <p></p>
                     <div id="no-entries">No entries yet!</div><!-- TODO now rly delete them between sessions -->
