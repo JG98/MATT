@@ -14,9 +14,6 @@ c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREM
 conn.commit()
 conn.close()
 
-# TODO move this to the configs!
-enable_distances = False
-# TODO
 
 @app.route("/")
 def home():
@@ -31,6 +28,10 @@ def home():
 def load():
     conn = sqlite3.connect('trees.db')
     c = conn.cursor()
+    enable_distances = session["options"].get("enable-distances", False)
+    # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
+    print(len(request.args))
+    print(len(request.form))
     if request.method == "POST":
         # TODO here already without distances too? Maybe, needs to be checked^^
         tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode(), enable_distances=enable_distances).to_json()
@@ -48,6 +49,7 @@ def load():
             # Kerne festsetzen wie vorheriges?
             # "-nt", "4" / "-nt", "AUTO"
             print(result)
+            # TODO use result??
         tree = Tree(tree_json, request.args.get("from"), request.args.get("to"), enable_distances).to_json()
     else:
         pass  # TODO
@@ -67,6 +69,16 @@ def load():
     response.headers["Expires"] = "0"
     return response
 
+
+@app.route("/options", methods=["POST"])
+def options():
+    session["options"] = {"enable-distances": request.form.get("enable-distances") == "true"}
+    response = make_response(session["options"])
+    # TODO PRINT NEW TREE (options to the whole data thingy too)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 if __name__ == '__main__':
     #app.run(host='127.0.0.1', port=80)

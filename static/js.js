@@ -45,7 +45,9 @@ $(function() {
 
     });
     $("#save-options").click(function() {
-        console.log("TODO");
+        options({
+            "enable-distances": $("#enable-distances")[0].checked
+        });
     });
 
     //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpRTowLjIsRjowLjMpSTowLjEsKEc6MC4zLChDOjAuMyxEOjAuNClIOjAuNClKOjAuMik7"});
@@ -64,6 +66,10 @@ $(function() {
         console.log(data);
         draw(JSON.parse(data["tree"]));
         snapshots(data["trees"]);
+    }
+
+    function options(options) {
+        $.post("options", options, update);
     }
 
     function draw(data) {

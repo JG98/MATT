@@ -4,8 +4,8 @@ Heiko Schmidt, Dominik Schrempf, Michael Woodhams.
 
 Host:    penny (AVX, 7 GB RAM)
 Command: /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/bin/iqtree -s /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy -te (LngfishAu,(LngfishSA,LngfishAf),(Frog,((((Turtle,Crocodile),Sphenodon),Lizard),(((Human,(Seal,(Cow,Whale))),(Bird,(Mouse,Rat))),(Platypus,Opossum))))); -nt 4 -redo -pre REMODEL
-Seed:    664267 (Using SPRNG - Scalable Parallel Random Number Generator)
-Time:    Mon Mar  2 12:45:47 2020
+Seed:    178184 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Wed Mar  4 15:32:24 2020
 Kernel:  AVX - 4 threads (4 CPU cores detected)
 
 Reading alignment file /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy ... Phylip format detected
