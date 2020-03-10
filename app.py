@@ -28,7 +28,13 @@ def home():
 def load():
     conn = sqlite3.connect('trees.db')
     c = conn.cursor()
-    enable_distances = session["options"].get("enable-distances", False)
+    # TODO
+    if session["options"]:
+        enable_distances = session["options"].get("enable-distances", False)
+    else:
+        enable_distances = False
+        # TODO SET session["options"]
+    print(enable_distances)
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
     print(len(request.args))
     print(len(request.form))
