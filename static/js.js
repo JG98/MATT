@@ -548,16 +548,19 @@ $(function() {
 
     var onOffBtn1 = "off";
     var onOffBtn2 = "off";
+    var onOffBtn3 = "off";
     var exnum = 0;
     var num = 0;
 
     $("#btnClose").click(function() {
         onOffBtn1 = "off";
         onOffBtn2 = "off";
+        onOffBtn3 = "off";
         exnum = 0;
         num = 0;
         $("#tab1").hide("fast");
         $("#tab2").hide("fast");
+        $("#tab3").hide("fast");
     });
 
     $("#btn1").click(function() {
@@ -567,6 +570,7 @@ $(function() {
             {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
+                onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "on";
                 exnum = 1;
@@ -576,6 +580,7 @@ $(function() {
             {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
+                onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
                 break;
@@ -590,8 +595,9 @@ $(function() {
             {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
-                onOffBtn1 = "off";
+                onOffBtn3 = "off";
                 onOffBtn2 = "on";
+                onOffBtn1 = "off";
                 exnum = 2;
                 break;
             }
@@ -599,6 +605,32 @@ $(function() {
             {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
+                onOffBtn3 = "off";
+                onOffBtn2 = "off";
+                onOffBtn1 = "off";
+                break;
+            }
+        }
+    });
+
+    $("#btn3").click(function() {
+        num = 3;
+        switch (onOffBtn3) {
+        case "off":
+            {
+                $("#tab" + exnum).hide("fast");
+                $("#tab" + num).show("fast");
+                onOffBtn3 = "on";
+                onOffBtn2 = "off";
+                onOffBtn1 = "off";
+                exnum = 3;
+                break;
+            }
+        case "on":
+            {
+                $("#tab" + num).hide("fast");
+                $("#tab" + exnum).hide("fast");
+                onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
                 break;
