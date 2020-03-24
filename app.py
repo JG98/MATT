@@ -4,6 +4,7 @@ from files.tree import Tree
 import subprocess
 import sqlite3
 import os.path
+import platform
 
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
@@ -45,7 +46,10 @@ def load():
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
         if enable_distances:
-            app_location = __file__[:-6] + "iqtree/iqtree-1.6.12-Linux/"
+            system = platform.system()
+            if platform.system() == "Darwin":
+                system = "MacOSX"
+            app_location = __file__[:-6] + "iqtree/iqtree-1.6.12-" + system + "/"
             result = subprocess.run(
                 [os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te",
                  "(LngfishAu,(LngfishSA,LngfishAf),(Frog,((((Turtle,Crocodile),Sphenodon),Lizard),(((Human,(Seal,(Cow,Whale))),(Bird,(Mouse,Rat))),(Platypus,Opossum)))));", "-nt", "4", "-redo", "-pre", "REMODEL"],
