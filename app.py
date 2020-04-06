@@ -11,6 +11,7 @@ app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa
 
 conn = sqlite3.connect('trees.db')
 c = conn.cursor()
+c.execute('''DROP TABLE IF EXISTS trees''')
 c.execute('''CREATE TABLE IF NOT EXISTS trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, newick TEXT, datetime TEXT)''')
 conn.commit()
 conn.close()
@@ -58,6 +59,11 @@ def load():
             # "-m", "TIM2+F+I+G4" / Weglassen
             # Kerne festsetzen wie vorheriges?
             # "-nt", "4" / "-nt", "AUTO"
+
+            # Topology tests
+            # iqtree -s example.phy -z example.treels -n 0 -zb 1000 -zw -au
+
+            # ERST RICHTIGES MODEL FINDEN
             print(result)
             # TODO use result??
         tree = Tree(tree_json, request.args.get("from"), request.args.get("to"), enable_distances).to_json()
@@ -84,6 +90,7 @@ def load():
 def options():
     session["options"] = {"enable-distances": request.form.get("enable-distances") == "true"}
     response = make_response(session["options"])
+    print(session["options"])
     # TODO PRINT NEW TREE (options to the whole data thingy too)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
