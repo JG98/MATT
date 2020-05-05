@@ -7,14 +7,14 @@ getcontext().prec = 10
 
 class Tree:
 
-    def __init__(self, string, from_id=None, to_id=None, enable_distances=False):
+    def __init__(self, string, json_args=None, enable_distances=False):
         self.node_counter = 0
         self.enable_distances = enable_distances
         if string[-1] == ";":  # TODO POTENTIAL ERROR SOURCE
             self.from_newick(string.rstrip()[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
         else:
-            self.from_json(string, from_id, to_id)
+            self.from_json(string, json_args)
 
     def from_newick(self, newick):
         self.root = Node(self.node_counter, Decimal(0), Decimal(0))  # TODO BOOTSTRAP FOR EVEN THE FIRST TWO NODES?
@@ -53,7 +53,7 @@ class Tree:
                         newick[last_comma+1:last_colon] + ":" + str(distance), self.root)
                     return
 
-    def from_json(self, string, from_id, to_id):
+    def from_json(self, string, json_args=None):
         json = loads(string)
         json.pop()
         nodes = {}
@@ -74,92 +74,138 @@ class Tree:
                 node.r_child = nodes[int(node.r_child)]
         self.root = nodes[0]
 
-        # REHANG
-        from_node = None
-        to_node = None
-        for node in nodes.values():
-            if node.id == from_id:
-                from_node = node
-            elif node.id == to_id:
-                to_node = node
+        if json_args:
+            # TODO reroot and rehang have much in common, change this!
+            if len(json_args) == 1:
+                #REROOT
+                id = json_args[0]
 
-        if from_node and to_node:
-            from_path = self.find_node(from_node)
-            to_path = self.find_node(to_node)
+                id_node = None
+                for node in nodes.values():
+                    if node.id == id:
+                        id_node = node
 
-            if (from_node.parent.id == "0" and to_node.parent.id == "0") or \
-                    (len(from_path) == len(to_path) and from_path[-2] == to_path[-2]):
-                return
+                if id_node:
+                    id_path = self.find_node(id_node)
 
-            if len(from_path) < len(to_path):
-                tmp_node = to_node
-                to_node = from_node
-                from_node = tmp_node
+                    if id_node.parent.id == "0":
+                        return
 
-                tmp_path = to_path
-                to_path = from_path
-                from_path = tmp_path
+                if id_path[-1] == "L":
+                    id_node.parent.l_child = None
+                elif id_path[-1] == "R":
+                    id_node.parent.r_child = None
 
-            if from_path[-1] == "L":
-                from_node.parent.l_child = None
-            elif from_path[-1] == "R":
-                from_node.parent.r_child = None
+                id_parent_parent = id_node.parent.parent
+                if id_path[-1] == "L":
+                    id_neighbor = id_node.parent.r_child
+                elif id_path[-1] == "R":
+                    id_neighbor = id_node.parent.l_child
 
-            if (to_node.l_child and to_node.r_child) or (not to_node.l_child and not to_node.r_child):
-                from_parent_parent = from_node.parent.parent
-                if from_path[-1] == "L":
-                    from_neighbor = from_node.parent.r_child
-                elif from_path[-1] == "R":
-                    from_neighbor = from_node.parent.l_child
+                id_neighbor.parent = id_parent_parent
+                if id_path[-2] == "L":
+                    id_parent_parent.l_child = id_neighbor
+                elif id_path[-2] == "R":
+                    id_parent_parent.r_child = id_neighbor
 
-                from_neighbor.parent = from_parent_parent
-                if from_path[-2] == "L":
-                    from_parent_parent.l_child = from_neighbor
-                elif from_path[-2] == "R":
-                    from_parent_parent.r_child = from_neighbor
-
-                to_parent = to_node.parent
-                if self.enable_distances:
-                    distance = Decimal(to_node.distance) / 2
-                    total_distance = Decimal(to_parent.total_distance) + distance
-                else:
-                    distance = Decimal(to_node.distance)
-                    total_distance = Decimal(to_parent.total_distance) + distance
-
-                    to_node.distance = Decimal(to_node.distance + 1)
-                    to_node.total_distance = Decimal(to_node.total_distance + 1)
-
-                    from_node.distance = Decimal(to_node.distance)
-                    from_node.total_distance = Decimal(to_node.total_distance)
-                # TODO REMINDER THIS IS THE NEW PARENT IN BETWEEN
-                new_node = Node(from_node.parent.id, distance, total_distance, to_parent)
-                # new_node = Node(self.node_counter, distance, total_distance, to_parent)
-                # self.node_counter += 1
-                if to_path[-1] == "L":
-                    to_parent.l_child = new_node
-                elif to_path[-1] == "R":
-                    to_parent.r_child = new_node
-                to_node.parent = new_node
-                if to_path < from_path:
-                    new_node.l_child = to_node
-                    new_node.r_child = from_node
-                elif to_path > from_path:
-                    new_node.l_child = from_node
-                    new_node.r_child = to_node
+                # TODO ELSE
                 if not self.enable_distances:
-                    # all ancestors from from to the left
-                    # all descendants from to to the right
-                    if to_node.l_child:
-                        self.change_children_level(to_node.l_child, 1)
-                    if to_node.r_child:
-                        self.change_children_level(to_node.r_child, 1)
-                    if from_neighbor: # TODO necessary?
-                        self.change_children_level(from_neighbor, -1)
+                    new_node = Node(id_node.parent.id, Decimal(1), Decimal(1), self.root, self.root.l_child, self.root.r_child)
+                    self.root.l_child = id_node
+                    self.root.r_child = new_node
+                    id_node.distance = Decimal(1)
+                    id_node.total_distance = Decimal(1)
+                    self.change_children_level(new_node.l_child, 1)
+                    self.change_children_level(new_node.r_child, 1)
+                    if id_neighbor:  # TODO necessary?
+                        self.change_children_level(id_neighbor, -1)
+
+            elif len(json_args) == 2:
+                # REHANG
+                from_id = json_args[0]
+                to_id = json_args[1]
+
+                from_node = None
+                to_node = None
+                for node in nodes.values():
+                    if node.id == from_id:
+                        from_node = node
+                    elif node.id == to_id:
+                        to_node = node
+
+                if from_node and to_node:
+                    from_path = self.find_node(from_node)
+                    to_path = self.find_node(to_node)
+
+                    if (from_node.parent.id == "0" and to_node.parent.id == "0") or \
+                            (len(from_path) == len(to_path) and from_path[-2] == to_path[-2]):
+                        return
+
+                    if len(from_path) < len(to_path):
+                        tmp_node = to_node
+                        to_node = from_node
+                        from_node = tmp_node
+
+                        tmp_path = to_path
+                        to_path = from_path
+                        from_path = tmp_path
+
+                    if from_path[-1] == "L":
+                        from_node.parent.l_child = None
+                    elif from_path[-1] == "R":
+                        from_node.parent.r_child = None
+
+                    from_parent_parent = from_node.parent.parent
+                    if from_path[-1] == "L":
+                        from_neighbor = from_node.parent.r_child
+                    elif from_path[-1] == "R":
+                        from_neighbor = from_node.parent.l_child
+
+                    from_neighbor.parent = from_parent_parent
+                    if from_path[-2] == "L":
+                        from_parent_parent.l_child = from_neighbor
+                    elif from_path[-2] == "R":
+                        from_parent_parent.r_child = from_neighbor
+
+                    to_parent = to_node.parent
+                    if self.enable_distances:
+                        distance = Decimal(to_node.distance) / 2
+                        total_distance = Decimal(to_parent.total_distance) + distance
+                    else:
+                        distance = Decimal(to_node.distance)
+                        total_distance = Decimal(to_parent.total_distance) + distance
+
+                        to_node.distance = Decimal(to_node.distance + 1)
+                        to_node.total_distance = Decimal(to_node.total_distance + 1)
+
+                        from_node.distance = Decimal(to_node.distance)
+                        from_node.total_distance = Decimal(to_node.total_distance)
+                    # TODO REMINDER THIS IS THE NEW PARENT IN BETWEEN
+                    new_node = Node(from_node.parent.id, distance, total_distance, to_parent)
+                    # new_node = Node(self.node_counter, distance, total_distance, to_parent)
+                    # self.node_counter += 1
+                    if to_path[-1] == "L":
+                        to_parent.l_child = new_node
+                    elif to_path[-1] == "R":
+                        to_parent.r_child = new_node
+                    to_node.parent = new_node
+                    if to_path < from_path:
+                        new_node.l_child = to_node
+                        new_node.r_child = from_node
+                    elif to_path > from_path:
+                        new_node.l_child = from_node
+                        new_node.r_child = to_node
+                    if not self.enable_distances:
+                        # all ancestors from from to the left
+                        # all descendants from to to the right
+                        if to_node.l_child:
+                            self.change_children_level(to_node.l_child, 1)
+                        if to_node.r_child:
+                            self.change_children_level(to_node.r_child, 1)
+                        if from_neighbor: # TODO necessary?
+                            self.change_children_level(from_neighbor, -1)
             else:
-                if from_path[-1] == "L":
-                    from_node.parent.l_child = from_node
-                elif from_path[-1] == "R":
-                    from_node.parent.r_child = from_node
+                pass #TODO
 
     def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
@@ -237,8 +283,18 @@ class Tree:
         return dumps(output + [{"enable_distances": self.enable_distances, "max_distance": str(max_distance), "longest_name": longest_name}])
 
     def to_newick(self):
-        pass
-        # TODO
+        return self.newick_helper(self.root)[:-2] + ";"
+
+    def newick_helper(self, root):
+        result = ""
+        if root.l_child and root.r_child:
+            result += "(" + self.newick_helper(root.l_child) + "," + self.newick_helper(root.r_child) + ")"
+            if root.bootstrap:
+                result += root.bootstrap
+            result += ":" + str(root.distance)
+        else:
+            result += root.name + ":" + str(root.distance)
+        return result
 
     # TODO overhaul, does not require this much
     def change_children_level(self, node, amount):

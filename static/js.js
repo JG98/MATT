@@ -49,6 +49,16 @@ $(function() {
             "enable-distances": $("#enable-distances")[0].checked
         });
     });
+    $("#test-snapshots").click(function() {
+        var snapshots = [];
+        $.each($("#select-snapshots option:selected"), function(){
+            snapshots.push($(this).val());
+        });
+        console.log(snapshots);
+        tests({
+            "snapshots": snapshots
+        });
+    });
 
     //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpRTowLjIsRjowLjMpSTowLjEsKEc6MC4zLChDOjAuMyxEOjAuNClIOjAuNClKOjAuMik7"});
     //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpOjAuMixGOjAuMyk6MC4xLChHOjAuMywoQzowLjMsRDowLjQpOjAuNCk6MC4yKTs="});
@@ -68,8 +78,40 @@ $(function() {
         snapshots(data["trees"]);
     }
 
-    function options(options) {
-        $.post("options", options, update);
+    function options(data) {
+        $.post("options", data, update);
+    }
+
+    function snapshots(data) {
+        console.log(data);
+        $("#no-entries").remove();
+        $("#snapshots").empty();
+        $("#select-snapshots").empty();
+        $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">Newick</th><th scope="col">DateTime</th></tr></thead>');
+        $("#snapshots").append('<tbody>');
+        data.forEach(function(value) {
+            $("#snapshots").append('<tr><th scope="row">' + value[0] + '</th><td>TODO'/*+ value[1]*/
+            + '</td><td>TODO'/*+ value[2]*/ + '</td><td>' + value[3] + '</td></tr>');
+
+            // TODO no-entries option for tests too?!
+            $("#select-snapshots").append('<option>' + value[0] + '</option>');
+        });
+        $("#snapshots").append('</tbody>');
+    }
+
+    function tests(data) {
+        $.post("tests", data, function(data) {
+            console.log(data);
+            data = JSON.parse(data);
+            console.log(data);
+            $("#tests").empty();
+            $("#tests").append('<thead><tr><th scope="col">#</th><th scope="col">logL</th><th scope="col">deltaL</th><th scope="col">bp-RELL</th><th scope="col">p-KH</th><th scope="col">p-SH</th><th scope="col">p-WKH</th><th scope="col">p-WSH</th><th scope="col">c-ELW</th><th scope="col">p-AU</th></tr></thead>');
+            $("#tests").append('<tbody>');
+            data.forEach(function(value) {
+                $("#tests").append('<tr><th scope="row">' + value[0] + '</th><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + ' ' + value[4] + '</td><td>' + value[5] + ' ' + value[6] + '</td><td>' + value[7] + ' ' + value[8] + '</td><td>' + value[9] + ' ' + value[10] + '</td><td>' + value[11] + ' ' + value[12] + '</td><td>' + value[13] + ' ' + value[14] + '</td><td>' + value[15] + ' ' + value[16] + '</td></tr>');
+            });
+            $("#tests").append('</tbody>');
+        });
     }
 
     function draw(data) {
@@ -186,6 +228,36 @@ $(function() {
         let clickedPath;
         let nameText;
 
+        //let rootLine;
+        let rootButton;
+        let rootButtonBlock = svg.rect(-50, 0, 40, maxY, 10).attr({
+            fill: "#007bff"
+        });
+        let rootButtonText = svg.text(-maxY/2, -30, "Root").attr({ //#+textLength/2 TODO
+            dominantBaseline: 'middle',
+            fontSize: 25,
+            textAnchor: 'middle',
+            fill: 'white'
+        });
+        rootButtonText.transform("rotate(270)");
+        rootButton = svg.g(rootButtonBlock, rootButtonText);
+        rootButton.attr({
+            display: 'none',
+            id: 'rootButton'
+        });
+        rootButton.click(function() {
+            if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
+                load("get", {
+                    'id': clickedPath.attr("data-id")
+                });
+                console.log({
+                    'id': clickedPath.attr("data-id")
+                });
+            }
+        });
+        $("#rootButton").css("cursor", "pointer");
+        g.add(rootButton);
+
         data.forEach(function(item, index, array) {
             if (item["name"] != "None") {
                 // TODO draw all texts at the right
@@ -207,6 +279,16 @@ $(function() {
                     }));
                 }
             } else {
+                /*if (item["id"] == 0) {
+                    rootLine = svg.line(0, (index + 1) * scaleY, offset, (index + 1) * scaleY).attr({
+                        fill: 'none',
+                        stroke: 'black',
+                        strokeWidth: 4,
+                        strokeOpacity: 0
+                    });
+                    g.add(rootLine);
+                }*/
+
                 if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
                     parent = array.findIndex((elem)=>elem.id == item["parent"]);
                     // TODO could be put exactly in the middle, now only puts the beginning in the middle
@@ -315,6 +397,10 @@ $(function() {
                                     });
                                 }
                             }
+                            toggleRootButton();
+                            /*rootLine.attr({
+                                strokeOpacity: 0.5
+                            });*/
                         } else if (clickedPath == itemPath) {
                             hoveredPath.remove();
                             clickedPath = null;
@@ -342,6 +428,7 @@ $(function() {
                                     });
                                 }
                             }
+                            toggleRootButton();
                         } else {
                             load("get", {
                                 'from': clickedPath.attr("data-id"),
@@ -531,24 +618,22 @@ $(function() {
         $(svg.node).mouseup(funcMouseUp);
         $(svg.node).mousemove(funcMouseMove);
         $(svg.node).on("wheel", funcWheel);
+
+        function toggleRootButton() {
+            if (rootButton.attr("display") == "none") {
+                rootButton.attr({display: "inline"});
+            } else if (rootButton.attr("display") == "inline") {
+                rootButton.attr({display: "none"});
+            }
+        }
     }
 
-    function snapshots(data) {
-        console.log(data);
-        $("#no-entries").remove();
-        $("#snapshots").empty();
-        $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">Newick</th><th scope="col">DateTime</th></tr></thead>');
-        $("#snapshots").append('<tbody>');
-        data.forEach(function(value) {
-            $("#snapshots").append('<tr><th scope="row">' + value[0] + '</th><td>TODO'/*+ value[1]*/
-            + '</th><td>TODO'/*+ value[2]*/ + '</td><td>' + value[3] + '</td></tr>');
-        });
-        $("#snapshots").append('</tbody>');
-    }
+    //TODO this can be simplified!
 
     var onOffBtn1 = "off";
     var onOffBtn2 = "off";
     var onOffBtn3 = "off";
+    var onOffBtn4 = "off";
     var exnum = 0;
     var num = 0;
 
@@ -556,11 +641,13 @@ $(function() {
         onOffBtn1 = "off";
         onOffBtn2 = "off";
         onOffBtn3 = "off";
+        onOffBtn4 = "off";
         exnum = 0;
         num = 0;
         $("#tab1").hide("fast");
         $("#tab2").hide("fast");
         $("#tab3").hide("fast");
+        $("#tab4").hide("fast");
     });
 
     $("#btn1").click(function() {
@@ -570,6 +657,7 @@ $(function() {
             {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
+                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "on";
@@ -580,6 +668,7 @@ $(function() {
             {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
+                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
@@ -595,6 +684,7 @@ $(function() {
             {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
+                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "on";
                 onOffBtn1 = "off";
@@ -605,6 +695,7 @@ $(function() {
             {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
+                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
@@ -620,6 +711,7 @@ $(function() {
             {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
+                onOffBtn4 = "off";
                 onOffBtn3 = "on";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
@@ -630,6 +722,34 @@ $(function() {
             {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
+                onOffBtn4 = "off";
+                onOffBtn3 = "off";
+                onOffBtn2 = "off";
+                onOffBtn1 = "off";
+                break;
+            }
+        }
+    });
+
+    $("#btn4").click(function() {
+        num = 4;
+        switch (onOffBtn4) {
+        case "off":
+            {
+                $("#tab" + exnum).hide("fast");
+                $("#tab" + num).show("fast");
+                onOffBtn4 = "on";
+                onOffBtn3 = "off";
+                onOffBtn2 = "off";
+                onOffBtn1 = "off";
+                exnum = 4;
+                break;
+            }
+        case "on":
+            {
+                $("#tab" + num).hide("fast");
+                $("#tab" + exnum).hide("fast");
+                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";

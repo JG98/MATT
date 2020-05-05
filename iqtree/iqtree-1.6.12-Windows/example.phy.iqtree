@@ -1,8 +1,8 @@
 IQ-TREE 1.6.12 built Aug 15 2019
 
-Input file name: ../example.phy
+Input file name: D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy
 Type of analysis: ModelFinder + tree reconstruction
-Random seed number: 895670
+Random seed number: 523752
 
 REFERENCES
 ----------
@@ -297,12 +297,12 @@ Tree in newick format:
 USER TREES
 ----------
 
-See ../example.phy.trees for trees with branch lengths.
+See D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy.trees for trees with branch lengths.
 
-Tree      logL    deltaL  bp-RELL    p-KH     p-SH    p-WKH    p-WSH       c-ELW
-------------------------------------------------------------------------------------
-  1 -21372.37988  208.31       0 -      0 -      0 -      0 -      0 - 8.64e-057 - 
-  2 -21164.07117       0       1 +      1 +      1 +      1 +      1 +         1 + 
+Tree      logL    deltaL  bp-RELL    p-KH     p-SH    p-WKH    p-WSH       c-ELW       p-AU
+-------------------------------------------------------------------------------------------
+  1 -21152.61558       0   0.972 +  0.965 +      1 +  0.965 +  0.965 +     0.966 +    0.976 + 
+  2 -21162.97687  10.361  0.0279 -  0.035 -  0.035 -  0.035 -  0.035 -    0.0342 -   0.0236 - 
 
 deltaL  : logL difference from the maximal logl in the set.
 bp-RELL : bootstrap proportion using RELL method (Kishino et al. 1990).
@@ -311,15 +311,16 @@ p-SH    : p-value of Shimodaira-Hasegawa test (2000).
 p-WKH   : p-value of weighted KH test.
 p-WSH   : p-value of weighted SH test.
 c-ELW   : Expected Likelihood Weight (Strimmer & Rambaut 2002).
+p-AU    : p-value of approximately unbiased (AU) test (Shimodaira, 2002).
 
 Plus signs denote the 95% confidence sets.
 Minus signs denote significant exclusion.
-All tests performed 1000 resamplings using the RELL method.
+All tests performed 10000 resamplings using the RELL method.
 
 TIME STAMP
 ----------
 
-Date and time: Mon Apr 06 18:07:05 2020
-Total CPU time used: 3.62 seconds (0h:0m:3s)
-Total wall-clock time used: 3.78 seconds (0h:0m:3s)
+Date and time: Tue May 05 12:29:35 2020
+Total CPU time used: 3.3 seconds (0h:0m:3s)
+Total wall-clock time used: 8.54 seconds (0h:0m:8s)
 

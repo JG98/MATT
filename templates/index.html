@@ -41,10 +41,11 @@
                     <button id="btn1" class="btnTab btn btn-dark">Import</button>
                     <button id="btn2" class="btnTab btn btn-dark">Options</button>
                     <button id="btn3" class="btnTab btn btn-dark">Snapshots</button>
+                    <button id="btn4" class="btnTab btn btn-dark">Tests</button>
                 </div>
                 <div id="tab1" class="tabs comp">
                     <strong>Import</strong>
-                    <p></p><!--https://codepen.io/Sebus059/pen/MwMQbP lower part-->
+                    <p></p><!-- TODO https://codepen.io/Sebus059/pen/MwMQbP lower part-->
                     <form enctype="multipart/form-data">
                         <div class="custom-file">
                             <input type="file" class="custom-file-input" id="file" accept=".treefile">
@@ -69,6 +70,19 @@
                     <p></p>
                     <div id="no-entries">No entries yet!</div><!-- TODO now rly delete them between sessions -->
                     <table class="table" id="snapshots">
+                    </table>
+                </div>
+                <div id="tab4" class="tabs comp">
+                    <strong>Tests</strong>
+                    <p></p>
+                    <form enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="select-snapshots">Select the snapshots you want to test</label>
+                            <select multiple class="form-control" id="select-snapshots"></select>
+                        </div>
+                        <input type="button" class="btn btn-primary" id="test-snapshots" value="Test Snapshots">
+                    </form>
+                    <table class="table" id="tests">
                     </table>
                 </div>
             </div>
