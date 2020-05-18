@@ -79,7 +79,7 @@ $(function() {
     }
 
     function options(data) {
-        $.post("options", data, update);
+        $.post("options", data); //TODO , load("get"));
     }
 
     function snapshots(data) {

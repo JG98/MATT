@@ -6,6 +6,8 @@ import subprocess
 import sqlite3
 import os.path
 import platform
+import configparser
+
 
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
@@ -22,7 +24,6 @@ c.execute('''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT
 conn.commit()
 conn.close()
 
-
 @app.route("/")
 def home():
     response = make_response(render_template("index.html"))
@@ -37,12 +38,8 @@ def load():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     # TODO
-    if session["options"]:
-        enable_distances = session["options"].get("enable-distances", False)
-    else:
-        enable_distances = False
-        # TODO SET session["options"]
-    print(enable_distances)
+    enable_distances = config.getboolean("Options", "enable-distances")
+    print("def" + str(enable_distances))
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
     print(len(request.args))
     print(len(request.form))
@@ -53,17 +50,20 @@ def load():
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
         if enable_distances:
-            result = subprocess.run(
-                [os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te",
-                 "(LngfishAu,(LngfishSA,LngfishAf),(Frog,((((Turtle,Crocodile),Sphenodon),Lizard),(((Human,(Seal,(Cow,Whale))),(Bird,(Mouse,Rat))),(Platypus,Opossum)))));", "-nt", "4", "-redo", "-pre", "REMODEL"])
+            pass
+            #result = subprocess.run(
+            #    [os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te",
+            #     "(LngfishAu,(LngfishSA,LngfishAf),(Frog,((((Turtle,Crocodile),Sphenodon),Lizard),(((Human,(Seal,(Cow,Whale))),(Bird,(Mouse,Rat))),(Platypus,Opossum)))));", "-nt", "4", "-redo", "-pre", "REMODEL"])
             # Model auswählen nach vorherigem?
             # "-m", "TIM2+F+I+G4" / Weglassen
             # Kerne festsetzen wie vorheriges?
             # "-nt", "4" / "-nt", "AUTO"
 
             # ERST RICHTIGES MODEL FINDEN
-            print(result)
+            #print(result)
             # TODO use result??
+        #if len(request.args) == 0:
+        #    json_args = None
         if len(request.args) == 1:
             json_args = [request.args.get("id")]
         elif len(request.args) == 2:
@@ -93,9 +93,12 @@ def load():
 
 @app.route("/options", methods=["POST"])
 def options():
-    session["options"] = {"enable-distances": request.form.get("enable-distances") == "true"}
-    response = make_response(session["options"])
-    print(session["options"])
+    if not config.has_section("Options"):
+        config.add_section("Options")
+    config.set("Options", "enable-distances", request.form.get("enable-distances"))
+    save_config()
+    response = make_response(dumps(config.getboolean("Options", "enable-distances")))
+    print("abc" + str(config.getboolean("Options", "enable-distances")))
     # TODO PRINT NEW TREE (options to the whole data thingy too)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
@@ -137,7 +140,19 @@ def tests():
 # iqtree -s ../example.phy -z ../TEST.treels -n 0 -zb 1000 -zw -au
 
 
+def save_config():
+    config["DEFAULT"] = {"enable-distances": "true"}
+    with open(root_folder + "config.ini", "w") as config_file:
+        config.write(config_file)
+
+
+config = configparser.ConfigParser()
+if not os.path.exists(root_folder + "config.ini"):
+    save_config()
+
+
 if __name__ == '__main__':
     #app.run(host='127.0.0.1', port=80)
     #app.run(host='0.0.0.0', port=80)
     app.run()
+
