@@ -75,9 +75,9 @@ class Tree:
         self.root = nodes[0]
 
         if json_args:
-            # TODO reroot and rehang have much in common, change this!
+            # TODO outgroup and rehang have much in common, change this!
             if len(json_args) == 1:
-                #REROOT
+                #OUTGROUP
                 id = json_args[0]
 
                 id_node = None
@@ -113,12 +113,16 @@ class Tree:
                     new_node = Node(id_node.parent.id, Decimal(1), Decimal(1), self.root, self.root.l_child, self.root.r_child)
                     self.root.l_child = id_node
                     self.root.r_child = new_node
+                    new_node.l_child.parent = new_node
+                    new_node.r_child.parent = new_node
                     id_node.distance = Decimal(1)
                     id_node.total_distance = Decimal(1)
-                    self.change_children_level(new_node.l_child, 1)
-                    self.change_children_level(new_node.r_child, 1)
+                    self.change_children_level(new_node.l_child, 1, True)
+                    self.change_children_level(new_node.r_child, 1, True)
                     if id_neighbor:  # TODO necessary?
-                        self.change_children_level(id_neighbor, -1)
+                        self.change_children_level(id_neighbor, -1, True)
+
+                id_node.parent = self.root
 
             elif len(json_args) == 2:
                 # REHANG
@@ -175,7 +179,7 @@ class Tree:
                         distance = Decimal(to_node.distance)
                         total_distance = Decimal(to_parent.total_distance) + distance
 
-                        to_node.distance = Decimal(to_node.distance + 1)
+                        #to_node.distance = Decimal(to_node.distance + 1)
                         to_node.total_distance = Decimal(to_node.total_distance + 1)
 
                         from_node.distance = Decimal(to_node.distance)
@@ -197,15 +201,19 @@ class Tree:
                         new_node.r_child = to_node
                     if not self.enable_distances:
                         # all ancestors from from to the left
-                        # all descendants from to to the right
+                        # all descendants from both to the right
                         if to_node.l_child:
                             self.change_children_level(to_node.l_child, 1)
                         if to_node.r_child:
                             self.change_children_level(to_node.r_child, 1)
-                        if from_neighbor: # TODO necessary?
-                            self.change_children_level(from_neighbor, -1)
+                        if from_neighbor:  # TODO necessary?
+                            self.change_children_level(from_neighbor, -1, True)
+                        if from_node.l_child:
+                            self.change_children_level(from_node.l_child, 1, True)
+                        if from_node.r_child:
+                            self.change_children_level(from_node.r_child, 1, True)
             else:
-                pass #TODO
+                pass  # TODO
 
     def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
@@ -297,13 +305,14 @@ class Tree:
         return result
 
     # TODO overhaul, does not require this much
-    def change_children_level(self, node, amount):
-        node.distance = Decimal(node.distance + amount)
+    def change_children_level(self, node, amount, total_only=False):
+        if not total_only:
+            node.distance = Decimal(node.distance + amount)
         node.total_distance = Decimal(node.total_distance + amount)
         if node.l_child:
-            self.change_children_level(node.l_child, amount)
+            self.change_children_level(node.l_child, amount, total_only)
         if node.r_child:
-            self.change_children_level(node.r_child, amount)
+            self.change_children_level(node.r_child, amount, total_only)
 
     '''def get_node(self, string):
         node = self.root

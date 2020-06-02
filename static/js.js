@@ -6,6 +6,7 @@ $(function() {
     let maxX;
     let maxY;
     let svg;
+    let trees;
     $("#import").click(function() {
         // TODO
         /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
@@ -44,13 +45,37 @@ $(function() {
         // }
 
     });
+    let dnaProtein;
+    $("#dna").click(function() {
+        $("#dna-options").show();
+        $("#protein-options").hide();
+        dnaProtein = "dna";
+    });
+    $("#protein").click(function() {
+        $("#protein-options").show();
+        $("#dna-options").hide();
+        dnaProtein = "protein";
+    });
     $("#save-options").click(function() {
-        options({
+        optionsJSON = {
             "enable-distances": $("#enable-distances")[0].checked
-        });
+        }
+        if (dnaProtein == "dna") {
+            optionsJSON["dna-protein"] = "dna";
+            optionsJSON["dna-bsr"] = $("#selectBSR").val();
+            optionsJSON["dna-bf"] = $("#selectBF").val();
+            optionsJSON["dna-rhas"] = $("#selectRHAS").val();
+        } else if (dnaProtein == "protein") {
+            optionsJSON["dna-protein"] = "protein";
+            optionsJSON["protein-aaerm"] = $("#selectAAERM").val();
+            optionsJSON["protein-pmm"] = $("#selectPMM").val();
+            optionsJSON["protein-aaf"] = $("#selectAAF").val();
+        }
+        options(optionsJSON);
     });
     $("#test-snapshots").click(function() {
         var snapshots = [];
+        // TODO check if .val() could work here too?
         $.each($("#select-snapshots option:selected"), function(){
             snapshots.push($(this).val());
         });
@@ -59,6 +84,7 @@ $(function() {
             "snapshots": snapshots
         });
     });
+
 
     //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpRTowLjIsRjowLjMpSTowLjEsKEc6MC4zLChDOjAuMyxEOjAuNClIOjAuNClKOjAuMik7"});
     //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpOjAuMixGOjAuMyk6MC4xLChHOjAuMywoQzowLjMsRDowLjQpOjAuNCk6MC4yKTs="});
@@ -73,9 +99,11 @@ $(function() {
 
     function update(data, status) {
         //alert("Data: " + data + "\nStatus: " + status);
+        data = JSON.parse(data);
         console.log(data);
-        draw(JSON.parse(data["tree"]));
-        snapshots(data["trees"]);
+        trees = data;
+        draw(eval(data.slice(-1)[0][1]));
+        snapshots(data);
     }
 
     function options(data) {
@@ -87,12 +115,17 @@ $(function() {
         $("#no-entries").remove();
         $("#snapshots").empty();
         $("#select-snapshots").empty();
-        $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">Newick</th><th scope="col">DateTime</th></tr></thead>');
+        // TODO $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">Newick</th><th scope="col">DateTime</th></tr></thead>');
+        $("#snapshots").append('<thead><tr><th scope="col">#</th></tr></thead>');
         $("#snapshots").append('<tbody>');
         data.forEach(function(value) {
-            $("#snapshots").append('<tr><th scope="row">' + value[0] + '</th><td>TODO'/*+ value[1]*/
-            + '</td><td>TODO'/*+ value[2]*/ + '</td><td>' + value[3] + '</td></tr>');
-
+            // TODO $("#snapshots").append('<tr><th scope="row"><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + value[0] + '</button></th><td>TODO'/*+ value[1]*/
+            // TODO + '</td><td>TODO'/*+ value[2]*/ + '</td><td>' + value[3] + '</td></tr>');
+            $("#snapshots").append('<tr><th scope="row"><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + value[0] + '</button></th></tr>');
+            $("#snapshot-" + value[0]).click(function() {
+                snapshotId = $(this).attr("id").split("-")[1];
+                draw(eval(trees[snapshotId - 1][1]));
+            });
             // TODO no-entries option for tests too?!
             $("#select-snapshots").append('<option>' + value[0] + '</option>');
         });
@@ -153,7 +186,7 @@ $(function() {
         svg.remove();
         //svg = Snap(((scaleX * maxDistance) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
         //$(svg.node).appendTo($("#mainDiv"));
-        maxX = (scaleX * maxDistance) + (2.5 * offset) + longestNameWidth;
+        maxX = (scaleX * maxDistance) + (3.5 * offset) + longestNameWidth;
         maxY = scaleY * (amount + 1);
         svg = Snap(maxWidth, maxHeight);
         $(svg.node).appendTo($("#mainDiv"));
@@ -228,24 +261,23 @@ $(function() {
         let clickedPath;
         let nameText;
 
-        //let rootLine;
-        let rootButton;
-        let rootButtonBlock = svg.rect(-50, 0, 40, maxY, 10).attr({
+        let outgroupButton;
+        let outgroupButtonBlock = svg.rect(-50, 0, 40, maxY, 10).attr({
             fill: "#007bff"
         });
-        let rootButtonText = svg.text(-maxY/2, -30, "Root").attr({ //#+textLength/2 TODO
+        let outgroupButtonText = svg.text(-maxY/2, -30, "Outgroup").attr({ //#+textLength/2 TODO
             dominantBaseline: 'middle',
             fontSize: 25,
             textAnchor: 'middle',
             fill: 'white'
         });
-        rootButtonText.transform("rotate(270)");
-        rootButton = svg.g(rootButtonBlock, rootButtonText);
-        rootButton.attr({
+        outgroupButtonText.transform("rotate(270)");
+        outgroupButton = svg.g(outgroupButtonBlock, outgroupButtonText);
+        outgroupButton.attr({
             display: 'none',
-            id: 'rootButton'
+            id: 'outgroupButton'
         });
-        rootButton.click(function() {
+        outgroupButton.click(function() {
             if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
                 load("get", {
                     'id': clickedPath.attr("data-id")
@@ -253,10 +285,37 @@ $(function() {
                 console.log({
                     'id': clickedPath.attr("data-id")
                 });
+            } else if (clickedPath.attr("data-parent") != 0) {
+                clickedPath.attr({
+                    strokeOpacity: ''
+                });
+                childrenIds = [clickedPath.attr("data-l_child"), clickedPath.attr("data-r_child")];
+                while ((typeof childrenIds !== "undefined") && (childrenIds.length > 0)) {
+                    childId = childrenIds.shift();
+                    childPath = svg.select("path[data-id='" + childId + "']");
+                    if (childPath) {
+                        childPath.attr({
+                            strokeOpacity: '',
+                            pointerEvents: ''
+                        });
+                        if (childPath.attr("data-l_child") && childPath.attr("data-r_child")) {
+                            childrenIds.push(childPath.attr("data-l_child"), childPath.attr("data-r_child"));
+                        }
+                    }
+                    childText = svg.select("text[data-id='" + childId + "']");
+                    if (childText) {
+                        childText.attr({
+                            opacity: '',
+                            pointerEvents: ''
+                        });
+                    }
+                }
+                clickedPath = null;
+                toggleOutgroupButton();
             }
         });
-        $("#rootButton").css("cursor", "pointer");
-        g.add(rootButton);
+        $("#outgroupButton").css("cursor", "pointer");
+        g.add(outgroupButton);
 
         data.forEach(function(item, index, array) {
             if (item["name"] != "None") {
@@ -279,16 +338,6 @@ $(function() {
                     }));
                 }
             } else {
-                /*if (item["id"] == 0) {
-                    rootLine = svg.line(0, (index + 1) * scaleY, offset, (index + 1) * scaleY).attr({
-                        fill: 'none',
-                        stroke: 'black',
-                        strokeWidth: 4,
-                        strokeOpacity: 0
-                    });
-                    g.add(rootLine);
-                }*/
-
                 if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
                     parent = array.findIndex((elem)=>elem.id == item["parent"]);
                     // TODO could be put exactly in the middle, now only puts the beginning in the middle
@@ -317,8 +366,14 @@ $(function() {
                 hLeft = array[l_child]["total_distance"] * scaleX + offset;
                 hRight = array[r_child]["total_distance"] * scaleX + offset;
 
-                left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft).attr("data-id", array[l_child]["id"]);
-                right = svg.path("M" + mX + "," + mYRight + "V" + vRight + "H" + hRight).attr("data-id", array[r_child]["id"]);
+                left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft).attr({
+                    "data-id": array[l_child]["id"],
+                    "data-parent": item["id"]
+                });
+                right = svg.path("M" + mX + "," + mYRight + "V" + vRight + "H" + hRight).attr({
+                    "data-id": array[r_child]["id"],
+                    "data-parent": item["id"]
+                });
                 g.add(left, right);
 
                 if (array[l_child]["bootstrap"] != "") {
@@ -328,13 +383,13 @@ $(function() {
                     right.append(Snap.parse('<title>' + array[r_child]["bootstrap"] + '</title>'));
                 }
 
-                if (("l_child"in array[l_child]) && ("r_child"in array[l_child])) {
+                if (("l_child" in array[l_child]) && ("r_child" in array[l_child])) {
                     left.attr({
                         "data-l_child": array[l_child]["l_child"],
                         "data-r_child": array[l_child]["r_child"]
                     });
                 }
-                if (("l_child"in array[r_child]) && ("r_child"in array[r_child])) {
+                if (("l_child" in array[r_child]) && ("r_child" in array[r_child])) {
                     right.attr({
                         "data-l_child": array[r_child]["l_child"],
                         "data-r_child": array[r_child]["r_child"]
@@ -370,6 +425,7 @@ $(function() {
                         hoveredPath = null;
                     });
                     itemPath.click(function() {
+                        // Select first path
                         if (typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath)) {
                             hoveredPath.remove();
                             clickedPath = itemPath;
@@ -397,17 +453,18 @@ $(function() {
                                     });
                                 }
                             }
-                            toggleRootButton();
-                            /*rootLine.attr({
-                                strokeOpacity: 0.5
-                            });*/
-                        } else if (clickedPath == itemPath) {
+                            toggleOutgroupButton();
+                        // Both paths are the same
+                        } else if ((clickedPath == itemPath) ||
+                        // Both paths are neighbors
+                        (clickedPath.attr("data-parent") == itemPath.attr("data-parent")) ||
+                        // Second path is the first one's parent
+                        (clickedPath.attr("data-parent") == itemPath.attr("data-id"))) {
                             hoveredPath.remove();
-                            clickedPath = null;
-                            itemPath.attr({
+                            clickedPath.attr({
                                 strokeOpacity: ''
                             });
-                            childrenIds = [itemPath.attr("data-l_child"), itemPath.attr("data-r_child")];
+                            childrenIds = [clickedPath.attr("data-l_child"), clickedPath.attr("data-r_child")];
                             while ((typeof childrenIds !== "undefined") && (childrenIds.length > 0)) {
                                 childId = childrenIds.shift();
                                 childPath = svg.select("path[data-id='" + childId + "']");
@@ -428,7 +485,8 @@ $(function() {
                                     });
                                 }
                             }
-                            toggleRootButton();
+                            clickedPath = null;
+                            toggleOutgroupButton();
                         } else {
                             load("get", {
                                 'from': clickedPath.attr("data-id"),
@@ -619,11 +677,11 @@ $(function() {
         $(svg.node).mousemove(funcMouseMove);
         $(svg.node).on("wheel", funcWheel);
 
-        function toggleRootButton() {
-            if (rootButton.attr("display") == "none") {
-                rootButton.attr({display: "inline"});
-            } else if (rootButton.attr("display") == "inline") {
-                rootButton.attr({display: "none"});
+        function toggleOutgroupButton() {
+            if (outgroupButton.attr("display") == "none") {
+                outgroupButton.attr({display: "inline"});
+            } else if (outgroupButton.attr("display") == "inline") {
+                outgroupButton.attr({display: "none"});
             }
         }
     }

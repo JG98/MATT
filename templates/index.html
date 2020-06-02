@@ -44,7 +44,7 @@
                     <button id="btn4" class="btnTab btn btn-dark">Tests</button>
                 </div>
                 <div id="tab1" class="tabs comp">
-                    <strong>Import</strong>
+                    <h3>Import</h3>
                     <p></p><!-- TODO https://codepen.io/Sebus059/pen/MwMQbP lower part-->
                     <form enctype="multipart/form-data">
                         <div class="custom-file">
@@ -55,25 +55,152 @@
                     </form>
                 </div>
                 <div id="tab2" class="tabs comp">
-                    <strong>Options</strong>
+                    <h3>Options</h3>
                     <p></p>
                     <form enctype="multipart/form-data">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="enable-distances" name="enable-distances"> <!-- TODO this could be saved somewhere (not the session cookie) to remember the chosen option between sessions -->
+                            <input type="checkbox" class="form-check-input" id="enable-distances" name="enable-distances">
                             <label class="form-check-label" for="enable-distances">Enable distances</label>
                         </div>
-                        <input type="button" class="btn btn-primary" id="save-options" value="Save options">
+                        <h4>Select model</h4>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dna-protein" id="dna" value="dna">
+                            <label class="form-check-label" for="dna">DNA</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dna-protein" id="protein" value="protein">
+                            <label class="form-check-label" for="protein">Protein</label>
+                        </div>
+                        <div id="dna-options" style="display:none">
+                            <div class="form-group">
+                                <label for="selectBSR">Base substitution rates</label>
+                                <select class="form-control" id="selectBSR">
+                                    <option>JC</option>
+                                    <option>F81</option>
+                                    <option>K2P</option>
+                                    <option>HKY</option>
+                                    <option>TN</option>
+                                    <option>TNe</option>
+                                    <option>K3P</option>
+                                    <option>K3Pu</option>
+                                    <option>TPM2</option>
+                                    <option>TPM2u</option>
+                                    <option>TPM3</option>
+                                    <option>TPM3u</option>
+                                    <option>TIM</option>
+                                    <option>TIMe</option>
+                                    <option>TIM2</option>
+                                    <option>TIM2e</option>
+                                    <option>TIM3</option>
+                                    <option>TIM3e</option>
+                                    <option>TVM</option>
+                                    <option>TVMe</option>
+                                    <option>SYM</option>
+                                    <option>GTR</option>
+                                    <!-- TODO <option>Custom</option> -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectBF">Base frequencies</label>
+                                <select class="form-control" id="selectBF">
+                                    <option>-</option>
+                                    <option>F</option>
+                                    <option>FO</option>
+                                    <option>FQ</option>
+                                    <!-- TODO <option>Custom</option> -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectRHAS">Rate heterogeneity across sites</label>
+                                <select class="form-control" id="selectRHAS">
+                                    <option>-</option>
+                                    <option>I</option>
+                                    <option>G</option>
+                                    <option>I+G</option>
+                                    <option>R</option>
+                                    <option>I+R</option>
+                                    <!-- TODO <option>Custom</option> necessary? And number has to be added here too! -->
+                                </select>
+                            </div>
+                        </div>
+                        <div id="protein-options" style="display:none">
+                            <div class="form-group">
+                                <label for="selectBSR">Base substitution rates</label>
+                                <select class="form-control" id="selectAAERM">
+                                    <option>Blosum62</option>
+                                    <option>cpREV</option>
+                                    <option>Dayhoff</option>
+                                    <option>DCMut</option>
+                                    <option>FLU</option>
+                                    <option>HIVb</option>
+                                    <option>HIVw</option>
+                                    <option>JTT</option>
+                                    <option>JTTDCMut</option>
+                                    <option>LG</option>
+                                    <option>mtART</option>
+                                    <option>mtMAM</option>
+                                    <option>mtREV</option>
+                                    <option>mtZOA</option>
+                                    <option>mtMet</option>
+                                    <option>mtVer</option>
+                                    <option>mtInv</option>
+                                    <option>Poisson</option>
+                                    <option>PMB</option>
+                                    <option>rtREV</option>
+                                    <option>VT</option>
+                                    <option>WAG</option>
+                                    <option>GTR20</option>
+                                    <!-- TODO <option>Custom</option> necessary? -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectBSR">Protein mixture models</label>
+                                <select class="form-control" id="selectPMM">
+                                    <option>-</option>
+                                    <option>C10</option>
+                                    <option>C20</option>
+                                    <option>C30</option>
+                                    <option>C40</option>
+                                    <option>C50</option>
+                                    <option>C60</option>
+                                    <option>EX2</option>
+                                    <option>EX3</option>
+                                    <option>EHO</option>
+                                    <option>UL2</option>
+                                    <option>UL3</option>
+                                    <option>EX_EHO</option>
+                                    <option>LG4M</option>
+                                    <option>LG4X</option>
+                                    <option>CF4</option>
+                                    <!-- TODO <option>Custom</option> necessary? -->
+                                </select>
+                            </div>
+                            <!-- TODO add user-defined empirical protein models -->
+                            <div class="form-group">
+                                <label for="selectBF">Base frequencies</label>
+                                <select class="form-control" id="selectAAF">
+                                    <option>-</option>
+                                    <option>F</option>
+                                    <option>FO</option>
+                                    <option>FQ</option>
+                                    <!-- TODO <option>Custom</option> -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="button" class="btn btn-primary" id="save-options" value="Save options">
+                        </div>
                     </form>
                 </div>
                 <div id="tab3" class="tabs comp">
-                    <strong>Snapshots</strong>
+                    <h3>Snapshots</h3>
                     <p></p>
                     <div id="no-entries">No entries yet!</div><!-- TODO now rly delete them between sessions -->
                     <table class="table" id="snapshots">
                     </table>
                 </div>
                 <div id="tab4" class="tabs comp">
-                    <strong>Tests</strong>
+                    <h3>Tests</h3>
                     <p></p>
                     <form enctype="multipart/form-data">
                         <div class="form-group">

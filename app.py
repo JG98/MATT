@@ -24,6 +24,7 @@ c.execute('''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT
 conn.commit()
 conn.close()
 
+
 @app.route("/")
 def home():
     response = make_response(render_template("index.html"))
@@ -84,7 +85,7 @@ def load():
     trees = c.execute('SELECT * FROM trees WHERE id IN ({seq})'.format(seq=','.join(['?']*len(session["trees"]))), session["trees"]).fetchall()
     conn.commit()
     conn.close()
-    response = make_response({"tree": tree, "trees": trees})
+    response = make_response(dumps(trees))
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
@@ -93,17 +94,29 @@ def load():
 
 @app.route("/options", methods=["POST"])
 def options():
+    print(request.form)
     if not config.has_section("Options"):
         config.add_section("Options")
     config.set("Options", "enable-distances", request.form.get("enable-distances"))
+    config.set("Options", "dna-protein", request.form.get("dna-protein"))
+    if request.form.get("dna-protein") == "dna":
+        config.set("Options", "dna-bsr", request.form.get("dna-bsr"))
+        config.set("Options", "dna-bf", request.form.get("dna-bf"))
+        config.set("Options", "dna-rhas", request.form.get("dna-rhas"))
+    elif request.form.get("dna-protein") == "protein":
+        config.set("Options", "protein-aaerm", request.form.get("protein-aaerm"))
+        config.set("Options", "protein-pmm", request.form.get("protein-pmm"))
+        config.set("Options", "protein-aaf", request.form.get("protein-aaf"))
     save_config()
-    response = make_response(dumps(config.getboolean("Options", "enable-distances")))
-    print("abc" + str(config.getboolean("Options", "enable-distances")))
+    #response = make_response(dumps(config.getboolean("Options", "enable-distances")))
+    #print("abc" + str(config.getboolean("Options", "enable-distances")))
+    response = make_response("OK")  # TODO
     # TODO PRINT NEW TREE (options to the whole data thingy too)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
+
 
 @app.route("/tests", methods=["POST"])
 def tests():
