@@ -155,6 +155,10 @@ $(function() {
             svg.remove();
         }
 
+        if (typeof minimap !== "undefined") {
+            minimap.remove();
+        }
+
         svg = Snap(maxWidth, maxHeight);
         $(svg.node).appendTo($("#mainDiv"));
 
@@ -192,11 +196,40 @@ $(function() {
         $(svg.node).appendTo($("#mainDiv"));
         g = svg.g();
         lines = g.g();
-        g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0V0").attr({
+        g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0Z").attr({
             fill: 'none',
             stroke: 'black',
             strokeWidth: 2
         }));
+
+        minimapMaxWidth = $("#tab1").width();
+        minimapMaxHeight = $("#tab1").height();
+        minimap = Snap(minimapMaxWidth, minimapMaxHeight);
+        $(minimap.node).appendTo($("#tab1"));
+
+        // Draw rectangle over current view and update on setTransform()
+
+        minimapMinX = offset;
+        minimapMinY = offset;
+
+        /*
+        //Y scaling:
+        minimapMaxX = minimapMaxWidth - offset;
+        ratio = maxX / (minimapMaxX - minimapMinX);
+        minimapMaxY = maxY / ratio;*/
+
+        //X scaling:
+        minimapMaxY = minimapMaxHeight - offset;
+        ratio = maxY / (minimapMaxY - minimapMinY);
+        minimapMaxX = maxX / ratio;
+
+        //TODO switch between them if extending over bottom/right
+
+        minimap.path("M" + minimapMinX + "," + minimapMinY + "H" + minimapMaxX + "V" + minimapMaxY + "H" + minimapMinX + "Z").attr({
+            fill: 'none',
+            stroke: 'black',
+            strokeWidth: 2
+        });
 
         // TODO write this nicer
         topBottom = [-5, maxY + 15];
@@ -375,6 +408,27 @@ $(function() {
                     "data-parent": item["id"]
                 });
                 g.add(left, right);
+
+                mXMinimap = minimapMinX + mX / ratio;
+                mYLeftMinimap = minimapMinY + mYLeft / ratio;
+                vLeftMinimap = minimapMinY + vLeft / ratio;
+                hLeftMinimap = minimapMinX + hLeft / ratio;
+                mYRightMinimap = minimapMinY + mYRight / ratio;
+                vRightMinimap = minimapMinY + vRight / ratio;
+                hRightMinimap = minimapMinX + hRight / ratio;
+                minimapLeft = minimap.path("M" + mXMinimap + "," + mYLeftMinimap + "V" + vLeftMinimap + "H" + hLeftMinimap);
+                minimapRight = minimap.path("M" + mXMinimap + "," + mYRightMinimap + "V" + vRightMinimap + "H" + hRightMinimap);
+
+                minimapPaths = [minimapLeft, minimapRight];
+
+                minimapPaths.forEach(function(itemMinimapPath, indexMinimapPath, arrayMinimapPath) {
+                    itemMinimapPath.attr({
+                        fill: 'none',
+                        stroke: 'black',
+                        strokeWidth: strokeWidth / ratio,
+                        strokeLinecap: 'square'
+                    });
+                });
 
                 if (array[l_child]["bootstrap"] != "") {
                     left.append(Snap.parse('<title>' + array[l_child]["bootstrap"] + '</title>'));

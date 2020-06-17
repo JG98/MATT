@@ -125,7 +125,7 @@ def tests():
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
-    trees_json = c.execute(f"SELECT json FROM trees WHERE id IN ({','.join('?' for _ in snapshots)})", snapshots).fetchall()
+    trees_json = c.execute("SELECT json FROM trees WHERE id IN ({})".format(','.join('?' for _ in snapshots)), snapshots).fetchall()
     # TODO USE REAL DISTANCES THO!
     for tree_json in trees_json[:-1]:
         tree = Tree(tree_json[0]).to_newick()
