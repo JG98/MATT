@@ -641,14 +641,10 @@ $(function() {
                 posY = 1;
             }
 
-            console.log(posX);
-            console.log(posY);
+            let partOfLength = Math.exp(currentDeltaY - 1) / Math.exp(1);
 
-            let offsetX = (posX / maxWidth - 0.5) * step * maxWidth;
-            let offsetY = (posY / maxHeight - 0.5) * step * maxHeight;
-
-            console.log(offsetX);
-            console.log(offsetY);
+            let offsetX = (((posX / $(window).width() - 0.5) / partOfLength) + 0.0) * maxWidth;
+            let offsetY = (((posY / $(window).height() - 0.5) / partOfLength) + 0.0) * maxHeight;
 
             if (event.originalEvent.deltaY < 0) {
                 deltaY = currentDeltaY + step;
@@ -889,6 +885,8 @@ $(function() {
     });
 });
 
-/*$(window).resize(function() {
+/*
+//TODO
+$(window).resize(function() {
     svg.size($(window).width(), $(window).height());
 });*/
