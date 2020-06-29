@@ -207,28 +207,38 @@ $(function() {
         minimap = Snap(minimapMaxWidth, minimapMaxHeight);
         $(minimap.node).appendTo($("#tab1"));
 
+        // TODO
         // Draw rectangle over current view and update on setTransform()
 
-        minimapMinX = offset;
-        minimapMinY = offset;
+        minimapOffset = 1;
+        minimapMinX = minimapOffset;
+        minimapMinY = minimapOffset;
 
-        /*
-        //Y scaling:
-        minimapMaxX = minimapMaxWidth - offset;
-        ratio = maxX / (minimapMaxX - minimapMinX);
-        minimapMaxY = maxY / ratio;*/
-
-        //X scaling:
-        minimapMaxY = minimapMaxHeight - offset;
+        minimapMaxY = minimapMaxHeight - minimapOffset;
         ratio = maxY / (minimapMaxY - minimapMinY);
         minimapMaxX = maxX / ratio;
 
-        //TODO switch between them if extending over bottom/right
+        if (minimapMaxX > minimapMaxWidth) {
+            minimapMaxX = minimapMaxWidth - minimapOffset;
+            ratio = maxX / (minimapMaxX - minimapMinX);
+            minimapMaxY = maxY / ratio;
+        }
+
+        minimapWindowMaxX = $(window).width() / ratio;
+        minimapWindowMaxY = $(window).height() / ratio;
+
+        minimapWindow = minimap.path("M" + minimapMinX + "," + minimapMinY + "H" + minimapWindowMaxX + "V" + minimapWindowMaxY + "H" + minimapMinX + "Z").attr({
+            fill: 'lightgray',
+            fillOpacity: 0.5,
+            stroke: 'black',
+            strokeWidth: 1,
+            'vector-effect': 'non-scaling-stroke'
+        });
 
         minimap.path("M" + minimapMinX + "," + minimapMinY + "H" + minimapMaxX + "V" + minimapMaxY + "H" + minimapMinX + "Z").attr({
             fill: 'none',
             stroke: 'black',
-            strokeWidth: 2
+            strokeWidth: 1
         });
 
         // TODO write this nicer
@@ -589,13 +599,13 @@ $(function() {
             startY = event.clientY;
             move = true;
             // TODO only when existing?
-            $("svg").css("cursor", "move");
+            $(svg.node).css("cursor", "move");
         }
 
         function funcMouseUp(event) {
             move = false;
             // TODO only when existing?
-            $("svg").removeAttr("style");
+            $(svg.node).removeAttr("style");
         }
 
         function funcMouseMove(event) {
@@ -631,8 +641,14 @@ $(function() {
                 posY = 1;
             }
 
+            console.log(posX);
+            console.log(posY);
+
             let offsetX = (posX / maxWidth - 0.5) * step * maxWidth;
             let offsetY = (posY / maxHeight - 0.5) * step * maxHeight;
+
+            console.log(offsetX);
+            console.log(offsetY);
 
             if (event.originalEvent.deltaY < 0) {
                 deltaY = currentDeltaY + step;
@@ -648,8 +664,8 @@ $(function() {
             moveX = currentX + offsetX;
             moveY = currentY + offsetY;
 
-            //setTransform("scale", deltaY, moveX, moveY);
-            setTransform("scale", deltaY);
+            setTransform("scale", deltaY, moveX, moveY);
+            //setTransform("scale", deltaY);
         }
 
         function setTransform() {
@@ -663,10 +679,10 @@ $(function() {
                 translateY = arguments[2];
             } else if (arguments[0] == "scale") {
                 scale = arguments[1];
-                translateX = 100 * scale;
-                //arguments[2]; // TODO
-                translateY = 100 * scale;
-                //arguments[3]; // TODO
+                //translateX = 100 * scale;
+                translateX = arguments[2]; // TODO
+                //translateY = 100 * scale;
+                translateY = arguments[3]; // TODO
 
                 minScale = 0.1;
                 maxScale = 2;
@@ -703,6 +719,8 @@ $(function() {
             }*/
 
             g.transform("translate(" + translateX + " " + translateY + ") scale(" + scale + " " + scale + ")");
+            // TODO
+            minimapWindow.transform("translate(" + -translateX / ratio + " " + -translateY / ratio + ") scale(" + (1 - (scale - 1) / 2) + " " + (1 - (scale - 1) / 2) + ")");
         }
 
         function getTransform() {
