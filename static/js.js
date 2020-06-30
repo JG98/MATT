@@ -100,7 +100,6 @@ $(function() {
     function update(data, status) {
         //alert("Data: " + data + "\nStatus: " + status);
         data = JSON.parse(data);
-        console.log(data);
         trees = data;
         draw(eval(data.slice(-1)[0][1]));
         snapshots(data);
@@ -628,7 +627,9 @@ $(function() {
         }
 
         function funcWheel(event) {
-            currentDeltaY = getTransform("scale");
+            currentX = getTransform("x");
+            currentY = getTransform("y");
+            currentScale = getTransform("scale");
 
             posX = event.originalEvent.clientX;
             posY = event.originalEvent.clientY;
@@ -641,26 +642,18 @@ $(function() {
                 posY = 1;
             }
 
-            let partOfLength = Math.exp(currentDeltaY - 1) / Math.exp(1);
-
-            let offsetX = (((posX / $(window).width() - 0.5) / partOfLength) + 0.0) * maxWidth;
-            let offsetY = (((posY / $(window).height() - 0.5) / partOfLength) + 0.0) * maxHeight;
-
             if (event.originalEvent.deltaY < 0) {
-                deltaY = currentDeltaY + step;
-                offsetX = -offsetX;
-                offsetY = -offsetY;
+                newScale = currentScale + step;
+                negator = 1;
             } else {
-                deltaY = currentDeltaY - step;
+                newScale = currentScale - step;
+                negator = -1;
             }
 
-            currentX = getTransform("x");
-            currentY = getTransform("y");
+            moveX = (currentX - posX) * newScale * negator;
+            moveY = (currentY - posY) * newScale * negator;
 
-            moveX = currentX + offsetX;
-            moveY = currentY + offsetY;
-
-            setTransform("scale", deltaY, moveX, moveY);
+            setTransform("scale", newScale, moveX, moveY);
             //setTransform("scale", deltaY);
         }
 
