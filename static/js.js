@@ -644,14 +644,12 @@ $(function() {
 
             if (event.originalEvent.deltaY < 0) {
                 newScale = currentScale + step;
-                negator = 1;
             } else {
                 newScale = currentScale - step;
-                negator = -1;
             }
 
-            moveX = (currentX - posX) * newScale * negator;
-            moveY = (currentY - posY) * newScale * negator;
+            moveX = currentX + (currentX - posX) * (newScale - currentScale);
+            moveY = currentY + (currentY - posY) * (newScale - currentScale);
 
             setTransform("scale", newScale, moveX, moveY);
             //setTransform("scale", deltaY);
