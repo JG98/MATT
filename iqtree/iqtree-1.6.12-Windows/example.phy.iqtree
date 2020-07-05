@@ -2,7 +2,7 @@ IQ-TREE 1.6.12 built Aug 15 2019
 
 Input file name: D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy
 Type of analysis: ModelFinder + tree reconstruction
-Random seed number: 909338
+Random seed number: 830323
 
 REFERENCES
 ----------
@@ -292,8 +292,7 @@ NOTE: Tree is UNROOTED although outgroup taxon 'LngfishAu' is drawn at root
 Tree in newick format:
 
 (LngfishAu:0.1724449125,(LngfishSA:0.1877373458,LngfishAf:0.1647063701):0.1060700729,(Frog:0.2535837224,((Turtle:0.2219105249,((Sphenodon:0.3378695152,Lizard:0.3855516549):0.0115643600,(Crocodile:0.3029244806,Bird:0.2296011432):0.0727516027):0.0360123656):0.0832324105,((((Human:0.1953217634,(Cow:0.0830089818,Whale:0.1007111476):0.0383809845):0.0122535358,Seal:0.0952083375):0.0450624990,(Mouse:0.0570991879,Rat:0.0922073100):0.1207540278):0.0612163500,(Platypus:0.1917376506,Opossum:0.1502724891):0.0370271263):0.1519131273):0.1261352234):0.0956567233);
-
-
+
 USER TREES
 ----------
 
@@ -302,7 +301,7 @@ See D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy.t
 Tree      logL    deltaL  bp-RELL    p-KH     p-SH    p-WKH    p-WSH       c-ELW       p-AU
 -------------------------------------------------------------------------------------------
   1 -21152.61558       0       1 +      1 +      1 +      1 +      1 +         1 +        1 + 
-  2 -21241.26659  88.651       0 -      0 -      0 -      0 -      0 - 7.37e-013 - 3.98e-005 - 
+  2   -21375.366  222.75       0 -      0 -      0 -      0 -      0 - 7.74e-064 - 1.69e-039 - 
 
 deltaL  : logL difference from the maximal logl in the set.
 bp-RELL : bootstrap proportion using RELL method (Kishino et al. 1990).
@@ -320,7 +319,7 @@ All tests performed 10000 resamplings using the RELL method.
 TIME STAMP
 ----------
 
-Date and time: Mon May 18 23:52:39 2020
-Total CPU time used: 3.25 seconds (0h:0m:3s)
-Total wall-clock time used: 8.38 seconds (0h:0m:8s)
+Date and time: Sun Jul 05 20:46:21 2020
+Total CPU time used: 3.72 seconds (0h:0m:3s)
+Total wall-clock time used: 9.17 seconds (0h:0m:9s)
 

@@ -4,8 +4,8 @@ Heiko Schmidt, Dominik Schrempf, Michael Woodhams.
 
 Host:    DESKTOP-SSG1CCP (AVX2, FMA3, 15 GB RAM)
 Command: D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\bin/iqtree -s D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy -z D:\Uni\Bioinformatik\5\Ingo\Bethy\tmp/trees.txt -n 0 -zb 10000 -zw -au -redo
-Seed:    909338 (Using SPRNG - Scalable Parallel Random Number Generator)
-Time:    Mon May 18 23:52:30 2020
+Seed:    830323 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Sun Jul 05 20:46:11 2020
 Kernel:  AVX+FMA - 1 threads (8 CPU cores detected)
 
 HINT: Use -nt option to specify number of threads because your CPU has 8 cores!
@@ -202,7 +202,7 @@ Best-fit model: TIM2+F+I+G4 chosen according to BIC
 
 All model information printed to D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy.model.gz
 CPU time for ModelFinder: 0.031 seconds (0h:0m:0s)
-Wall-clock time for ModelFinder: 0.038 seconds (0h:0m:0s)
+Wall-clock time for ModelFinder: 0.054 seconds (0h:0m:0s)
 
 NOTE: 2 MB RAM (0 GB) is required!
 Estimate model parameters (epsilon = 0.010)
@@ -219,15 +219,15 @@ Init pinv, alpha: 0.305, 1.000 / Estimate: 0.174, 0.782 / LogL: -21164.076
 Init pinv, alpha: 0.343, 1.000 / Estimate: 0.175, 0.783 / LogL: -21164.083
 Optimal pinv,alpha: 0.174, 0.779 / LogL: -21164.071
 
-Parameters optimization took 3.252 sec
+Parameters optimization took 3.741 sec
 BEST SCORE FOUND : -21164.071
 Total tree length: 4.220
 
 Total number of iterations: 0
 CPU time used for tree search: 0.000 sec (0h:0m:0s)
 Wall-clock time used for tree search: 0.000 sec (0h:0m:0s)
-Total CPU time used: 3.250 sec (0h:0m:3s)
-Total wall-clock time used: 3.261 sec (0h:0m:3s)
+Total CPU time used: 3.719 sec (0h:0m:3s)
+Total wall-clock time used: 3.749 sec (0h:0m:3s)
 
 Reading trees in D:\Uni\Bioinformatik\5\Ingo\Bethy\tmp/trees.txt ...
 2 trees detected
@@ -235,19 +235,18 @@ Note: 44.277 MB of RAM required!
 Creating 10000 bootstrap replicates...
 done
 Tree 1 / LogL: -21152.616
-Tree 2 / LogL: -21241.267
+Tree 2 / LogL: -21375.366
 Performing RELL-BP test...
 Performing KH and SH test...
 Computing pairwise logl difference variance ...
 Performing WKH and WSH test...
 Performing ELW test...
 Performing approximately unbiased (AU) test...
-1 MB required for AU test
-Generating 10 x 10000 multiscale bootstrap replicates... 4.458 seconds
+1 MB required for AU testGGenerating 10 x 10000 multiscale bootstrap replicates... 4.644 seconds
 TreeID	AU	RSS	d	c
-1	1.000	0.777	-4.178	-0.232
-2	0.000	0.778	4.178	0.232
-Time for evaluating all trees: 5.109 sec.
+1	1.000	0.271	-8.994	2.030
+2	0.000	0.186	10.377	-2.721
+Time for evaluating all trees: 5.363 sec.
 
 Analysis results written to: 
   IQ-TREE report:                D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy.iqtree
@@ -255,4 +254,4 @@ Analysis results written to:
   Evaluated user trees:          D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy.trees
   Screen log file:               D:\Uni\Bioinformatik\5\Ingo\Bethy\iqtree\iqtree-1.6.12-Windows\example.phy.log
 
-Date and Time: Mon May 18 23:52:39 2020
+Date and Time: Sun Jul 05 20:46:21 2020
