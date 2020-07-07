@@ -121,7 +121,7 @@ def options():
 @app.route("/tests", methods=["POST"])
 def tests():
     snapshots = request.form.getlist("snapshots[]")
-    path = os.path.join(root_folder, "tmp/trees.txt")
+    path = os.path.join(root_folder, "tmp", "trees.txt")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
@@ -148,10 +148,6 @@ def tests():
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
-
-# Topology tests
-# iqtree -s ../example.phy -z ../TEST.treels -n 0 -zb 1000 -zw -au
-
 
 def save_config():
     config["DEFAULT"] = {"enable-distances": "true"}
