@@ -136,13 +136,61 @@ $(function() {
             console.log(data);
             data = JSON.parse(data);
             console.log(data);
-            $("#tests").empty();
-            $("#tests").append('<thead><tr><th scope="col">#</th><th scope="col">logL</th><th scope="col">deltaL</th><th scope="col">bp-RELL</th><th scope="col">p-KH</th><th scope="col">p-SH</th><th scope="col">p-WKH</th><th scope="col">p-WSH</th><th scope="col">c-ELW</th><th scope="col">p-AU</th></tr></thead>');
-            $("#tests").append('<tbody>');
+
+            var testData = new Array(10);
+
+            for (var i = 0; i < testData.length; i++) {
+                testData[i] = new Array();
+            }
+
+            testData[0].push("#");
+            testData[1].push("logL");
+            testData[2].push("deltaL");
+            testData[3].push("bp-RELL");
+            testData[4].push("p-KH");
+            testData[5].push("p-SH");
+            testData[6].push("p-WKH");
+            testData[7].push("p-WSH");
+            testData[8].push("c-ELW");
+            testData[9].push("p-AU");
+
             data.forEach(function(value) {
-                $("#tests").append('<tr><th scope="row">' + value[0] + '</th><td>' + value[1] + '</td><td>' + value[2] + '</td><td>' + value[3] + ' ' + value[4] + '</td><td>' + value[5] + ' ' + value[6] + '</td><td>' + value[7] + ' ' + value[8] + '</td><td>' + value[9] + ' ' + value[10] + '</td><td>' + value[11] + ' ' + value[12] + '</td><td>' + value[13] + ' ' + value[14] + '</td><td>' + value[15] + ' ' + value[16] + '</td></tr>');
+                testData[0].push(value[0]);
+                testData[1].push(value[1]);
+                testData[2].push(value[2]);
+                testData[3].push(value[3] + ' ' + value[4]);
+                testData[4].push(value[5] + ' ' + value[6]);
+                testData[5].push(value[7] + ' ' + value[8]);
+                testData[6].push(value[9] + ' ' + value[10]);
+                testData[7].push(value[11] + ' ' + value[12]);
+                testData[8].push(value[13] + ' ' + value[14]);
+                testData[9].push(value[15] + ' ' + value[16]);
             });
-            $("#tests").append('</tbody>');
+
+            console.log(testData);
+
+            $("#tests").empty();
+
+            for (var i = 0; i < testData.length; i++) {
+                if (i == 0) {
+                    start = "<thead><tr>";
+                    end = "</tr></thead>";
+                    first = true;
+                } else {
+                    start = "<tbody><tr>";
+                    end = "</tr></tbody>";
+                    first = false;
+                }
+                $("#tests").append(start);
+                for (var j = 0; j < testData[i].length; j++) {
+                    if (j == 0 || first) {
+                        $("#tests").append('<th>' + testData[i][j] + '</th>');
+                    } else {
+                        $("#tests").append('<td>' + testData[i][j] + '</td>');
+                    }
+                }
+                $("#tests").append(end);
+            }
         });
     }
 
@@ -205,9 +253,6 @@ $(function() {
         minimapMaxHeight = $("#tab1").height();
         minimap = Snap(minimapMaxWidth, minimapMaxHeight);
         $(minimap.node).appendTo($("#tab1"));
-
-        // TODO
-        // Draw rectangle over current view and update on setTransform()
 
         minimapOffset = 1;
         minimapMinX = minimapOffset;
@@ -652,7 +697,6 @@ $(function() {
             moveY = currentY + (currentY - posY) * (newScale - currentScale);
 
             setTransform("scale", newScale, moveX, moveY);
-            //setTransform("scale", deltaY);
         }
 
         function setTransform() {
@@ -666,10 +710,8 @@ $(function() {
                 translateY = arguments[2];
             } else if (arguments[0] == "scale") {
                 scale = arguments[1];
-                //translateX = 100 * scale;
-                translateX = arguments[2]; // TODO
-                //translateY = 100 * scale;
-                translateY = arguments[3]; // TODO
+                translateX = arguments[2];
+                translateY = arguments[3];
 
                 minScale = 0.1;
                 maxScale = 2;

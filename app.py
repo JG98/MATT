@@ -15,7 +15,7 @@ root_folder = __file__[:-6]
 system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
-app_location = root_folder + "iqtree\iqtree-1.6.12-" + system + "\\"
+app_location = os.path.join(root_folder, "iqtree", "iqtree-1.6.12-" + system, "")
 
 conn = sqlite3.connect(root_folder + 'trees.db')
 c = conn.cursor()
