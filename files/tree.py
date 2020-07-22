@@ -7,9 +7,9 @@ getcontext().prec = 10
 
 class Tree:
 
-    def __init__(self, string, json_args=None, enable_distances=False):
+    def __init__(self, string, json_args=None, enable_lengths=False):
         self.node_counter = 0
-        self.enable_distances = enable_distances
+        self.enable_lengths = enable_lengths
         if string[-1] == ";":  # TODO POTENTIAL ERROR SOURCE
             self.from_newick(string.rstrip()[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
@@ -43,14 +43,14 @@ class Tree:
                     self.root.r_child = self.make_node_from_newick(newick[i + 1:], self.root)
                     return
                 else:
-                    if self.enable_distances:
-                        distance = Decimal(newick[last_colon + 1:]) / 2
+                    if self.enable_lengths:
+                        length = Decimal(newick[last_colon + 1:]) / 2
                     else:
-                        distance = Decimal(1)
+                        length = Decimal(1)
                     self.root.l_child = self.make_node_from_newick(
-                        "(" + newick[:last_comma] + "):" + str(distance), self.root)
+                        "(" + newick[:last_comma] + "):" + str(length), self.root)
                     self.root.r_child = self.make_node_from_newick(
-                        newick[last_comma+1:last_colon] + ":" + str(distance), self.root)
+                        newick[last_comma+1:last_colon] + ":" + str(length), self.root)
                     return
 
     def from_json(self, string, json_args=None):
@@ -58,9 +58,9 @@ class Tree:
         json.pop()
         nodes = {}
         for node in json:
-            distance = node.get("distance")
-            total_distance = node.get("total_distance")
-            nodes[int(node["id"])] = Node(node.get("id"), Decimal(distance), Decimal(total_distance),
+            length = node.get("length")
+            total_length = node.get("total_length")
+            nodes[int(node["id"])] = Node(node.get("id"), Decimal(length), Decimal(total_length),
                                           node.get("parent"), node.get("l_child"), node.get("r_child"),
                                           node.get("name"), node.get("bootstrap"))
             if self.node_counter <= int(node.get("id")):
@@ -109,14 +109,14 @@ class Tree:
                     id_parent_parent.r_child = id_neighbor
 
                 # TODO ELSE
-                if not self.enable_distances:
+                if not self.enable_lengths:
                     new_node = Node(id_node.parent.id, Decimal(1), Decimal(1), self.root, self.root.l_child, self.root.r_child)
                     self.root.l_child = id_node
                     self.root.r_child = new_node
                     new_node.l_child.parent = new_node
                     new_node.r_child.parent = new_node
-                    id_node.distance = Decimal(1)
-                    id_node.total_distance = Decimal(1)
+                    id_node.length = Decimal(1)
+                    id_node.total_length = Decimal(1)
                     self.change_children_level(new_node.l_child, 1, True)
                     self.change_children_level(new_node.r_child, 1, True)
                     if id_neighbor:  # TODO necessary?
@@ -172,21 +172,21 @@ class Tree:
                         from_parent_parent.r_child = from_neighbor
 
                     to_parent = to_node.parent
-                    if self.enable_distances:
-                        distance = Decimal(to_node.distance) / 2
-                        total_distance = Decimal(to_parent.total_distance) + distance
+                    if self.enable_lengths:
+                        length = Decimal(to_node.length) / 2
+                        total_length = Decimal(to_parent.total_length) + length
                     else:
-                        distance = Decimal(to_node.distance)
-                        total_distance = Decimal(to_parent.total_distance) + distance
+                        length = Decimal(to_node.length)
+                        total_length = Decimal(to_parent.total_length) + length
 
-                        #to_node.distance = Decimal(to_node.distance + 1)
-                        to_node.total_distance = Decimal(to_node.total_distance + 1)
+                        #to_node.length = Decimal(to_node.length + 1)
+                        to_node.total_length = Decimal(to_node.total_length + 1)
 
-                        from_node.distance = Decimal(to_node.distance)
-                        from_node.total_distance = Decimal(to_node.total_distance)
+                        from_node.length = Decimal(to_node.length)
+                        from_node.total_length = Decimal(to_node.total_length)
                     # TODO REMINDER THIS IS THE NEW PARENT IN BETWEEN
-                    new_node = Node(from_node.parent.id, distance, total_distance, to_parent)
-                    # new_node = Node(self.node_counter, distance, total_distance, to_parent)
+                    new_node = Node(from_node.parent.id, length, total_length, to_parent)
+                    # new_node = Node(self.node_counter, length, total_length, to_parent)
                     # self.node_counter += 1
                     if to_path[-1] == "L":
                         to_parent.l_child = new_node
@@ -199,7 +199,7 @@ class Tree:
                     elif to_path > from_path:
                         new_node.l_child = from_node
                         new_node.r_child = to_node
-                    if not self.enable_distances:
+                    if not self.enable_lengths:
                         # all ancestors from from to the left
                         # all descendants from both to the right
                         if to_node.l_child:
@@ -218,11 +218,11 @@ class Tree:
     def make_node_from_newick(self, string, parent):
         colon = string.rfind(":")
         last_parenthesis = string.rfind(")")
-        if self.enable_distances:
-            distance = Decimal(string[colon + 1:])
+        if self.enable_lengths:
+            length = Decimal(string[colon + 1:])
         else:
-            distance = Decimal(1)
-        total_distance = Decimal(parent.total_distance) + Decimal(distance)
+            length = Decimal(1)
+        total_length = Decimal(parent.total_length) + Decimal(length)
         node = None
         if "(" in string:
             level = 0
@@ -237,7 +237,7 @@ class Tree:
                     comma = i
                     break
             if comma != -1:
-                node = Node(self.node_counter, distance, total_distance, parent,
+                node = Node(self.node_counter, length, total_length, parent,
                             bootstrap=string[last_parenthesis + 1:colon])
                 self.node_counter += 1
                 node.l_child = self.make_node_from_newick(inner_string[:comma], node)
@@ -245,7 +245,7 @@ class Tree:
             else:
                 pass  # TODO ?
         else:
-            node = Node(self.node_counter, distance, total_distance, parent, name=string[:colon])
+            node = Node(self.node_counter, length, total_length, parent, name=string[:colon])
             self.node_counter += 1
         return node  # TODO none?
 
@@ -260,12 +260,12 @@ class Tree:
 
     def to_json(self):
         output = []
-        max_distance = 0
+        max_length = 0
         longest_name = ""
         for node in self.in_order(self.root):
             str_id = str(node.id)
-            str_distance = str(node.distance)
-            str_total_distance = str(node.total_distance)
+            str_length = str(node.length)
+            str_total_length = str(node.total_length)
             if node.parent:
                 str_parent = str(node.parent.id)
             else:
@@ -281,14 +281,14 @@ class Tree:
                 str_bootstrap = str(node.bootstrap)
             else:
                 str_bootstrap = ""
-            output.append({'id': str_id, 'distance': str_distance, 'total_distance': str_total_distance,
+            output.append({'id': str_id, 'length': str_length, 'total_length': str_total_length,
                            'parent': str_parent, 'l_child': str_l_child, 'r_child': str_r_child, 'name': str_name,
                            'bootstrap': str_bootstrap})
             if str_name != "None" and (len(str_name) > len(longest_name)):
                 longest_name = str_name
-            if node.total_distance > max_distance:
-                max_distance = node.total_distance
-        return dumps(output + [{"enable_distances": self.enable_distances, "max_distance": str(max_distance), "longest_name": longest_name}])
+            if node.total_length > max_length:
+                max_length = node.total_length
+        return dumps(output + [{"enable_lengths": self.enable_lengths, "max_length": str(max_length), "longest_name": longest_name}])
 
     def to_newick(self):
         return self.newick_helper(self.root)[:-2] + ";"
@@ -299,16 +299,16 @@ class Tree:
             result += "(" + self.newick_helper(root.l_child) + "," + self.newick_helper(root.r_child) + ")"
             if root.bootstrap:
                 result += root.bootstrap
-            result += ":" + str(root.distance)
+            result += ":" + str(root.length)
         else:
-            result += root.name + ":" + str(root.distance)
+            result += root.name + ":" + str(root.length)
         return result
 
     # TODO overhaul, does not require this much
     def change_children_level(self, node, amount, total_only=False):
         if not total_only:
-            node.distance = Decimal(node.distance + amount)
-        node.total_distance = Decimal(node.total_distance + amount)
+            node.length = Decimal(node.length + amount)
+        node.total_length = Decimal(node.total_length + amount)
         if node.l_child:
             self.change_children_level(node.l_child, amount, total_only)
         if node.r_child:

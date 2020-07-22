@@ -58,7 +58,7 @@ $(function() {
     });
     $("#save-options").click(function() {
         optionsJSON = {
-            "enable-distances": $("#enable-distances")[0].checked
+            "enable-lengths": $("#enable-lengths")[0].checked
         }
         if (dnaProtein == "dna") {
             optionsJSON["dna-protein"] = "dna";
@@ -143,28 +143,28 @@ $(function() {
                 testData[i] = new Array();
             }
 
-            testData[0].push("#");
-            testData[1].push("logL");
-            testData[2].push("deltaL");
-            testData[3].push("bp-RELL");
-            testData[4].push("p-KH");
-            testData[5].push("p-SH");
-            testData[6].push("p-WKH");
-            testData[7].push("p-WSH");
-            testData[8].push("c-ELW");
-            testData[9].push("p-AU");
+            testData[0].push('#');
+            testData[1].push('logL');
+            testData[2].push('<a href="#" title="deltaL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="logL difference from the maximal logL in the set">deltaL</a>');
+            testData[3].push('<a href="#" title="bp-RELL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="bootstrap proportion using <a href=\'https://doi.org/10.1007/BF02109483\' target=\'_blank\'>RELL method (Kishino et al. 1990)</a>">bp-RELL</a>');
+            testData[4].push('<a href="#" title="p-KH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of one sided <a href=\'https://doi.org/10.1007/BF02100115\' target=\'_blank\'>Kishino-Hasegawa test (1989)</a>">p-KH</a>');
+            testData[5].push('<a href="#" title="p-SH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1093/oxfordjournals.molbev.a026201\' target=\'_blank\'>Shimodaira-Hasegawa test (2000)</a>">p-SH</a>');
+            testData[6].push('<a href="#" title="p-WKH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href=\'https://doi.org/10.1007/BF02100115\' target=\'_blank\'>KH</a>">p-WKH</a>');
+            testData[7].push('<a href="#" title="p-WSH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href=\'https://doi.org/10.1093/oxfordjournals.molbev.a026201\' target=\'_blank\'>SH</a>">p-WSH</a>');
+            testData[8].push('<a href="#" title="c-ELW" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="Expected Likelihood Weight <a href=\'https://doi.org/10.1098/rspb.2001.1862\' target=\'_blank\'>(Strimmer & Rambaut 2002)</a>">c-ELW</a>');
+            testData[9].push('<a href="#" title="p-AU" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1080/10635150290069913\' target=\'_blank\'>approximately unbiased (AU) test (Shimodaira, 2002)</a>">p-AU</a>');
 
             data.forEach(function(value) {
-                testData[0].push(value[0]);
-                testData[1].push(value[1]);
-                testData[2].push(value[2]);
-                testData[3].push(value[3] + ' ' + value[4]);
-                testData[4].push(value[5] + ' ' + value[6]);
-                testData[5].push(value[7] + ' ' + value[8]);
-                testData[6].push(value[9] + ' ' + value[10]);
-                testData[7].push(value[11] + ' ' + value[12]);
-                testData[8].push(value[13] + ' ' + value[14]);
-                testData[9].push(value[15] + ' ' + value[16]);
+                testData[0].push(value[0], "");
+                testData[1].push(parseFloat(value[1]).toFixed(2), "");
+                testData[2].push(parseFloat(value[2]).toFixed(2), "");
+                testData[3].push(value[3], value[4]);
+                testData[4].push(value[5], value[6]);
+                testData[5].push(value[7], value[8]);
+                testData[6].push(value[9], value[10]);
+                testData[7].push(value[11], value[12]);
+                testData[8].push(value[13], value[14]);
+                testData[9].push(value[15], value[16]);
             });
 
             console.log(testData);
@@ -190,6 +190,7 @@ $(function() {
                     }
                 }
                 $("#tests").append(end);
+                $('[data-toggle="popover"]').popover();
             }
         });
     }
@@ -211,8 +212,8 @@ $(function() {
 
         extraData = data.pop();
 
-        enableDistances = extraData["enable_distances"];
-        maxDistance = extraData["max_distance"];
+        enableLengths = extraData["enable_lengths"];
+        maxLength = extraData["max_length"];
         longestName = extraData["longest_name"];
 
         let fontSize = '1.375em';
@@ -224,20 +225,20 @@ $(function() {
         longestNameWidth = Math.ceil(longestNameTester.getBBox().width);
         longestNameTester.remove();
 
-        // TODO instead of checking longest name, we have to check longest combination of line with distance and name for each and get longest total line
+        // TODO instead of checking longest name, we have to check longest combination of line with length and name for each and get longest total line
 
         amount = data.length;
 
         offset = 10;
-        multiplier = enableDistances ? 10 : 1;
+        multiplier = enableLengths ? 10 : 1;
         //scaleX = 200;
         scaleX = 50 * multiplier;
         scaleY = 30;
 
         svg.remove();
-        //svg = Snap(((scaleX * maxDistance) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
+        //svg = Snap(((scaleX * maxLength) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
         //$(svg.node).appendTo($("#mainDiv"));
-        maxX = (scaleX * maxDistance) + (3.5 * offset) + longestNameWidth;
+        maxX = (scaleX * maxLength) + (3.5 * offset) + longestNameWidth;
         maxY = scaleY * (amount + 1);
         svg = Snap(maxWidth, maxHeight);
         $(svg.node).appendTo($("#mainDiv"));
@@ -279,17 +280,24 @@ $(function() {
             'vector-effect': 'non-scaling-stroke'
         });
 
-        minimap.path("M" + minimapMinX + "," + minimapMinY + "H" + minimapMaxX + "V" + minimapMaxY + "H" + minimapMinX + "Z").attr({
-            fill: 'none',
+        border = minimap.path("M" + minimapMinX + "," + minimapMinY + "H" + minimapMaxX + "V" + minimapMaxY + "H" + minimapMinX + "Z").attr({
+            fill: 'transparent',
             stroke: 'black',
             strokeWidth: 1
+        });
+
+        border.click(function(event) {
+            posX = event.offsetX;
+            posY = event.offsetY;
+            console.log(posX, posX * ratio);
+            console.log(posY, posY * ratio);
         });
 
         // TODO write this nicer
         topBottom = [-5, maxY + 15];
         let topBottomLine;
         topBottom.forEach(function(value) {
-            for (var i = 0; i < maxDistance * multiplier; i++) {
+            for (var i = 0; i < maxLength * multiplier; i++) {
                 topBottomLine = svg.line(10 + scaleX * i / multiplier, value - 10, 10 + scaleX * i / multiplier, value).attr({
                     fill: 'none',
                     stroke: 'black',
@@ -300,22 +308,22 @@ $(function() {
                 // TODO could be put exactly in the middle, now only puts the beginning above the line
                 // g.add(svg.text(10 + scaleX * i, value - 20, i + ".0").attr({dominantBaseline: 'middle', fontSize: fontSize}));
             }
-            topBottomLine = svg.line(10 + scaleX * maxDistance, value - 10, 10 + scaleX * maxDistance, value).attr({
+            topBottomLine = svg.line(10 + scaleX * maxLength, value - 10, 10 + scaleX * maxLength, value).attr({
                 fill: 'none',
                 stroke: 'black',
                 strokeWidth: 2
             });
-            topBottomLine.append(Snap.parse('<title>' + maxDistance + '</title>'));
+            topBottomLine.append(Snap.parse('<title>' + maxLength + '</title>'));
             lines.add(topBottomLine);
             // TODO could be put exactly in the middle, now only puts the beginning above the line
-            // g.add(svg.text(10 + scaleX * maxDistance, value - 20, maxDistance).attr({dominantBaseline: 'middle', fontSize: fontSize}));
-            lines.add(svg.line(10, value - 5, 10 + scaleX * maxDistance, value - 5).attr({
+            // g.add(svg.text(10 + scaleX * maxLength, value - 20, maxLength).attr({dominantBaseline: 'middle', fontSize: fontSize}));
+            lines.add(svg.line(10, value - 5, 10 + scaleX * maxLength, value - 5).attr({
                 fill: 'none',
                 stroke: 'black',
                 strokeWidth: 2
             }));
         });
-        for (var i = 0; i < maxDistance * multiplier; i++) {
+        for (var i = 0; i < maxLength * multiplier; i++) {
             topBottomLine = svg.line(10 + scaleX * i / multiplier, topBottom[0], 10 + scaleX * i / multiplier, topBottom[1] - 10).attr({
                 fill: 'none',
                 stroke: 'black',
@@ -325,20 +333,20 @@ $(function() {
             topBottomLine.append(Snap.parse('<title>' + i / multiplier + '</title>'));
             lines.add(topBottomLine);
         }
-        topBottomLine = svg.line(10 + scaleX * maxDistance, topBottom[0], 10 + scaleX * maxDistance, topBottom[1] - 10).attr({
+        topBottomLine = svg.line(10 + scaleX * maxLength, topBottom[0], 10 + scaleX * maxLength, topBottom[1] - 10).attr({
             fill: 'none',
             stroke: 'black',
             strokeWidth: 2,
             strokeOpacity: 0.125
         });
-        topBottomLine.append(Snap.parse('<title>' + maxDistance + '</title>'));
+        topBottomLine.append(Snap.parse('<title>' + maxLength + '</title>'));
         lines.add(topBottomLine);
 
         //svg.mousedown(funcMouseDown);
         //svg.mouseup(funcMouseUp);
         //svg.mousemove(funcMouseMove);
 
-        //scaleX = (maxWidth - longestNameWidth - (2.5 * offset)) / maxDistance;
+        //scaleX = (maxWidth - longestNameWidth - (2.5 * offset)) / maxLength;
         //scaleY = maxHeight / (amount + 1);
 
         //let paths = [];
@@ -408,7 +416,7 @@ $(function() {
             if (item["name"] != "None") {
                 // TODO draw all texts at the right
                 // with path stroke dasharray
-                //g.add(svg.text(item["total_distance"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize, 'data-id': item["id"]}));
+                //g.add(svg.text(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize, 'data-id': item["id"]}));
                 nameText = svg.text(maxX - offset, (index + 1) * scaleY, item["name"]).attr({
                     dominantBaseline: 'middle',
                     fontSize: fontSize,
@@ -416,8 +424,8 @@ $(function() {
                     textAnchor: 'end'
                 });
                 g.add(nameText);
-                if (item["total_distance"] * scaleX + (1.5 * offset) < maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width) - offset) {
-                    g.add(svg.line(item["total_distance"] * scaleX + (1.5 * offset), (index + 1) * scaleY, maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width), (index + 1) * scaleY).attr({
+                if (item["total_length"] * scaleX + (1.5 * offset) < maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width) - offset) {
+                    g.add(svg.line(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width), (index + 1) * scaleY).attr({
                         fill: 'none',
                         stroke: 'black',
                         strokeWidth: 2,
@@ -428,7 +436,7 @@ $(function() {
                 if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
                     parent = array.findIndex((elem)=>elem.id == item["parent"]);
                     // TODO could be put exactly in the middle, now only puts the beginning in the middle
-                    g.add(svg.text((parseFloat(array[parent]["total_distance"]) + (item["distance"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({
+                    g.add(svg.text((parseFloat(array[parent]["total_length"]) + (item["length"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({
                         dominantBaseline: 'baseline',
                         fontSize: 0.5 * fontSize,
                         'data-id': item["id"]
@@ -439,7 +447,7 @@ $(function() {
                 l_child = array.findIndex((elem)=>elem.id == item["l_child"]);
                 r_child = array.findIndex((elem)=>elem.id == item["r_child"]);
 
-                mX = (item["total_distance"] * scaleX) + offset;
+                mX = (item["total_length"] * scaleX) + offset;
                 mYLeft = (index + 1) * scaleY - strokeWidth;
                 mYRight = (index + 1) * scaleY + strokeWidth;
 
@@ -450,8 +458,8 @@ $(function() {
 
                 vLeft = (l_child + 1) * scaleY;
                 vRight = (r_child + 1) * scaleY;
-                hLeft = array[l_child]["total_distance"] * scaleX + offset;
-                hRight = array[r_child]["total_distance"] * scaleX + offset;
+                hLeft = array[l_child]["total_length"] * scaleX + offset;
+                hRight = array[r_child]["total_length"] * scaleX + offset;
 
                 left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft).attr({
                     "data-id": array[l_child]["id"],

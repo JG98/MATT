@@ -28,9 +28,7 @@ conn.close()
 @app.route("/")
 def home():
     response = make_response(render_template("index.html"))
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
+    response.headers["Cache-Control"] = "no-store"
     return response
 
 
@@ -39,18 +37,18 @@ def load():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     # TODO
-    enable_distances = config.getboolean("Options", "enable-distances")
-    print("def" + str(enable_distances))
+    enable_lengths = config.getboolean("Options", "enable-lengths")
+    print("def" + str(enable_lengths))
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
     print(len(request.args))
     print(len(request.form))
     if request.method == "POST":
-        # TODO here already without distances too? Maybe, needs to be checked^^
-        tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode(), enable_distances=enable_distances).to_json()
+        # TODO here already without lengths too? Maybe, needs to be checked^^
+        tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode(), enable_lengths=enable_lengths).to_json()
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
-        if enable_distances:
+        if enable_lengths:
             pass
             #result = subprocess.run(
             #    [os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te",
@@ -72,7 +70,7 @@ def load():
         else:
             pass  #TODO
         print(json_args)
-        tree = Tree(tree_json, json_args, enable_distances).to_json()
+        tree = Tree(tree_json, json_args, enable_lengths).to_json()
     else:
         pass  # TODO
     c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
@@ -86,18 +84,17 @@ def load():
     conn.commit()
     conn.close()
     response = make_response(dumps(trees))
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
+    response.headers["Cache-Control"] = "no-store"
     return response
 
 
 @app.route("/options", methods=["POST"])
 def options():
     print(request.form)
+    print(request.form.get("enable-lengths"))
     if not config.has_section("Options"):
         config.add_section("Options")
-    config.set("Options", "enable-distances", request.form.get("enable-distances"))
+    config.set("Options", "enable-lengths", request.form.get("enable-lengths"))
     config.set("Options", "dna-protein", request.form.get("dna-protein"))
     if request.form.get("dna-protein") == "dna":
         config.set("Options", "dna-bsr", request.form.get("dna-bsr"))
@@ -108,25 +105,23 @@ def options():
         config.set("Options", "protein-pmm", request.form.get("protein-pmm"))
         config.set("Options", "protein-aaf", request.form.get("protein-aaf"))
     save_config()
-    #response = make_response(dumps(config.getboolean("Options", "enable-distances")))
-    #print("abc" + str(config.getboolean("Options", "enable-distances")))
+    #response = make_response(dumps(config.getboolean("Options", "enable-lengths")))
+    #print("abc" + str(config.getboolean("Options", "enable-lengths")))
     response = make_response("OK")  # TODO
     # TODO PRINT NEW TREE (options to the whole data thingy too)
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
+    response.headers["Cache-Control"] = "no-store"
     return response
 
 
 @app.route("/tests", methods=["POST"])
 def tests():
     snapshots = request.form.getlist("snapshots[]")
-    path = os.path.join(root_folder, "tmp", "trees.txt")
+    path = os.path.join(root_folder, "tmp", "trees.nck")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     trees_json = c.execute("SELECT json FROM trees WHERE id IN ({})".format(','.join('?' for _ in snapshots)), snapshots).fetchall()
-    # TODO USE REAL DISTANCES THO!
+    # TODO USE REAL LENGTHS THO!
     for tree_json in trees_json[:-1]:
         tree = Tree(tree_json[0]).to_newick()
         file.write(tree + "\n")
@@ -144,13 +139,12 @@ def tests():
     print(results)
     print(dumps(results))
     response = make_response(dumps(results))
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
+    response.headers["Cache-Control"] = "no-store"
     return response
 
+
 def save_config():
-    config["DEFAULT"] = {"enable-distances": "true"}
+    config["DEFAULT"] = {"enable-lengths": "true"}
     with open(root_folder + "config.ini", "w") as config_file:
         config.write(config_file)
 

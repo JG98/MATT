@@ -2,7 +2,7 @@ IQ-TREE 1.6.12 built Aug 15 2019
 
 Input file name: /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy
 Type of analysis: ModelFinder + tree reconstruction
-Random seed number: 346366
+Random seed number: 550891
 
 REFERENCES
 ----------
@@ -301,10 +301,8 @@ See /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy.tree
 
 Tree      logL    deltaL  bp-RELL    p-KH     p-SH    p-WKH    p-WSH       c-ELW       p-AU
 -------------------------------------------------------------------------------------------
-  1 -21152.61557       0   0.515 +      0 -  0.712 +  0.988 +  0.999 +     0.497 +    0.992 + 
-  2 -21152.61557       0   0.478 +      0 -  0.712 +  0.988 +  0.999 +     0.497 +    0.992 + 
-  3 -21175.88345  23.268  0.0074 - 0.0118 -  0.213 + 0.0118 - 0.0193 -    0.0068 -  0.00767 - 
-  4  -21416.0069  263.39       0 -      0 -      0 -      0 -      0 -  2.51e-69 - 4.78e-11 - 
+  1 -21152.61557       0   0.977 +  0.971 +      1 +  0.971 +  0.971 +     0.969 +    0.973 + 
+  2 -21162.97686  10.361  0.0234 - 0.0295 - 0.0295 - 0.0295 - 0.0295 -    0.0308 -   0.0265 - 
 
 deltaL  : logL difference from the maximal logl in the set.
 bp-RELL : bootstrap proportion using RELL method (Kishino et al. 1990).
@@ -322,7 +320,7 @@ All tests performed 10000 resamplings using the RELL method.
 TIME STAMP
 ----------
 
-Date and time: Tue Jul  7 14:54:10 2020
-Total CPU time used: 2.82 seconds (0h:0m:2s)
-Total wall-clock time used: 4.48 seconds (0h:0m:4s)
+Date and time: Wed Jul 22 16:45:25 2020
+Total CPU time used: 3.12 seconds (0h:0m:3s)
+Total wall-clock time used: 4.67 seconds (0h:0m:4s)
 
