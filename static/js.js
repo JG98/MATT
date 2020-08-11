@@ -289,8 +289,9 @@ $(function() {
         border.click(function(event) {
             posX = event.offsetX;
             posY = event.offsetY;
-            console.log(posX, posX * ratio);
-            console.log(posY, posY * ratio);
+            moveX = posX * ratio;
+            moveY = posY * ratio;
+            setTransform("translate", -moveX + maxWidth / 2, -moveY + maxHeight / 2);
         });
 
         // TODO write this nicer
@@ -640,6 +641,8 @@ $(function() {
                 });
             }
         });
+
+        setTransform("translate", 20, 20);
 
         // TODO think of the boundaries!
         var startX, startY;
