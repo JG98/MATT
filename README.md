@@ -1,4 +1,6 @@
-# Bethy
+# MATT - A FRAMEWORK FOR MODIFYING AND TESTING TOPOLOGIES
+
+![MATT](static/logo.png "MATT")
 
 ##Description
 TODO

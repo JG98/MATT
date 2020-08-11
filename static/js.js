@@ -199,6 +199,8 @@ $(function() {
         console.log(data);
         let g;
 
+        $("#logo").remove();
+
         if (typeof svg !== "undefined") {
             svg.remove();
         }
