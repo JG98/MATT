@@ -24,24 +24,51 @@ $(function() {
         else if (!input.files[0]) {
           alert("Please select a file before clicking 'Load'");
         } else {*/
-        let file = $("#file")[0].files[0];
-        let reader = new FileReader();
+        let alignmentFile = $("#alignment-file")[0].files[0];
+        let treeFile = $("#tree-file")[0].files[0];
 
-        let senddata = new Object();
-        senddata.name = file.name;
-        senddata.date = file.lastModified;
-        senddata.size = file.size;
-        senddata.type = file.type;
-
-        reader.onload = function(theFileData) {
-            senddata.fileData = theFileData.target.result;
-            console.log(senddata.fileData);
-            load("post", {
-                file: senddata.fileData
-            });
+        if (typeof alignmentFile !== "undefined") {
+            let senddataAlignment = {
+                name: alignmentFile.name,
+                date: alignmentFile.lastModified,
+                size: alignmentFile.size,
+                type: alignmentFile.type
+            }
+            let alignmentReader = new FileReader();
+            alignmentReader.onload = function(theFileData) {
+                senddataAlignment.fileData = theFileData.target.result;
+                load("post", {
+                    file: {
+                        data: senddataAlignment.fileData,
+                        name: senddataAlignment.name
+                    }
+                    // TODO HERE OTHER READER CHECK AND THEN SEND
+                });
+            }
+            alignmentReader.readAsDataURL(alignmentFile);
         }
 
-        reader.readAsDataURL(file);
+        if (typeof treeFile != "undefined") {
+            let senddataTree = {
+                name: treeFile.name,
+                date: treeFile.lastModified,
+                size: treeFile.size,
+                type: treeFile.type
+            }
+            let treeReader = new FileReader();
+            treeReader.onload = function(theFileData) {
+                senddataTree.fileData = theFileData.target.result;
+                load("post", {
+                    file: {
+                        data: senddataTree.fileData,
+                        name: senddataTree.name
+                    }
+                    // TODO HERE OTHER READER CHECK AND THEN SEND
+                });
+            }
+            treeReader.readAsDataURL(treeFile);
+        }
+
         // }
 
     });

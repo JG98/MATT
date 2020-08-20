@@ -8,6 +8,7 @@ import os.path
 import platform
 import configparser
 
+# TODO constants like app_location to APP_LOCATION
 
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
@@ -43,8 +44,24 @@ def load():
     print(len(request.args))
     print(len(request.form))
     if request.method == "POST":
+        # TODO 1st (default case): Enter alignment and tree and we save both
+        # TODO 2nd case: Enter only alignment and hope that tree calculation does not need higher specs that you have
+        # TODO 3rd case: Enter only tree and we disable test option, because we have no alignment
+        # TODO this here is case 2 currently
+
+        # TODO always delete temp afterwards mabye??
         # TODO here already without lengths too? Maybe, needs to be checked^^
-        tree = Tree(b64decode(request.form.get("file").split("base64,")[1]).decode(), enable_lengths=enable_lengths).to_json()
+        alignment = b64decode(request.form.get("file[data]").split("base64,")[1]).decode()
+        # TODO tree = b64decode(request.form.get("tree-file[data]").split("base64,")[1]).decode()
+        alignment_type = request.form.get("file[name]").split(".")[-1]
+        # TODO tree_type = request.form.get("alignment-file[name]").split(".")[-1]
+
+        with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
+            alignment_file.write(alignment)
+        subprocess.run([os.path.join(app_location, "bin/iqtree"), "-s", os.path.join("tmp", "alignment." + alignment_type), "-m", "Blosum62"])
+        with open(os.path.join("tmp", "alignment." + alignment_type + ".treefile"), "r") as tree_file:
+            tree = tree_file.readline()
+        tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
