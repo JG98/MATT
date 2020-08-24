@@ -168,7 +168,10 @@ def save_config():
         'dna-protein': 'dna',
         'dna-bsr': 'JC',
         'dna-bf': '-',
-        'dna-rhas': '-'
+        'dna-rhas': '-',
+        'protein-aaerm': 'Blosum62',
+        'protein-pmm': '-',
+        'protein-aaf': '-'
     }
     with open(root_folder + "config.ini", "w") as config_file:
         config.write(config_file)
