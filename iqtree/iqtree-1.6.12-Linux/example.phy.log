@@ -3,15 +3,15 @@ Developed by Bui Quang Minh, Nguyen Lam Tung, Olga Chernomor,
 Heiko Schmidt, Dominik Schrempf, Michael Woodhams.
 
 Host:    lantern (AVX2, FMA3, 7 GB RAM)
-Command: /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/bin/iqtree -s /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy -z /home/jeff/PycharmProjects/Bethy/tmp/trees.nck -n 0 -zb 10000 -zw -au -redo
-Seed:    550891 (Using SPRNG - Scalable Parallel Random Number Generator)
-Time:    Wed Jul 22 16:45:20 2020
+Command: iqtree/iqtree-1.6.12-Linux/bin/iqtree -s iqtree/iqtree-1.6.12-Linux/example.phy -z tmp/trees.nck -n 0 -zb 10000 -zw -au -redo
+Seed:    504969 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Thu Aug 20 14:17:28 2020
 Kernel:  AVX+FMA - 1 threads (8 CPU cores detected)
 
 HINT: Use -nt option to specify number of threads because your CPU has 8 cores!
 HINT: -nt AUTO will automatically determine the best number of threads to use.
 
-Reading alignment file /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy ... Phylip format detected
+Reading alignment file iqtree/iqtree-1.6.12-Linux/example.phy ... Phylip format detected
 Alignment most likely contains DNA/RNA sequences
 Alignment has 17 sequences with 1998 columns, 1152 distinct patterns
 1009 parsimony-informative, 303 singleton sites, 686 constant sites
@@ -35,7 +35,7 @@ Alignment has 17 sequences with 1998 columns, 1152 distinct patterns
   17  Opossum      0.00%    failed      0.01%
 ****  TOTAL        0.11%  8 sequences failed composition chi2 test (p-value<5%; df=3)
 
-NOTE: Restoring information from model checkpoint file /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy.model.gz
+NOTE: Restoring information from model checkpoint file iqtree/iqtree-1.6.12-Linux/example.phy.model.gz
 
 CHECKPOINT: Initial tree restored
 NOTE: ModelFinder requires 6 MB RAM!
@@ -200,9 +200,9 @@ Corrected Akaike Information Criterion: GTR+F+R3
 Bayesian Information Criterion:         TIM2+F+I+G4
 Best-fit model: TIM2+F+I+G4 chosen according to BIC
 
-All model information printed to /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy.model.gz
-CPU time for ModelFinder: 0.028 seconds (0h:0m:0s)
-Wall-clock time for ModelFinder: 0.037 seconds (0h:0m:0s)
+All model information printed to iqtree/iqtree-1.6.12-Linux/example.phy.model.gz
+CPU time for ModelFinder: 0.032 seconds (0h:0m:0s)
+Wall-clock time for ModelFinder: 0.084 seconds (0h:0m:0s)
 
 NOTE: 2 MB RAM (0 GB) is required!
 Estimate model parameters (epsilon = 0.010)
@@ -219,23 +219,23 @@ Init pinv, alpha: 0.305, 1.000 / Estimate: 0.174, 0.782 / LogL: -21164.076
 Init pinv, alpha: 0.343, 1.000 / Estimate: 0.175, 0.783 / LogL: -21164.083
 Optimal pinv,alpha: 0.174, 0.779 / LogL: -21164.071
 
-Parameters optimization took 3.110 sec
+Parameters optimization took 2.985 sec
 BEST SCORE FOUND : -21164.071
 Total tree length: 4.220
 
 Total number of iterations: 0
 CPU time used for tree search: 0.000 sec (0h:0m:0s)
 Wall-clock time used for tree search: 0.000 sec (0h:0m:0s)
-Total CPU time used: 3.116 sec (0h:0m:3s)
-Total wall-clock time used: 3.123 sec (0h:0m:3s)
+Total CPU time used: 2.980 sec (0h:0m:2s)
+Total wall-clock time used: 2.996 sec (0h:0m:2s)
 
-Reading trees in /home/jeff/PycharmProjects/Bethy/tmp/trees.nck ...
+Reading trees in tmp/trees.nck ...
 2 trees detected
 Note: 44.277 MB of RAM required!
 Creating 10000 bootstrap replicates...
 done
 Tree 1 / LogL: -21152.616
-Tree 2 / LogL: -21162.977
+Tree 2 / LogL: -21162.900
 Performing RELL-BP test...
 Performing KH and SH test...
 Computing pairwise logl difference variance ...
@@ -243,16 +243,16 @@ Performing WKH and WSH test...
 Performing ELW test...
 Performing approximately unbiased (AU) test...
 1 MB required for AU test
-Generating 10 x 10000 multiscale bootstrap replicates... 1.185 seconds
+Generating 10 x 10000 multiscale bootstrap replicates... 1.000 seconds
 TreeID	AU	RSS	d	c
-1	0.973	7.790	-1.934	0.000
-2	0.027	7.790	1.934	-0.000
-Time for evaluating all trees: 1.539 sec.
+1	0.970	4.532	-1.884	-0.002
+2	0.030	4.532	1.884	0.002
+Time for evaluating all trees: 1.280 sec.
 
 Analysis results written to: 
-  IQ-TREE report:                /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy.iqtree
-  Maximum-likelihood tree:       /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy.treefile
-  Evaluated user trees:          /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy.trees
-  Screen log file:               /home/jeff/PycharmProjects/Bethy/iqtree/iqtree-1.6.12-Linux/example.phy.log
+  IQ-TREE report:                iqtree/iqtree-1.6.12-Linux/example.phy.iqtree
+  Maximum-likelihood tree:       iqtree/iqtree-1.6.12-Linux/example.phy.treefile
+  Evaluated user trees:          iqtree/iqtree-1.6.12-Linux/example.phy.trees
+  Screen log file:               iqtree/iqtree-1.6.12-Linux/example.phy.log
 
-Date and Time: Wed Jul 22 16:45:25 2020
+Date and Time: Thu Aug 20 14:17:33 2020
