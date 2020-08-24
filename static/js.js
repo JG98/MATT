@@ -27,6 +27,9 @@ $(function() {
         let alignmentFile = $("#alignment-file")[0].files[0];
         let treeFile = $("#tree-file")[0].files[0];
 
+        let alignmentReader;
+        let treeReader;
+
         if (typeof alignmentFile !== "undefined") {
             let senddataAlignment = {
                 name: alignmentFile.name,
@@ -34,9 +37,10 @@ $(function() {
                 size: alignmentFile.size,
                 type: alignmentFile.type
             }
-            let alignmentReader = new FileReader();
+            alignmentReader = new FileReader();
             alignmentReader.onload = function(theFileData) {
                 senddataAlignment.fileData = theFileData.target.result;
+                console.log(treeReader);
                 load("post", {
                     file: {
                         data: senddataAlignment.fileData,
@@ -55,7 +59,7 @@ $(function() {
                 size: treeFile.size,
                 type: treeFile.type
             }
-            let treeReader = new FileReader();
+            treeReader = new FileReader();
             treeReader.onload = function(theFileData) {
                 senddataTree.fileData = theFileData.target.result;
                 load("post", {
