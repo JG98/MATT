@@ -38,7 +38,8 @@ def load():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     # TODO
-    enable_lengths = config.getboolean("Options", "enable-lengths")
+    config.read("config.ini")
+    enable_lengths = config.get("Options", "enable-lengths")
     print("def" + str(enable_lengths))
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
     print(len(request.args))
@@ -109,6 +110,7 @@ def load():
 def options():
     print(request.form)
     print(request.form.get("enable-lengths"))
+    config.read("config.ini")
     if not config.has_section("Options"):
         config.add_section("Options")
     config.set("Options", "enable-lengths", request.form.get("enable-lengths"))
@@ -161,7 +163,13 @@ def tests():
 
 
 def save_config():
-    config["DEFAULT"] = {"enable-lengths": "true"}
+    config["DEFAULT"] = {
+        'enable-lengths': 'true',
+        'dna-protein': 'dna',
+        'dna-bsr': 'JC',
+        'dna-bf': '-',
+        'dna-rhas': '-'
+    }
     with open(root_folder + "config.ini", "w") as config_file:
         config.write(config_file)
 
