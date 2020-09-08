@@ -30,8 +30,11 @@ $(function() {
         let alignmentReader;
         let treeReader;
 
+        let senddataAlignment;
+        let senddataTree;
+
         if (typeof alignmentFile !== "undefined") {
-            let senddataAlignment = {
+            senddataAlignment = {
                 name: alignmentFile.name,
                 date: alignmentFile.lastModified,
                 size: alignmentFile.size,
@@ -40,20 +43,13 @@ $(function() {
             alignmentReader = new FileReader();
             alignmentReader.onload = function(theFileData) {
                 senddataAlignment.fileData = theFileData.target.result;
-                console.log(treeReader);
-                load("post", {
-                    file: {
-                        data: senddataAlignment.fileData,
-                        name: senddataAlignment.name
-                    }
-                    // TODO HERE OTHER READER CHECK AND THEN SEND
-                });
+                sendAlignmentAndTree();
             }
             alignmentReader.readAsDataURL(alignmentFile);
         }
 
         if (typeof treeFile != "undefined") {
-            let senddataTree = {
+            senddataTree = {
                 name: treeFile.name,
                 date: treeFile.lastModified,
                 size: treeFile.size,
@@ -62,15 +58,50 @@ $(function() {
             treeReader = new FileReader();
             treeReader.onload = function(theFileData) {
                 senddataTree.fileData = theFileData.target.result;
-                load("post", {
-                    file: {
-                        data: senddataTree.fileData,
-                        name: senddataTree.name
-                    }
-                    // TODO HERE OTHER READER CHECK AND THEN SEND
-                });
+                sendAlignmentAndTree();
             }
             treeReader.readAsDataURL(treeFile);
+        }
+
+        function sendAlignmentAndTree() {
+            if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
+                console.log("a");
+                if ((typeof senddataAlignment.fileData !== "undefined") && (typeof senddataTree.fileData !== "undefined")) {
+                    console.log("1");
+                    load("post", {
+                        alignment: {
+                            data: senddataAlignment.fileData,
+                            name: senddataAlignment.name
+                        },
+                        tree: {
+                            data: senddataTree.fileData,
+                            name: senddataTree.name
+                        }
+                    });
+                }
+            } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
+                console.log("b");
+                if (typeof senddataAlignment.fileData !== "undefined") {
+                    console.log("1");
+                    load("post", {
+                        alignment: {
+                            data: senddataAlignment.fileData,
+                            name: senddataAlignment.name
+                        }
+                    });
+                }
+            } else if ((typeof alignmentFile === "undefined") && (typeof treeFile !== "undefined")) {
+                console.log("c");
+                if (typeof senddataTree.fileData !== "undefined") {
+                    console.log("1");
+                    load("post", {
+                        tree: {
+                            data: senddataTree.fileData,
+                            name: senddataTree.name
+                        }
+                    });
+                }
+            }
         }
 
         // }

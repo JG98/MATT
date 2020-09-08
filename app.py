@@ -39,7 +39,7 @@ def load():
     c = conn.cursor()
     # TODO
     config.read("config.ini")
-    enable_lengths = config.get("Options", "enable-lengths")
+    enable_lengths = config.getboolean("Options", "enable-lengths")
     print("def" + str(enable_lengths))
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
     print(len(request.args))
@@ -52,17 +52,29 @@ def load():
 
         # TODO always delete temp afterwards mabye??
         # TODO here already without lengths too? Maybe, needs to be checked^^
-        alignment = b64decode(request.form.get("file[data]").split("base64,")[1]).decode()
-        # TODO tree = b64decode(request.form.get("tree-file[data]").split("base64,")[1]).decode()
-        alignment_type = request.form.get("file[name]").split(".")[-1]
-        # TODO tree_type = request.form.get("alignment-file[name]").split(".")[-1]
 
-        with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
-            alignment_file.write(alignment)
-        subprocess.run([os.path.join(app_location, "bin/iqtree"), "-s", os.path.join("tmp", "alignment." + alignment_type), "-m", "Blosum62"])
-        with open(os.path.join("tmp", "alignment." + alignment_type + ".treefile"), "r") as tree_file:
-            tree = tree_file.readline()
-        tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
+        alignment = alignment_type = tree = tree_type = None
+        if request.form.get("alignment[data]") is not None:
+            alignment = b64decode(request.form.get("alignment[data]").split("base64,")[1]).decode()
+            alignment_type = request.form.get("alignment[name]").split(".")[-1]
+        if request.form.get("tree[data]") is not None:
+            tree = b64decode(request.form.get("tree[data]").split("base64,")[1]).decode()
+            tree_type = request.form.get("tree[name]").split(".")[-1]
+        if alignment is not None and tree is not None:
+            with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
+                alignment_file.write(alignment)
+            tree = Tree(tree, enable_lengths=enable_lengths).to_json()
+        elif alignment is not None:
+            with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
+                alignment_file.write(alignment)
+            subprocess.run(
+                [os.path.join(app_location, "bin/iqtree"), "-s", os.path.join("tmp", "alignment." + alignment_type),
+                 "-m", "Blosum62"])
+            with open(os.path.join("tmp", "alignment." + alignment_type + ".treefile"), "r") as tree_file:
+                tree = tree_file.readline()
+            tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
+        elif tree is not None:
+            pass
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
