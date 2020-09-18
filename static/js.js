@@ -159,12 +159,24 @@ $(function() {
         }
     }
 
-    function update(data, status) {
+    function update(data, status, xhr) {
         //alert("Data: " + data + "\nStatus: " + status);
+        // TODO work with status?!
         data = JSON.parse(data);
+        set_testing(xhr.getResponseHeader("Testing"));
         trees = data;
         draw(eval(data.slice(-1)[0][1]));
         snapshots(data);
+    }
+
+    function set_testing(testing) {
+        if (testing == "enabled") {
+            $("#test-snapshots").prop("disabled", false);
+            $("#testing-disabled-message").hide();
+        } else if (testing == "disabled") {
+            $("#test-snapshots").prop("disabled", true);
+            $("#testing-disabled-message").show();
+        }
     }
 
     function options(data) {

@@ -44,12 +44,8 @@ def load():
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
     print(len(request.args))
     print(len(request.form))
+    disable_testing = False
     if request.method == "POST":
-        # TODO 1st (default case): Enter alignment and tree and we save both
-        # TODO 2nd case: Enter only alignment and hope that tree calculation does not need higher specs that you have
-        # TODO 3rd case: Enter only tree and we disable test option, because we have no alignment
-        # TODO this here is case 2 currently
-
         # TODO always delete temp afterwards mabye??
         # TODO here already without lengths too? Maybe, needs to be checked^^
 
@@ -60,11 +56,12 @@ def load():
         if request.form.get("tree[data]") is not None:
             tree = b64decode(request.form.get("tree[data]").split("base64,")[1]).decode()
             tree_type = request.form.get("tree[name]").split(".")[-1]
-        if alignment is not None and tree is not None:
+
+        if alignment is not None and tree is not None:  # Case 1
             with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
                 alignment_file.write(alignment)
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
-        elif alignment is not None:
+        elif alignment is not None:  # Case 2
             with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
                 alignment_file.write(alignment)
             subprocess.run(
@@ -73,8 +70,9 @@ def load():
             with open(os.path.join("tmp", "alignment." + alignment_type + ".treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
-        elif tree is not None:
-            pass
+        elif tree is not None:  # Case 3
+            tree = Tree(tree, enable_lengths=enable_lengths).to_json()
+            disable_testing = True
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
@@ -115,6 +113,10 @@ def load():
     conn.close()
     response = make_response(dumps(trees))
     response.headers["Cache-Control"] = "no-store"
+    if disable_testing:
+        response.headers["Testing"] = "disabled"
+    else:
+        response.headers["Testing"] = "enabled"
     return response
 
 
@@ -146,6 +148,7 @@ def options():
 
 @app.route("/tests", methods=["POST"])
 def tests():
+    # TODO handle that testing is disabled but ppl still try to test
     snapshots = request.form.getlist("snapshots[]")
     path = os.path.join(root_folder, "tmp", "trees.nck")
     file = open(path, "w")

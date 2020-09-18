@@ -199,8 +199,9 @@
                             <label for="select-snapshots">Select the snapshots you want to test</label>
                             <select multiple class="form-control" id="select-snapshots"></select>
                         </div>
-                        <input type="button" class="btn btn-primary" id="test-snapshots" value="Test Snapshots">
+                        <input type="button" class="btn btn-primary" id="test-snapshots" value="Test Snapshots" disabled>
                     </form>
+                    <p id="testing-disabled-message">When no alignment is provided, testing is disabled!</p>
                     <table class="table" id="tests">
                     </table>
                 </div>
