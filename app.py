@@ -28,6 +28,7 @@ conn.close()
 
 @app.route("/")
 def home():
+    session["trees"] = []
     response = make_response(render_template("index.html"))
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -45,7 +46,7 @@ def download(id):
     tree = Tree(tree_json).to_newick()
     file.write(tree + "\n")
     file.close()
-    return send_from_directory(os.path.join(root_folder, "tmp"), "download.nck", as_attachment=True)
+    return send_from_directory(os.path.join(root_folder, "tmp"), "download.nck", as_attachment=True, attachment_filename=id + ".nck")
 
 
 @app.route("/load", methods=["POST", "GET"])
@@ -118,15 +119,11 @@ def load():
         pass  # TODO
     c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
     session["tree"] = c.lastrowid
-    if session.get("trees"):
-        session["trees"].append(session["tree"])
-    else:
-        session["trees"] = [session["tree"]]
+    session["trees"].append(session["tree"])
     print(session["trees"])
-    trees = c.execute('SELECT * FROM trees WHERE id IN ({seq})'.format(seq=','.join(['?']*len(session["trees"]))), session["trees"]).fetchall()
     conn.commit()
     conn.close()
-    response = make_response(dumps(trees))
+    response = make_response(dumps({"ids": session["trees"], "tree": tree}))
     response.headers["Cache-Control"] = "no-store"
     if disable_testing:
         response.headers["Testing"] = "disabled"
