@@ -1,8 +1,8 @@
 IQ-TREE 1.6.12 built Aug 15 2019
 
-Input file name: /home/jeff/PycharmProjects/MATT/iqtree/iqtree-1.6.12-Linux/example.phy
+Input file name: iqtree/iqtree-1.6.12-Linux/example.phy
 Type of analysis: ModelFinder + tree reconstruction
-Random seed number: 826492
+Random seed number: 504969
 
 REFERENCES
 ----------
@@ -292,4 +292,35 @@ NOTE: Tree is UNROOTED although outgroup taxon 'LngfishAu' is drawn at root
 Tree in newick format:
 
 (LngfishAu:0.1724449245,(LngfishSA:0.1877373604,LngfishAf:0.1647063827):0.1060700806,(Frog:0.2535837428,((Turtle:0.2219105417,((Sphenodon:0.3378695432,Lizard:0.3855516878):0.0115643630,(Crocodile:0.3029245072,Bird:0.2296011627):0.0727516075):0.0360123673):0.0832324169,((((Human:0.1953217762,(Cow:0.0830089854,Whale:0.1007111522):0.0383809878):0.0122535366,Seal:0.0952083418):0.0450625028,(Mouse:0.0570991908,Rat:0.0922073143):0.1207540365):0.0612163541,(Platypus:0.1917376648,Opossum:0.1502724984):0.0370271306):0.1519131383):0.1261352348):0.0956567312);
+
+
+USER TREES
+----------
+
+See iqtree/iqtree-1.6.12-Linux/example.phy.trees for trees with branch lengths.
+
+Tree      logL    deltaL  bp-RELL    p-KH     p-SH    p-WKH    p-WSH       c-ELW       p-AU
+-------------------------------------------------------------------------------------------
+  1 -21152.61557       0   0.971 +  0.965 +      1 +  0.965 +  0.965 +     0.964 +     0.97 + 
+  2 -21162.90028  10.285  0.0286 - 0.0347 - 0.0347 - 0.0347 - 0.0347 -    0.0363 -   0.0299 - 
+
+deltaL  : logL difference from the maximal logl in the set.
+bp-RELL : bootstrap proportion using RELL method (Kishino et al. 1990).
+p-KH    : p-value of one sided Kishino-Hasegawa test (1989).
+p-SH    : p-value of Shimodaira-Hasegawa test (2000).
+p-WKH   : p-value of weighted KH test.
+p-WSH   : p-value of weighted SH test.
+c-ELW   : Expected Likelihood Weight (Strimmer & Rambaut 2002).
+p-AU    : p-value of approximately unbiased (AU) test (Shimodaira, 2002).
+
+Plus signs denote the 95% confidence sets.
+Minus signs denote significant exclusion.
+All tests performed 10000 resamplings using the RELL method.
+
+TIME STAMP
+----------
+
+Date and time: Thu Aug 20 14:17:33 2020
+Total CPU time used: 2.98 seconds (0h:0m:2s)
+Total wall-clock time used: 4.28 seconds (0h:0m:4s)
 

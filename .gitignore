@@ -1,5 +1,4 @@
-/just_another_venv/
+/venv/
+.idea
 /trees.db
-/config.ini
-/.idea/
-/iqtree/
+/just_another_venv/
