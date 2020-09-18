@@ -1,4 +1,4 @@
-from flask import Flask, make_response, render_template, request, session
+from flask import Flask, make_response, render_template, request, session, send_from_directory
 from base64 import b64decode
 from files.tree import Tree
 from json import dumps
@@ -31,6 +31,21 @@ def home():
     response = make_response(render_template("index.html"))
     response.headers["Cache-Control"] = "no-store"
     return response
+
+
+@app.route("/download/<id>", methods=["GET"])
+def download(id):
+    path = os.path.join(root_folder, "tmp", "download.nck")
+    file = open(path, "w")
+    conn = sqlite3.connect(root_folder + 'trees.db')
+    c = conn.cursor()
+    tree_json = c.execute("SELECT json FROM trees WHERE id = ?", (id,)).fetchall()
+    print(tree_json)
+    tree_json = tree_json[0][0]
+    tree = Tree(tree_json).to_newick()
+    file.write(tree + "\n")
+    file.close()
+    return send_from_directory(os.path.join(root_folder, "tmp"), "download.nck", as_attachment=True)
 
 
 @app.route("/load", methods=["POST", "GET"])
@@ -150,7 +165,7 @@ def options():
 def tests():
     # TODO handle that testing is disabled but ppl still try to test
     snapshots = request.form.getlist("snapshots[]")
-    path = os.path.join(root_folder, "tmp", "trees.nck")
+    path = os.path.join(root_folder, "tmp", "tests.nck")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
@@ -172,6 +187,7 @@ def tests():
                 results.append(next(file).strip().split())
     print(results)
     print(dumps(results))
+    file.close()
     response = make_response(dumps(results))
     response.headers["Cache-Control"] = "no-store"
     return response
