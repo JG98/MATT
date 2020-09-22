@@ -21,7 +21,7 @@ app_location = os.path.join(root_folder, "iqtree", "iqtree-1.6.12-" + system, ""
 conn = sqlite3.connect(root_folder + 'trees.db')
 c = conn.cursor()
 c.execute('''DROP TABLE IF EXISTS trees''')
-c.execute('''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, datetime TEXT)''')
+c.execute('''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, description TEXT, datetime TEXT)''')
 conn.commit()
 conn.close()
 
@@ -29,6 +29,7 @@ conn.close()
 @app.route("/")
 def home():
     session["trees"] = []
+    # TODO set options from file
     response = make_response(render_template("index.html"))
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -47,6 +48,27 @@ def download(id):
     file.write(tree + "\n")
     file.close()
     return send_from_directory(os.path.join(root_folder, "tmp"), "download.nck", as_attachment=True, attachment_filename=id + ".nck")
+
+@app.route("/description", methods=["POST"])
+def description():
+    conn = sqlite3.connect(root_folder + 'trees.db')
+    c = conn.cursor()
+    print(request.form)
+    id = request.form.get("id")
+    print(id)
+    description = request.form.get("description")
+    print(description)
+    rowcount = c.execute("UPDATE trees SET description = ? WHERE id = ?", (description, id)).rowcount
+    conn.commit()
+    print(rowcount)
+    if rowcount == 1:
+        response = make_response("OK")
+        response.headers["Cache-Control"] = "no-store"
+        return response
+    else:
+        response = make_response("FAILED")
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
 
 @app.route("/load", methods=["POST", "GET"])
@@ -74,16 +96,16 @@ def load():
             tree_type = request.form.get("tree[name]").split(".")[-1]
 
         if alignment is not None and tree is not None:  # Case 1
-            with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
+            with open(os.path.join(root_folder, "tmp", "alignment." + alignment_type), "w") as alignment_file:
                 alignment_file.write(alignment)
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
         elif alignment is not None:  # Case 2
-            with open(os.path.join("tmp", "alignment." + alignment_type), "w") as alignment_file:
+            with open(os.path.join(root_folder, "tmp", "alignment." + alignment_type), "w") as alignment_file:
                 alignment_file.write(alignment)
             subprocess.run(
-                [os.path.join(app_location, "bin/iqtree"), "-s", os.path.join("tmp", "alignment." + alignment_type),
+                [os.path.join(app_location, "bin/iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment." + alignment_type),
                  "-m", "Blosum62"])
-            with open(os.path.join("tmp", "alignment." + alignment_type + ".treefile"), "r") as tree_file:
+            with open(os.path.join(root_folder, "tmp", "alignment." + alignment_type + ".treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
         elif tree is not None:  # Case 3
@@ -92,6 +114,9 @@ def load():
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
+        print(tree_json)
+        # TODO get current contstraint, run iqtree, get nck from iqtree, build json from it and put it into tree_json
+        Tree(tree_json)
         if enable_lengths:
             pass
             #result = subprocess.run(
@@ -121,9 +146,11 @@ def load():
     session["tree"] = c.lastrowid
     session["trees"].append(session["tree"])
     print(session["trees"])
+    trees = c.execute('SELECT * FROM trees WHERE id IN ({seq})'.format(seq=','.join(['?']*len(session["trees"]))), session["trees"]).fetchall()
+    print(trees)
     conn.commit()
     conn.close()
-    response = make_response(dumps({"ids": session["trees"], "tree": tree}))
+    response = make_response(dumps(trees))
     response.headers["Cache-Control"] = "no-store"
     if disable_testing:
         response.headers["Testing"] = "disabled"

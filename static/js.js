@@ -163,9 +163,10 @@ $(function() {
         //alert("Data: " + data + "\nStatus: " + status);
         // TODO work with status?!
         data = JSON.parse(data);
+        trees = data;
         set_testing(xhr.getResponseHeader("Testing"));
-        draw(JSON.parse(data["tree"]));
-        snapshots(data["ids"]);
+        draw(eval(data.slice(-1)[0][1]));
+        snapshots(data);
     }
 
     function set_testing(testing) {
@@ -182,24 +183,34 @@ $(function() {
         $.post("options", data); //TODO , load("get"));
     }
 
+    function description(id, description) {
+        $.post("description", {"id": id, "description": description});
+    }
+
     function snapshots(data) {
         console.log(data);
         $("#no-entries").remove();
         $("#snapshots").empty();
         $("#select-snapshots").empty();
         // TODO $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">Newick</th><th scope="col">DateTime</th></tr></thead>');
-        $("#snapshots").append('<thead><tr><th scope="col">#</th></tr></thead>');
+        $("#snapshots").append('<thead><tr><th>#</th><th>Description</th><th>Download</th></tr></thead>');
         $("#snapshots").append('<tbody>');
         data.forEach(function(value) {
-            text = '<tr><th scope="row"><button type="button" class="btn btn-link" id="snapshot-' + value + '">' + value + '</button>';
-            text += '<button type="button" class="btn btn-link" id="snapshot-download-' + value + '"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></button>';
-            text += '</th></tr>';
+            text = '<tr>';
+            text += '<td><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + value[0] + '</button></td>';
+            text += '<td><input type="text" class="form-control" id="snapshot-description-' + value[0] + '" value="' + ((value[2] != null) ? value[2] : "") + '"></td>';
+            text += '<td><button type="button" class="btn btn-link" id="snapshot-download-' + value[0] + '"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></button></td>';
+            text += '</tr>';
             $("#snapshots").append(text);
-            $("#snapshot-" + value).click(function() {
+            $("#snapshot-" + value[0]).click(function() {
                 snapshotId = $(this).attr("id").split("-")[1];
                 draw(eval(trees[snapshotId - 1][1]));
             });
-            $("#snapshot-download-" + value).click(function() {
+            $("#snapshot-description-" + value[0]).change(function() {
+                snapshotId = $(this).attr("id").split("-")[2];
+                description(snapshotId, $(this).val());
+            });
+            $("#snapshot-download-" + value[0]).click(function() {
                 snapshotId = $(this).attr("id").split("-")[2];
                 download(snapshotId);
             });
@@ -844,7 +855,7 @@ $(function() {
 
             g.transform("translate(" + translateX + " " + translateY + ") scale(" + scale + " " + scale + ")");
             // TODO
-            minimapWindow.transform("translate(" + -translateX / ratio + " " + -translateY / ratio + ") scale(" + (1 - (scale - 1) / 2) + " " + (1 - (scale - 1) / 2) + ")");
+            minimapWindow.transform("translate(" + -translateX / ratio + " " + -translateY / ratio + ") scale(" + scale + " " + scale + ")");
         }
 
         function getTransform() {
