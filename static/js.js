@@ -7,6 +7,9 @@ $(function() {
     let maxY;
     let svg;
     let trees;
+
+    getOptions();
+
     $("#import").click(function() {
         // TODO
         /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
@@ -147,9 +150,36 @@ $(function() {
         });
     });
 
+    function getOptions() {
+        $.get("get-options", "", function(data) {
+            data = JSON.parse(data);
+            if (data["enable_lengths"]) {
+                $("#enable-lengths").prop("checked", true);
+            } else {
+                $("#enable-lengths").prop("checked", false);
+            }
+            if (data["dna_protein"] == "dna") {
+                dnaProtein = "dna";
+                $("#dna").prop("checked", true);
+                $("#protein").prop("checked", false);
+                $("#dna-options").show();
+                $("#protein-options").hide();
+            } else if (data["dna_protein"] == "protein") {
+                dnaProtein = "protein";
+                $("#protein").prop("checked", true);
+                $("#dna").prop("checked", false);
+                $("#protein-options").show();
+                $("#dna-options").hide();
+            }
+            $("#selectBSR").val(data["dna_bsr"]);
+            $("#selectBF").val(data["dna_bf"]);
+            $("#selectRHAS").val(data["dna_rhas"]);
+            $("#selectAAERM").val(data["protein_aaerm"]);
+            $("#selectPMM").val(data["protein_pmm"]);
+            $("#selectAAF").val(data["protein_aaf"]);
 
-    //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpRTowLjIsRjowLjMpSTowLjEsKEc6MC4zLChDOjAuMyxEOjAuNClIOjAuNClKOjAuMik7"});
-    //load("post", {file: "data:application/octet-stream;base64,KCgoQTowLjQsQjowLjUpOjAuMixGOjAuMyk6MC4xLChHOjAuMywoQzowLjMsRDowLjQpOjAuNCk6MC4yKTs="});
+        });
+    }
 
     function load(method, httpData) {
         if (method == "post") {
@@ -215,7 +245,7 @@ $(function() {
                 download(snapshotId);
             });
             // TODO no-entries option for tests too?!
-            $("#select-snapshots").append('<option>' + value + '</option>');
+            $("#select-snapshots").append('<option>' + value[0] + '</option>');
         });
         $("#snapshots").append('</tbody>');
     }
@@ -292,7 +322,8 @@ $(function() {
         console.log(data);
         let g;
 
-        $("#logo").remove();
+        $("#logo-main").remove();
+        $("#logo-main-slide").remove();
 
         if (typeof svg !== "undefined") {
             svg.remove();

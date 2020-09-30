@@ -35,6 +35,30 @@ def home():
     return response
 
 
+@app.route("/get-options", methods=["GET"])
+def get_options():
+    config.read("config.ini")
+    if config.has_section("Options"):
+        enable_lengths = config.getboolean("Options", "enable-lengths")
+        dna_protein = config.get("Options", "dna-protein")
+        dna_bsr = config.get("Options", "dna-bsr")
+        dna_bf = config.get("Options", "dna-bf")
+        dna_rhas = config.get("Options", "dna-rhas")
+        protein_aaerm = config.get("Options", "protein-aaerm")
+        protein_pmm = config.get("Options", "protein-pmm")
+        protein_aaf = config.get("Options", "protein-aaf")
+    options = dumps({"enable_lengths": enable_lengths,
+                     "dna_protein": dna_protein,
+                     "dna_bsr": dna_bsr,
+                     "dna_bf": dna_bf,
+                     "dna_rhas": dna_rhas,
+                     "protein_aaerm": protein_aaerm,
+                     "protein_pmm": protein_pmm,
+                     "protein_aaf": protein_aaf})
+    response = make_response(options)
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
 @app.route("/download/<id>", methods=["GET"])
 def download(id):
     path = os.path.join(root_folder, "tmp", "download.nck")
@@ -77,60 +101,61 @@ def load():
     c = conn.cursor()
     # TODO
     config.read("config.ini")
-    enable_lengths = config.getboolean("Options", "enable-lengths")
+    if config.has_section("Options"):
+        enable_lengths = config.getboolean("Options", "enable-lengths")
+        dna_protein = config.get("Options", "dna-protein")
+        if dna_protein == "dna":
+            dna_bsr = config.get("Options", "dna-bsr")
+            dna_bf = config.get("Options", "dna-bf")
+            dna_rhas = config.get("Options", "dna-rhas")
+            model = dna_bsr
+        elif dna_protein == "protein":
+            protein_aaerm = config.get("Options", "protein-aaerm")
+            protein_pmm = config.get("Options", "protein-pmm")
+            protein_aaf = config.get("Options", "protein-aaf")
+            model = protein_aaerm
+    else:
+        enable_lengths = False
     print("def" + str(enable_lengths))
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
     print(len(request.args))
     print(len(request.form))
     disable_testing = False
-    if request.method == "POST":
-        # TODO always delete temp afterwards mabye??
-        # TODO here already without lengths too? Maybe, needs to be checked^^
 
-        alignment = alignment_type = tree = tree_type = None
+    if request.method == "POST":
+        # TODO always delete temp afterwards maybe??
+        # TODO here already without lengths too? Maybe, needs to be checked^^
+        alignment = tree = None
+
         if request.form.get("alignment[data]") is not None:
             alignment = b64decode(request.form.get("alignment[data]").split("base64,")[1]).decode()
-            alignment_type = request.form.get("alignment[name]").split(".")[-1]
+            # alignment_type = request.form.get("alignment[name]").split(".")[-1]
         if request.form.get("tree[data]") is not None:
             tree = b64decode(request.form.get("tree[data]").split("base64,")[1]).decode()
-            tree_type = request.form.get("tree[name]").split(".")[-1]
+            # tree_type = request.form.get("tree[name]").split(".")[-1]
 
-        if alignment is not None and tree is not None:  # Case 1
-            with open(os.path.join(root_folder, "tmp", "alignment." + alignment_type), "w") as alignment_file:
+        if alignment is not None and tree is not None:  # Case 1, alignment and tree given, default behaviour
+            with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
-        elif alignment is not None:  # Case 2
-            with open(os.path.join(root_folder, "tmp", "alignment." + alignment_type), "w") as alignment_file:
+        elif alignment is not None:  # Case 2, only alignment given, construct ml-tree
+            with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
             subprocess.run(
-                [os.path.join(app_location, "bin/iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment." + alignment_type),
-                 "-m", "Blosum62"])
-            with open(os.path.join(root_folder, "tmp", "alignment." + alignment_type + ".treefile"), "r") as tree_file:
+                [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment.phy"),
+                 "-m", model, "-redo"])
+            with open(os.path.join(root_folder, "tmp", "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
-        elif tree is not None:  # Case 3
+        elif tree is not None:  # Case 3, only tree given, disable testing and lengths
+            enable_lengths = False
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
             disable_testing = True
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
         print(tree_json)
-        # TODO get current contstraint, run iqtree, get nck from iqtree, build json from it and put it into tree_json
-        Tree(tree_json)
-        if enable_lengths:
-            pass
-            #result = subprocess.run(
-            #    [os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-te",
-            #     "(LngfishAu,(LngfishSA,LngfishAf),(Frog,((((Turtle,Crocodile),Sphenodon),Lizard),(((Human,(Seal,(Cow,Whale))),(Bird,(Mouse,Rat))),(Platypus,Opossum)))));", "-nt", "4", "-redo", "-pre", "REMODEL"])
-            # Model auswählen nach vorherigem?
-            # "-m", "TIM2+F+I+G4" / Weglassen
-            # Kerne festsetzen wie vorheriges?
-            # "-nt", "4" / "-nt", "AUTO"
-
-            # ERST RICHTIGES MODEL FINDEN
-            #print(result)
-            # TODO use result??
-        #if len(request.args) == 0:
+        # if len(request.args) == 0:
         #    json_args = None
         if len(request.args) == 1:
             json_args = [request.args.get("id")]
@@ -139,7 +164,29 @@ def load():
         else:
             pass  #TODO
         print(json_args)
-        tree = Tree(tree_json, json_args, enable_lengths).to_json()
+        if enable_lengths:
+            # TODO get current contstraint, run iqtree, get nck from iqtree, build json from it and put it into tree_json
+            # TODO same for case 2, provide options there too
+            tree = Tree(tree_json, json_args, enable_lengths).to_newick(True)
+            path = os.path.join(root_folder, "tmp", "tree.nck")
+            file = open(path, "w")
+            file.write(tree + "\n")
+            file.close()
+            result = subprocess.run(
+                [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment.phy"),
+                 "-te", path, "-nt", "4", "-m", model, "-redo"]
+            )
+            # Model auswählen nach vorherigem?
+            # "-m", "TIM2+F+I+G4" / Weglassen
+            # Kerne festsetzen wie vorheriges?
+            # "-nt", "4" / "-nt", "AUTO"
+
+            # ERST RICHTIGES MODEL FINDEN
+            with open(os.path.join(root_folder, "tmp", "alignment.phy.treefile"), "r") as tree_file:
+                tree = tree_file.readline()
+            tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
+        else:
+            tree = Tree(tree_json, json_args, enable_lengths).to_json()
     else:
         pass  # TODO
     c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
@@ -167,7 +214,10 @@ def options():
     if not config.has_section("Options"):
         config.add_section("Options")
     config.set("Options", "enable-lengths", request.form.get("enable-lengths"))
-    config.set("Options", "dna-protein", request.form.get("dna-protein"))
+
+    if request.form.get("dna-protein") == "dna" or request.form.get("dna-protein") == "protein":
+        config.set("Options", "dna-protein", request.form.get("dna-protein"))
+
     if request.form.get("dna-protein") == "dna":
         config.set("Options", "dna-bsr", request.form.get("dna-bsr"))
         config.set("Options", "dna-bf", request.form.get("dna-bf"))
@@ -200,10 +250,9 @@ def tests():
         file.write(tree + "\n")
     file.write(Tree(trees_json[-1][0]).to_newick())
     file.close()
-    subprocess.run([os.path.join(app_location, "bin/iqtree"), "-s", app_location + "example.phy", "-z", path, "-n", "0",
-                    "-zb", "10000", "-zw", "-au", "-redo"])
+    subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment.phy"), "-z", path, "-n", "0", "-zb", "10000", "-zw", "-au", "-redo"])
     results = []
-    path = app_location + "example.phy.iqtree"
+    path = os.path.join(root_folder, "tmp", "alignment.phy.iqtree")
     file = open(path, "r")
     for line in file:
         if line.startswith("-------------------------------------------------------------------------------------------"):

@@ -290,18 +290,22 @@ class Tree:
                 max_length = node.total_length
         return dumps(output + [{"enable_lengths": self.enable_lengths, "max_length": str(max_length), "longest_name": longest_name}])
 
-    def to_newick(self):
-        return self.newick_helper(self.root)[:-2] + ";"
+    def to_newick(self, as_constraint=False):
+        return self.newick_helper(self.root, as_constraint) + ";\n"
 
-    def newick_helper(self, root):
+    def newick_helper(self, root, as_constraint=False):
         result = ""
         if root.l_child and root.r_child:
-            result += "(" + self.newick_helper(root.l_child) + "," + self.newick_helper(root.r_child) + ")"
-            if root.bootstrap:
-                result += root.bootstrap
-            result += ":" + str(root.length)
+            result += "(" + self.newick_helper(root.l_child, as_constraint) + "," + self.newick_helper(root.r_child, as_constraint) + ")"
+            if not as_constraint:
+                if root.bootstrap:
+                    result += root.bootstrap
+                if self.enable_lengths:
+                    result += ":" + str(root.length)
         else:
-            result += root.name + ":" + str(root.length)
+            result += root.name
+            if not as_constraint and self.enable_lengths:
+                result += ":" + str(root.length)
         return result
 
     # TODO overhaul, does not require this much
@@ -313,17 +317,6 @@ class Tree:
             self.change_children_level(node.l_child, amount, total_only)
         if node.r_child:
             self.change_children_level(node.r_child, amount, total_only)
-
-    '''def get_node(self, string):
-        node = self.root
-        for char in string:
-            if char == "L":
-                node = node.l_child
-            elif char == "R":
-                node = node.r_child
-            else:
-                pass  # TODO
-        return node'''
 
     def find_node(self, node):
         string = ""
