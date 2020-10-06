@@ -1,0 +1,3 @@
+recursive-include matt/iqtree *
+recursive-include matt/static *
+recursive-include matt/templates *
