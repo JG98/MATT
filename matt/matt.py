@@ -15,7 +15,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 from flask import Flask, make_response, render_template, request, session, send_from_directory
 from base64 import b64decode
-from tree import Tree
+from matt.tree import Tree
 from json import dumps
 import subprocess
 import sqlite3

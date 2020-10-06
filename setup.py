@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="bio-matt-test4",
-    version="0.1",
+    version="0.3",
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
     description="A Framework for Modifying And Testing Topologies",
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/JG98/MATT",
     packages=setuptools.find_packages(),
-    install_requires=["Flask"],
+    install_requires=["flask"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
