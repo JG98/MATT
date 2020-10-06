@@ -26,7 +26,7 @@ import configparser
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
-root_folder = __file__[:-6]
+root_folder = __file__[:-7]
 system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
@@ -54,6 +54,15 @@ def get_options():
         protein_aaerm = config.get("Options", "protein-aaerm")
         protein_pmm = config.get("Options", "protein-pmm")
         protein_aaf = config.get("Options", "protein-aaf")
+    else:
+        enable_lengths = config.getboolean("DEFAULT", "enable-lengths")
+        dna_protein = config.get("DEFAULT", "dna-protein")
+        dna_bsr = config.get("DEFAULT", "dna-bsr")
+        dna_bf = config.get("DEFAULT", "dna-bf")
+        dna_rhas = config.get("DEFAULT", "dna-rhas")
+        protein_aaerm = config.get("DEFAULT", "protein-aaerm")
+        protein_pmm = config.get("DEFAULT", "protein-pmm")
+        protein_aaf = config.get("DEFAULT", "protein-aaf")
     options = dumps({"enable_lengths": enable_lengths,
                      "dna_protein": dna_protein,
                      "dna_bsr": dna_bsr,
@@ -258,7 +267,7 @@ def tests():
 
 def save_config():
     config["DEFAULT"] = {
-        'enable-lengths': 'true',
+        'enable-lengths': 'false',
         'dna-protein': 'dna',
         'dna-bsr': 'JC',
         'dna-bf': '-',
@@ -283,6 +292,9 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     if not os.path.exists(root_folder + "config.ini"):
         save_config()
+
+    if not os.path.exists(os.path.join(root_folder, "tmp")):
+        os.makedirs(os.path.join(root_folder, "tmp"))
 
     #app.run(host='127.0.0.1', port=80)
     #app.run(host='0.0.0.0', port=80)
