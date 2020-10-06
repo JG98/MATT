@@ -25,7 +25,7 @@ class Tree:
     def __init__(self, string, json_args=None, enable_lengths=False):
         self.node_counter = 0
         self.enable_lengths = enable_lengths
-        if string[-1] == ";":  # TODO POTENTIAL ERROR SOURCE
+        if string.rstrip()[-1] == ";":
             self.from_newick(string.rstrip()[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
         else:
@@ -69,6 +69,8 @@ class Tree:
                     return
 
     def from_json(self, string, json_args=None):
+        print(string)
+        print(type(string))
         json = loads(string)
         json.pop()
         nodes = {}
