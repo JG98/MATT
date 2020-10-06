@@ -15,18 +15,17 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 from flask import Flask, make_response, render_template, request, session, send_from_directory
 from base64 import b64decode
-from files.tree import Tree
+from tree import Tree
 from json import dumps
 import subprocess
 import sqlite3
 import os.path
 import platform
 import configparser
-
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
-root_folder = __file__[:-7]
+root_folder = __file__[:-12]
 system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
@@ -280,7 +279,7 @@ def save_config():
         config.write(config_file)
 
 
-if __name__ == '__main__':
+def main():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     c.execute('''DROP TABLE IF EXISTS trees''')
@@ -296,7 +295,9 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join(root_folder, "tmp")):
         os.makedirs(os.path.join(root_folder, "tmp"))
 
-    #app.run(host='127.0.0.1', port=80)
-    #app.run(host='0.0.0.0', port=80)
+    # app.run(host='127.0.0.1', port=80)
+    # app.run(host='0.0.0.0', port=80)
     app.run()
 
+if __name__ == '__main__':
+    main()
