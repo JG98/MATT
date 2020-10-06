@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="bio-matt-test3",
+    name="bio-matt-test4",
     version="0.1",
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
@@ -13,6 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/JG98/MATT",
     packages=setuptools.find_packages(),
+    install_requires=["Flask"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
