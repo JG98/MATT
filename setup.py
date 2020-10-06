@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="bio-matt-test2",
+    name="bio-matt-test3",
     version="0.1",
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
