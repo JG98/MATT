@@ -9,7 +9,6 @@ import platform
 import configparser
 
 # TODO constants like app_location to APP_LOCATION
-
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
 root_folder = __file__[:-6]
@@ -17,13 +16,6 @@ system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
 app_location = os.path.join(root_folder, "iqtree", "iqtree-1.6.12-" + system, "")
-
-conn = sqlite3.connect(root_folder + 'trees.db')
-c = conn.cursor()
-c.execute('''DROP TABLE IF EXISTS trees''')
-c.execute('''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, description TEXT, datetime TEXT)''')
-conn.commit()
-conn.close()
 
 
 @app.route("/")
@@ -66,7 +58,6 @@ def download(id):
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     tree_json = c.execute("SELECT json FROM trees WHERE id = ?", (id,)).fetchall()
-    print(tree_json)
     tree_json = tree_json[0][0]
     tree = Tree(tree_json).to_newick()
     file.write(tree + "\n")
@@ -77,14 +68,10 @@ def download(id):
 def description():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
-    print(request.form)
     id = request.form.get("id")
-    print(id)
     description = request.form.get("description")
-    print(description)
     rowcount = c.execute("UPDATE trees SET description = ? WHERE id = ?", (description, id)).rowcount
     conn.commit()
-    print(rowcount)
     if rowcount == 1:
         response = make_response("OK")
         response.headers["Cache-Control"] = "no-store"
@@ -109,17 +96,22 @@ def load():
             dna_bf = config.get("Options", "dna-bf")
             dna_rhas = config.get("Options", "dna-rhas")
             model = dna_bsr
+            if dna_bf != "-":
+                model += "+" + dna_bf
+            if dna_rhas != "-":
+                model += "+" + dna_rhas
         elif dna_protein == "protein":
             protein_aaerm = config.get("Options", "protein-aaerm")
             protein_pmm = config.get("Options", "protein-pmm")
             protein_aaf = config.get("Options", "protein-aaf")
             model = protein_aaerm
+            if protein_pmm != "-":
+                model += "+" + protein_pmm
+            if protein_aaf != "-":
+                model += "+" + protein_aaf
     else:
         enable_lengths = False
-    print("def" + str(enable_lengths))
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
-    print(len(request.args))
-    print(len(request.form))
     disable_testing = False
 
     if request.method == "POST":
@@ -154,7 +146,6 @@ def load():
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
-        print(tree_json)
         # if len(request.args) == 0:
         #    json_args = None
         if len(request.args) == 1:
@@ -163,9 +154,7 @@ def load():
             json_args = [request.args.get("from"), request.args.get("to")]
         else:
             pass  #TODO
-        print(json_args)
         if enable_lengths:
-            # TODO get current contstraint, run iqtree, get nck from iqtree, build json from it and put it into tree_json
             # TODO same for case 2, provide options there too
             tree = Tree(tree_json, json_args, enable_lengths).to_newick(True)
             path = os.path.join(root_folder, "tmp", "tree.nck")
@@ -176,12 +165,6 @@ def load():
                 [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment.phy"),
                  "-te", path, "-nt", "4", "-m", model, "-redo"]
             )
-            # Model auswählen nach vorherigem?
-            # "-m", "TIM2+F+I+G4" / Weglassen
-            # Kerne festsetzen wie vorheriges?
-            # "-nt", "4" / "-nt", "AUTO"
-
-            # ERST RICHTIGES MODEL FINDEN
             with open(os.path.join(root_folder, "tmp", "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
@@ -192,9 +175,7 @@ def load():
     c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
     session["tree"] = c.lastrowid
     session["trees"].append(session["tree"])
-    print(session["trees"])
     trees = c.execute('SELECT * FROM trees WHERE id IN ({seq})'.format(seq=','.join(['?']*len(session["trees"]))), session["trees"]).fetchall()
-    print(trees)
     conn.commit()
     conn.close()
     response = make_response(dumps(trees))
@@ -208,8 +189,6 @@ def load():
 
 @app.route("/options", methods=["POST"])
 def options():
-    print(request.form)
-    print(request.form.get("enable-lengths"))
     config.read("config.ini")
     if not config.has_section("Options"):
         config.add_section("Options")
@@ -227,8 +206,6 @@ def options():
         config.set("Options", "protein-pmm", request.form.get("protein-pmm"))
         config.set("Options", "protein-aaf", request.form.get("protein-aaf"))
     save_config()
-    #response = make_response(dumps(config.getboolean("Options", "enable-lengths")))
-    #print("abc" + str(config.getboolean("Options", "enable-lengths")))
     response = make_response("OK")  # TODO
     # TODO PRINT NEW TREE (options to the whole data thingy too)
     response.headers["Cache-Control"] = "no-store"
@@ -244,7 +221,7 @@ def tests():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     trees_json = c.execute("SELECT json FROM trees WHERE id IN ({})".format(','.join('?' for _ in snapshots)), snapshots).fetchall()
-    # TODO USE REAL LENGTHS THO!
+    # TODO USE REAL LENGTHS NO MATTER WHAT ENABLE_LENGTHS IS!
     for tree_json in trees_json[:-1]:
         tree = Tree(tree_json[0]).to_newick()
         file.write(tree + "\n")
@@ -258,8 +235,6 @@ def tests():
         if line.startswith("-------------------------------------------------------------------------------------------"):
             for j in range(len(snapshots)):
                 results.append(next(file).strip().split())
-    print(results)
-    print(dumps(results))
     file.close()
     response = make_response(dumps(results))
     response.headers["Cache-Control"] = "no-store"
@@ -281,12 +256,19 @@ def save_config():
         config.write(config_file)
 
 
-config = configparser.ConfigParser()
-if not os.path.exists(root_folder + "config.ini"):
-    save_config()
-
-
 if __name__ == '__main__':
+    conn = sqlite3.connect(root_folder + 'trees.db')
+    c = conn.cursor()
+    c.execute('''DROP TABLE IF EXISTS trees''')
+    c.execute(
+        '''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, description TEXT, datetime TEXT)''')
+    conn.commit()
+    conn.close()
+
+    config = configparser.ConfigParser()
+    if not os.path.exists(root_folder + "config.ini"):
+        save_config()
+
     #app.run(host='127.0.0.1', port=80)
     #app.run(host='0.0.0.0', port=80)
     app.run()

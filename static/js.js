@@ -68,9 +68,7 @@ $(function() {
 
         function sendAlignmentAndTree() {
             if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
-                console.log("a");
                 if ((typeof senddataAlignment.fileData !== "undefined") && (typeof senddataTree.fileData !== "undefined")) {
-                    console.log("1");
                     load("post", {
                         alignment: {
                             data: senddataAlignment.fileData,
@@ -83,9 +81,7 @@ $(function() {
                     });
                 }
             } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
-                console.log("b");
                 if (typeof senddataAlignment.fileData !== "undefined") {
-                    console.log("1");
                     load("post", {
                         alignment: {
                             data: senddataAlignment.fileData,
@@ -94,9 +90,7 @@ $(function() {
                     });
                 }
             } else if ((typeof alignmentFile === "undefined") && (typeof treeFile !== "undefined")) {
-                console.log("c");
                 if (typeof senddataTree.fileData !== "undefined") {
-                    console.log("1");
                     load("post", {
                         tree: {
                             data: senddataTree.fileData,
@@ -144,7 +138,6 @@ $(function() {
         $.each($("#select-snapshots option:selected"), function(){
             snapshots.push($(this).val());
         });
-        console.log(snapshots);
         tests({
             "snapshots": snapshots
         });
@@ -218,7 +211,6 @@ $(function() {
     }
 
     function snapshots(data) {
-        console.log(data);
         $("#no-entries").remove();
         $("#snapshots").empty();
         $("#select-snapshots").empty();
@@ -252,9 +244,7 @@ $(function() {
 
     function tests(data) {
         $.post("tests", data, function(data) {
-            console.log(data);
             data = JSON.parse(data);
-            console.log(data);
 
             var testData = new Array(10);
 
@@ -285,8 +275,6 @@ $(function() {
                 testData[8].push(value[13], value[14]);
                 testData[9].push(value[15], value[16]);
             });
-
-            console.log(testData);
 
             $("#tests").empty();
 
@@ -319,7 +307,6 @@ $(function() {
     }
 
     function draw(data) {
-        console.log(data);
         let g;
 
         $("#logo-main").remove();
@@ -502,9 +489,6 @@ $(function() {
         outgroupButton.click(function() {
             if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
                 load("get", {
-                    'id': clickedPath.attr("data-id")
-                });
-                console.log({
                     'id': clickedPath.attr("data-id")
                 });
             } else if (clickedPath.attr("data-parent") != 0) {
@@ -732,10 +716,6 @@ $(function() {
                             toggleOutgroupButton();
                         } else {
                             load("get", {
-                                'from': clickedPath.attr("data-id"),
-                                'to': itemPath.attr("data-id")
-                            });
-                            console.log({
                                 'from': clickedPath.attr("data-id"),
                                 'to': itemPath.attr("data-id")
                             });
