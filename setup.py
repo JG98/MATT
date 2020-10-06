@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="bio-matt-test4",
-    version="0.3",
+    name="bio-matt-wip2",
+    version="0.4",
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
     description="A Framework for Modifying And Testing Topologies",

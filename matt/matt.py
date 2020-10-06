@@ -30,6 +30,7 @@ system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
 app_location = os.path.join(root_folder, "iqtree", "iqtree-1.6.12-" + system, "")
+config = configparser.ConfigParser()
 
 
 @app.route("/")
@@ -288,7 +289,6 @@ def main():
     conn.commit()
     conn.close()
 
-    config = configparser.ConfigParser()
     if not os.path.exists(root_folder + "config.ini"):
         save_config()
 
