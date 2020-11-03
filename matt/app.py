@@ -22,6 +22,7 @@ import sqlite3
 import os.path
 import platform
 import configparser
+import webbrowser
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
@@ -141,7 +142,7 @@ def load():
     disable_testing = False
 
     if request.method == "POST":
-        # TODO always delete temp afterwards maybe??
+        # TODO always delete tmp afterwards maybe??
         # TODO here already without lengths too? Maybe, needs to be checked^^
         alignment = tree = None
 
@@ -175,8 +176,8 @@ def load():
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
-        # if len(request.args) == 0:
-        #    json_args = None
+        if len(request.args) == 0:
+            json_args = None
         if len(request.args) == 1:
             json_args = [request.args.get("id")]
         elif len(request.args) == 2:
@@ -300,9 +301,12 @@ def main():
     if not os.path.exists(os.path.join(root_folder, "tmp")):
         os.makedirs(os.path.join(root_folder, "tmp"))
 
+    webbrowser.open("http://127.0.0.1:5000/")
+
     # app.run(host='127.0.0.1', port=80)
     # app.run(host='0.0.0.0', port=80)
     app.run()
+
 
 if __name__ == '__main__':
     main()

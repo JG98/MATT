@@ -53,14 +53,15 @@
                 <div id="tab2" class="tabs comp">
                     <h3>Import</h3>
                     <p></p><!-- TODO https://codepen.io/Sebus059/pen/MwMQbP lower part-->
+                    <b>Make sure you set your options before importing!</b>
                     <form enctype="multipart/form-data">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="alignment-file">
-                            <label class="custom-file-label" for="alignment-file">Choose alignment file</label>
+                        <div class="form-group">
+                            <label for="alignment-file">Choose alignment file</label>
+                            <input type="file" class="form-control-file" id="alignment-file">
                         </div>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="tree-file">
-                            <label class="custom-file-label" for="tree-file">Choose tree file</label>
+                        <div class="form-group">
+                            <label for="tree-file">Choose tree file</label>
+                            <input type="file" class="form-control-file" id="tree-file">
                         </div>
                         <input type="button" class="btn btn-primary" id="import" value="Import">
                     </form>

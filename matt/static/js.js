@@ -187,7 +187,6 @@ $(function() {
             $("#selectAAERM").val(data["protein_aaerm"]);
             $("#selectPMM").val(data["protein_pmm"]);
             $("#selectAAF").val(data["protein_aaf"]);
-
         });
     }
 
@@ -220,7 +219,10 @@ $(function() {
     }
 
     function options(data) {
-        $.post("options", data); //TODO , load("get"));
+        $.post("options", data);
+        if (typeof trees !== "undefined") {
+            load("get", null);
+        }
     }
 
     function description(id, description) {
@@ -1050,6 +1052,9 @@ $(function() {
             }
         }
     });
+
+    $("#btn2").click();
+
 });
 
 /*
