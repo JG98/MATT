@@ -121,6 +121,11 @@ $(function() {
         // }
 
     });
+
+    $("#example-import").click(function() {
+        load("post", "example");
+    });
+
     let dnaProtein;
     $("#dna").click(function() {
         $("#dna-options").show();
@@ -329,7 +334,7 @@ $(function() {
         let g;
 
         $("#logo-main").remove();
-        $("#logo-main-slide").remove();
+        $("#logo-slide").remove();
 
         if (typeof svg !== "undefined") {
             svg.remove();

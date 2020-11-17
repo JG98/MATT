@@ -146,12 +146,21 @@ def load():
         # TODO here already without lengths too? Maybe, needs to be checked^^
         alignment = tree = None
 
-        if request.form.get("alignment[data]") is not None:
-            alignment = b64decode(request.form.get("alignment[data]").split("base64,")[1]).decode()
-            # alignment_type = request.form.get("alignment[name]").split(".")[-1]
-        if request.form.get("tree[data]") is not None:
-            tree = b64decode(request.form.get("tree[data]").split("base64,")[1]).decode()
-            # tree_type = request.form.get("tree[name]").split(".")[-1]
+        if request.form.get("example") is not None:
+            example_alignment = open(os.path.join(root_folder, "static", "example.phy"), "r")
+            alignment = example_alignment.read()
+            example_alignment.close()
+
+            example_tree = open(os.path.join(root_folder, "static", "example.treefile"), "r")
+            tree = example_tree.read()
+            example_tree.close()
+        else:
+            if request.form.get("alignment[data]") is not None:
+                alignment = b64decode(request.form.get("alignment[data]").split("base64,")[1]).decode()
+                # alignment_type = request.form.get("alignment[name]").split(".")[-1]
+            if request.form.get("tree[data]") is not None:
+                tree = b64decode(request.form.get("tree[data]").split("base64,")[1]).decode()
+                # tree_type = request.form.get("tree[name]").split(".")[-1]
 
         if alignment is not None and tree is not None:  # Case 1, alignment and tree given, default behaviour
             with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
@@ -162,7 +171,7 @@ def load():
                 alignment_file.write(alignment)
             if model is not None:
                 subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
-                                os.path.join(root_folder, "tmp", "alignment.phy"),"-m", model, "-redo"])
+                                os.path.join(root_folder, "tmp", "alignment.phy"), "-m", model, "-redo"])
             else:
                 subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
                                 os.path.join(root_folder, "tmp", "alignment.phy"), "-redo"])
