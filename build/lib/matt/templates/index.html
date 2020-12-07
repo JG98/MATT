@@ -36,7 +36,7 @@
     </head>
     <body>
         <div id="mainDiv">
-            <img id="logo-main" src="/static/logo.png" class="img-fluid" alt="MATT Logo" style="position:absolute">
+            <img id="logo-main" src="/static/logo_alt.png" class="img-fluid" alt="MATT Logo" style="position:absolute">
             <div id="slideDivs">
                 <div id="btnTabs" class="comp">
                     <button id="btn1" class="btnTab btn btn-dark">Overview</button>
@@ -53,16 +53,18 @@
                 <div id="tab2" class="tabs comp">
                     <h3>Import</h3>
                     <p></p><!-- TODO https://codepen.io/Sebus059/pen/MwMQbP lower part-->
+                    <b>Make sure you set your options before importing!</b>
                     <form enctype="multipart/form-data">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="alignment-file">
-                            <label class="custom-file-label" for="alignment-file">Choose alignment file</label>
+                        <div class="form-group">
+                            <label for="alignment-file">Choose alignment file</label>
+                            <input type="file" class="form-control-file" id="alignment-file">
                         </div>
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="tree-file">
-                            <label class="custom-file-label" for="tree-file">Choose tree file</label>
+                        <div class="form-group">
+                            <label for="tree-file">Choose tree file</label>
+                            <input type="file" class="form-control-file" id="tree-file">
                         </div>
                         <input type="button" class="btn btn-primary" id="import" value="Import">
+                        <input type="button" class="btn btn-secondary" id="example-import" value="Example">
                     </form>
                     <br><br>
                     <h3>Options</h3>
@@ -121,8 +123,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="selectRHAS">Rate heterogeneity across sites</label>
-                                <select class="form-control" id="selectRHAS">
+                                <label for="selectDNARHAS">Rate heterogeneity across sites</label>
+                                <select class="form-control" id="selectDNARHAS">
                                     <option>-</option>
                                     <option>I</option>
                                     <option>G</option>
@@ -194,6 +196,18 @@
                                     <option>FO</option>
                                     <option>FQ</option>
                                     <!-- TODO <option>Custom</option> -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectAARHAS">Rate heterogeneity across sites</label>
+                                <select class="form-control" id="selectAARHAS">
+                                    <option>-</option>
+                                    <option>I</option>
+                                    <option>G</option>
+                                    <option>I+G</option>
+                                    <option>R</option>
+                                    <option>I+R</option>
+                                    <!-- TODO <option>Custom</option> necessary? And number has to be added here too! -->
                                 </select>
                             </div>
                         </div>
