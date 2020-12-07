@@ -25,6 +25,8 @@ $(function() {
     let svg;
     let trees;
 
+    $("#logo-main").offset({left: maxWidth/2 - $("#logo-main").width()/2, top: maxHeight/2 - $("#logo-main").height()/2});
+
     getOptions();
 
     $("#import").click(function() {
@@ -145,12 +147,13 @@ $(function() {
             optionsJSON["dna-protein"] = "dna";
             optionsJSON["dna-bsr"] = $("#selectBSR").val();
             optionsJSON["dna-bf"] = $("#selectBF").val();
-            optionsJSON["dna-rhas"] = $("#selectRHAS").val();
+            optionsJSON["dna-rhas"] = $("#selectDNARHAS").val();
         } else if (dnaProtein == "protein") {
             optionsJSON["dna-protein"] = "protein";
             optionsJSON["protein-aaerm"] = $("#selectAAERM").val();
             optionsJSON["protein-pmm"] = $("#selectPMM").val();
             optionsJSON["protein-aaf"] = $("#selectAAF").val();
+            optionsJSON["protein-rhas"] = $("#selectAARHAS").val();
         }
         options(optionsJSON);
     });
@@ -188,10 +191,11 @@ $(function() {
             }
             $("#selectBSR").val(data["dna_bsr"]);
             $("#selectBF").val(data["dna_bf"]);
-            $("#selectRHAS").val(data["dna_rhas"]);
+            $("#selectDNARHAS").val(data["dna_rhas"]);
             $("#selectAAERM").val(data["protein_aaerm"]);
             $("#selectPMM").val(data["protein_pmm"]);
             $("#selectAAF").val(data["protein_aaf"]);
+            $("#selectAARHAS").val(data["protein_rhas"]);
         });
     }
 

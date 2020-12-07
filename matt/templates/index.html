@@ -36,7 +36,7 @@
     </head>
     <body>
         <div id="mainDiv">
-            <img id="logo-main" src="/static/logo.png" class="img-fluid" alt="MATT Logo" style="position:absolute">
+            <img id="logo-main" src="/static/logo_alt.png" class="img-fluid" alt="MATT Logo" style="position:absolute">
             <div id="slideDivs">
                 <div id="btnTabs" class="comp">
                     <button id="btn1" class="btnTab btn btn-dark">Overview</button>
@@ -123,8 +123,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="selectRHAS">Rate heterogeneity across sites</label>
-                                <select class="form-control" id="selectRHAS">
+                                <label for="selectDNARHAS">Rate heterogeneity across sites</label>
+                                <select class="form-control" id="selectDNARHAS">
                                     <option>-</option>
                                     <option>I</option>
                                     <option>G</option>
@@ -196,6 +196,18 @@
                                     <option>FO</option>
                                     <option>FQ</option>
                                     <!-- TODO <option>Custom</option> -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectAARHAS">Rate heterogeneity across sites</label>
+                                <select class="form-control" id="selectAARHAS">
+                                    <option>-</option>
+                                    <option>I</option>
+                                    <option>G</option>
+                                    <option>I+G</option>
+                                    <option>R</option>
+                                    <option>I+R</option>
+                                    <!-- TODO <option>Custom</option> necessary? And number has to be added here too! -->
                                 </select>
                             </div>
                         </div>
