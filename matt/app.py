@@ -49,7 +49,7 @@ def home():
 def get_options():
     config.read(config_path)
     while not config.has_section("Options"):
-        save_config()
+        set_default_config()
     else:
         enable_lengths = config.getboolean("Options", "enable-lengths")
         dna_protein = config.get("Options", "dna-protein")
@@ -115,7 +115,7 @@ def load():
     # TODO
     config.read(config_path)
     while not config.has_section("Options"):
-        save_config()
+        set_default_config()
     else:
         enable_lengths = config.getboolean("Options", "enable-lengths")
         dna_protein = config.get("Options", "dna-protein")
@@ -172,6 +172,7 @@ def load():
             with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
             if model is not None:
+                print("Starting IQTree. This could take some time!")
                 sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
                                      os.path.join(root_folder, "tmp", "alignment.phy"), "-m", model, "-redo"],
                                     capture_output=True)
@@ -179,6 +180,7 @@ def load():
                 if sp.returncode == 2:
                     print("WRONG DECISION DNA/PROTEIN")
             else:
+                print("Starting IQTree. This could take some time!")
                 sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
                                      os.path.join(root_folder, "tmp", "alignment.phy"), "-redo"], capture_output=True)
                 print(sp)
@@ -207,6 +209,7 @@ def load():
             file = open(path, "w")
             file.write(tree + "\n")
             file.close()
+            print("Starting IQTree. This could take some time!")
             sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp",
                                                                                                  "alignment.phy"),
                                  "-te", path, "-nt", "4", "-m", model, "-redo"], capture_output=True)
@@ -240,7 +243,7 @@ def load():
 def options():
     config.read(config_path)
     while not config.has_section("Options"):
-        save_config()
+        set_default_config()
     else:
         config.set("Options", "enable-lengths", request.form.get("enable-lengths"))
 
@@ -256,7 +259,8 @@ def options():
         config.set("Options", "protein-pmm", request.form.get("protein-pmm"))
         config.set("Options", "protein-aaf", request.form.get("protein-aaf"))
         config.set("Options", "protein-rhas", request.form.get("protein-rhas"))
-    save_config()
+    with open(root_folder + "config.ini", "w") as config_file:
+        config.write(config_file)
     response = make_response("OK")  # TODO
     # TODO PRINT NEW TREE (options to the whole data thingy too)
     response.headers["Cache-Control"] = "no-store"
@@ -282,7 +286,7 @@ def tests():
 
     config.read(config_path)
     while not config.has_section("Options"):
-        save_config()
+        set_default_config()
     else:
         dna_protein = config.get("Options", "dna-protein")
         if dna_protein == "dna":
@@ -306,7 +310,7 @@ def tests():
                 model += "+" + protein_aaf
             if protein_rhas != "-":
                 model += "+" + protein_rhas
-
+    print("Starting IQTree. This could take some time!")
     sp = subprocess.run(
         [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment.phy"), "-z",
          path, "-n", "0", "-zb", "10000", "-zw", "-au", "-m", model, "-redo"]) # TODO capture_output=True
@@ -325,7 +329,7 @@ def tests():
     return response
 
 
-def save_config():
+def set_default_config():
     config["Options"] = {
         'enable-lengths': 'false',
         'dna-protein': 'dna',
@@ -351,7 +355,7 @@ def main():
     conn.close()
 
     if not os.path.exists(root_folder + "config.ini"):
-        save_config()
+        set_default_config()
 
     if not os.path.exists(os.path.join(root_folder, "tmp")):
         os.makedirs(os.path.join(root_folder, "tmp"))
