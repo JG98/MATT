@@ -38,3 +38,24 @@ html, body {
     margin-top: 70px;
     width: 100px;
 }
+
+#zoom-in-button {
+     position: absolute;
+     top: 10px;
+     left: 10px;
+     display:none;
+}
+
+#zoom-out-button {
+    position: absolute;
+    top: 10px;
+    left: 52px;
+    display:none;
+}
+
+#search {
+    position: absolute;
+    top: 10px;
+    left: 98px;
+    display:none;
+}
