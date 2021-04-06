@@ -159,7 +159,6 @@ $(function() {
     });
     $("#test-snapshots").click(function() {
         var snapshots = [];
-        // TODO check if .val() could work here too?
         $.each($("#select-snapshots option:selected"), function(){
             snapshots.push($(this).val());
         });

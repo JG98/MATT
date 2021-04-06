@@ -13,6 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+from tifffile.tifffile import json_description
+
 from matt.node import Node
 from json import dumps, loads
 from decimal import Decimal, getcontext
@@ -70,7 +72,7 @@ class Tree:
 
     def from_json(self, string, json_args=None):
         print(string)
-        print(type(string))
+        print(json_args)
         json = loads(string)
         json.pop()
         nodes = {}
@@ -92,7 +94,6 @@ class Tree:
         self.root = nodes[0]
 
         if json_args:
-            # TODO outgroup and rehang have much in common, change this!
             if len(json_args) == 1:
                 #OUTGROUP
                 id = json_args[0]
@@ -108,38 +109,40 @@ class Tree:
                     if id_node.parent.id == "0":
                         return
 
-                if id_path[-1] == "L":
-                    id_node.parent.l_child = None
-                elif id_path[-1] == "R":
-                    id_node.parent.r_child = None
+                self.outgroup_helper(self.root, id_path)
 
-                id_parent_parent = id_node.parent.parent
-                if id_path[-1] == "L":
-                    id_neighbor = id_node.parent.r_child
-                elif id_path[-1] == "R":
-                    id_neighbor = id_node.parent.l_child
-
-                id_neighbor.parent = id_parent_parent
-                if id_path[-2] == "L":
-                    id_parent_parent.l_child = id_neighbor
-                elif id_path[-2] == "R":
-                    id_parent_parent.r_child = id_neighbor
-
-                # TODO ELSE
-                if not self.enable_lengths:
-                    new_node = Node(id_node.parent.id, Decimal(1), Decimal(1), self.root, self.root.l_child, self.root.r_child)
-                    self.root.l_child = id_node
-                    self.root.r_child = new_node
-                    new_node.l_child.parent = new_node
-                    new_node.r_child.parent = new_node
-                    id_node.length = Decimal(1)
-                    id_node.total_length = Decimal(1)
-                    self.change_children_level(new_node.l_child, 1, True)
-                    self.change_children_level(new_node.r_child, 1, True)
-                    if id_neighbor:  # TODO necessary?
-                        self.change_children_level(id_neighbor, -1, True)
-
-                id_node.parent = self.root
+                # if id_path[-1] == "L":
+                #     id_node.parent.l_child = None
+                # elif id_path[-1] == "R":
+                #     id_node.parent.r_child = None
+                #
+                # id_parent_parent = id_node.parent.parent
+                # if id_path[-1] == "L":
+                #     id_neighbor = id_node.parent.r_child
+                # elif id_path[-1] == "R":
+                #     id_neighbor = id_node.parent.l_child
+                #
+                # id_neighbor.parent = id_parent_parent
+                # if id_path[-2] == "L":
+                #     id_parent_parent.l_child = id_neighbor
+                # elif id_path[-2] == "R":
+                #     id_parent_parent.r_child = id_neighbor
+                #
+                # # TODO ELSE
+                # if not self.enable_lengths:
+                #     new_node = Node(id_node.parent.id, Decimal(1), Decimal(1), self.root, self.root.l_child, self.root.r_child)
+                #     self.root.l_child = id_node
+                #     self.root.r_child = new_node
+                #     new_node.l_child.parent = new_node
+                #     new_node.r_child.parent = new_node
+                #     id_node.length = Decimal(1)
+                #     id_node.total_length = Decimal(1)
+                #     self.change_children_level(new_node.l_child, 1, True)
+                #     self.change_children_level(new_node.r_child, 1, True)
+                #     if id_neighbor:  # TODO necessary?
+                #         self.change_children_level(id_neighbor, -1, True)
+                #
+                # id_node.parent = self.root
 
             elif len(json_args) == 2:
                 # REHANG
@@ -346,3 +349,69 @@ class Tree:
                 pass  # TODO
             node = node.parent
         return string
+
+    def get_node(self, path):
+        node = self.root
+        for c in path:
+            if c == "L":
+                node = node.l_child
+            elif c == "R":
+                node = node.r_child
+            else:  # TODO
+                pass
+        return node
+
+    def outgroup_helper(self, node, id_path):
+        # TODO LENGTH HANDLING WHEN LENGTHS ARE NOT DISABLED
+
+        l_child = node.l_child
+        r_child = node.r_child
+        l_path = self.find_node(l_child)
+        r_path = self.find_node(r_child)
+
+        level = len(l_path) - 1
+
+        if l_path == id_path or r_path == id_path:
+            return
+
+        swap_node = self.get_node(id_path)
+        if level > 0:
+            current_node = swap_node
+            for i in range(1, level):
+                current_node = current_node.parent
+            if current_node.parent.l_child == current_node:
+                swap_node = current_node.parent.r_child
+            else:
+                swap_node = current_node.parent.l_child
+        swap_path = self.find_node(swap_node)
+        swap_level = len(swap_path) - 1
+
+        if id_path[level] == "R":
+            tmp_node = swap_node.parent
+            swap_node.parent = node
+            l_child.parent = tmp_node
+            node.l_child = swap_node
+            if swap_path[-1] == "L":
+                tmp_node.l_child = l_child
+            else:
+                tmp_node.r_child = l_child
+            if not self.enable_lengths:
+                self.change_children_level(node.l_child, -(swap_level - level), True)
+                self.change_children_level(l_child, (swap_level - level), True)
+            if r_child:
+                self.outgroup_helper(r_child, id_path)
+        elif id_path[level] == "L":
+            tmp_node = swap_node.parent
+            swap_node.parent = node
+            r_child.parent = tmp_node
+            node.r_child = swap_node
+            if swap_path[-1] == "L":
+                tmp_node.l_child = r_child
+            else:
+                tmp_node.r_child = r_child
+            if not self.enable_lengths:
+                self.change_children_level(node.r_child, -(swap_level - level), True)
+                self.change_children_level(r_child, (swap_level - level), True)
+            if l_child:
+                self.outgroup_helper(l_child, id_path)
+        return

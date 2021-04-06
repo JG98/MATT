@@ -159,7 +159,6 @@ $(function() {
     });
     $("#test-snapshots").click(function() {
         var snapshots = [];
-        // TODO check if .val() could work here too?
         $.each($("#select-snapshots option:selected"), function(){
             snapshots.push($(this).val());
         });
@@ -390,6 +389,28 @@ $(function() {
             stroke: 'black',
             strokeWidth: 2
         }));
+
+        $("#zoom-in-button").show();
+        $("#zoom-out-button").show();
+        $("#search").css("display", "flex");
+
+        $("#zoom-in-button").click(function (event) {
+            setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
+        });
+
+        $("#zoom-out-button").click(function (event) {
+            setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
+        });
+
+        $("#search-button").click(function (event) {
+            search($("#search-text").val());
+        });
+
+        $('#search-text').keypress(function (event) {
+            if (event.which == '13') {
+                search($("#search-text").val());
+            }
+        });
 
         minimapMaxWidth = $("#tab1").width();
         minimapMaxHeight = $("#tab1").height();
@@ -929,6 +950,22 @@ $(function() {
             } else if (outgroupButton.attr("display") == "inline") {
                 outgroupButton.attr({display: "none"});
             }
+        }
+
+        function search(value) {
+            data.some(function(item, index, array) {
+                if (item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
+                    found = svg.select("text[data-id='" + item.id + "']");
+                    if (found) {
+                        found.attr('fill', 'red');
+                        setTimeout(function() {
+                            found.attr('fill', null);
+                        }, 5000);
+                    }
+                    setTransform("translate", -(maxX - offset) + maxWidth / 2, -((index + 1) * scaleY) + maxHeight / 2);
+                    return true;
+                }
+            });
         }
     }
 
