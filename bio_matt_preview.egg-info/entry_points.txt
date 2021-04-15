@@ -1,3 +1,0 @@
-[console_scripts]
-matt = matt.app:main
-
