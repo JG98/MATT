@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-from tifffile.tifffile import json_description
 
 from matt.node import Node
 from json import dumps, loads

@@ -24,6 +24,7 @@ $(function() {
     let maxY;
     let svg;
     let trees;
+    let g;
 
     $("#logo-main").offset({left: maxWidth/2 - $("#logo-main").width()/2, top: maxHeight/2 - $("#logo-main").height()/2});
 
@@ -334,7 +335,9 @@ $(function() {
     }
 
     function draw(data) {
-        let g;
+        xBefore = getTransform("x");
+        yBefore = getTransform("y");
+        scaleBefore = getTransform("scale");
 
         $("#logo-main").remove();
         $("#logo-slide").remove();
@@ -797,7 +800,19 @@ $(function() {
             }
         });
 
-        setTransform("translate", 20, 20);
+        if (xBefore === "undefined") {
+            xBefore = 20;
+        }
+
+        if (yBefore === "undefined") {
+            yBefore = 20;
+        }
+
+        if (scaleBefore === "undefined") {
+            setTransform("translate", xBefore, yBefore);
+        } else {
+            setTransform("scale", scaleBefore, xBefore, yBefore);
+        }
 
         // TODO think of the boundaries!
         var startX, startY;
@@ -866,6 +881,9 @@ $(function() {
         }
 
         function setTransform() {
+            if (typeof g === "undefined") {
+                return;
+            }
             originalTranslateX = getTransform("x");
             originalTranslateY = getTransform("y");
             originalScale = getTransform("scale");
@@ -919,6 +937,9 @@ $(function() {
         }
 
         function getTransform() {
+            if (typeof g === "undefined") {
+                return;
+            }
             if (g.transform().total !== "") {
                 currentTransform = g.transform().totalMatrix;
                 translateX = parseFloat(currentTransform["e"]);

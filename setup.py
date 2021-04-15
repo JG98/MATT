@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="bio-matt-preview",
-    version="0.4",
+    version="0.4.1",
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
-    description="A Framework for Modifying And Testing Topologies",
+    description="A Framework For Modifying And Testing Topologies",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/JG98/MATT",
