@@ -981,7 +981,7 @@ $(function() {
                         found.attr('fill', 'red');
                         setTimeout(function() {
                             found.attr('fill', null);
-                        }, 5000);
+                        }, 2000);
                     }
                     setTransform("translate", -(maxX - offset) + maxWidth / 2, -((index + 1) * scaleY) + maxHeight / 2);
                     return true;

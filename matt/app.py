@@ -23,6 +23,7 @@ import os.path
 import platform
 import configparser
 import webbrowser
+import stat
 
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
@@ -32,6 +33,11 @@ system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
 app_location = os.path.join(root_folder, "iqtree", "iqtree-1.6.12-" + system, "")
+if platform.system() == "Windows":
+    addition = ".exe"
+else:
+    addition = ""
+os.chmod(os.path.join(app_location, "bin", "iqtree" + addition), stat.S_IXOTH)
 config = configparser.ConfigParser()
 config_path = os.path.join(root_folder, "config.ini")
 
