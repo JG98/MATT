@@ -39,11 +39,11 @@ snapshots can be saved under the snapshots tab and different tree topologies can
 Any bug reports, comments and suggestions are highly appreciated. Please
 [open an issue on GitHub](https://github.com/BIONF/MATT/issues/new) or contact us via [email](mailto:TODO).
 
-#License
+# License
 *MATT* is licensed under the [GNU General Public License v3.0](https://github.com/BIONF/MATT/blob/mater/LICENSE).
 
-#Citation
+# Citation
 TODO
 
-#Contact
+# Contact
 For further support or bug reports please contact us via [email](mailto:TODO).
