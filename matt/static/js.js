@@ -31,6 +31,9 @@ $(function() {
     getOptions();
 
     $("#import").click(function() {
+        $("#modalLabel").text("Import clicked!")
+        $("#modalBody").text("Tree is getting calculated!")
+        $("#modal").modal("show");
         // TODO
         /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
           alert('The File APIs are not fully supported in this browser.');
@@ -271,6 +274,9 @@ $(function() {
     }
 
     function tests(data) {
+        $("#modalLabel").text("Tests clicked!")
+        $("#modalBody").text("Tests are getting calculated!")
+        $("#modal").modal("show");
         $.post("tests", data, function(data) {
             data = JSON.parse(data);
 
