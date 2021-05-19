@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="bio-matt-preview",
-    version="0.4.2",
+    name="phylo-matt",
+    version="0.5",
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
     description="A Framework For Modifying And Testing Topologies",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/JG98/MATT",
+    url="https://github.com/BIONF/MATT",
     packages=setuptools.find_packages(),
     package_data={'': ['*']},
     include_package_data=True,
