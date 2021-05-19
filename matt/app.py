@@ -24,6 +24,8 @@ import platform
 import configparser
 import webbrowser
 import stat
+import threading
+import time
 
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
@@ -351,6 +353,10 @@ def set_default_config():
         config.write(config_file)
 
 
+def open_browser():
+    time.sleep(2)
+    webbrowser.open("http://127.0.0.1:5000/")
+
 def main():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
@@ -366,12 +372,12 @@ def main():
     if not os.path.exists(os.path.join(root_folder, "tmp")):
         os.makedirs(os.path.join(root_folder, "tmp"))
 
-    webbrowser.open("http://127.0.0.1:5000/")
+    thread = threading.Thread(target=open_browser)
+    thread.start()
 
     # app.run(host='127.0.0.1', port=80)
     # app.run(host='0.0.0.0', port=80)
     app.run()
-
 
 if __name__ == '__main__':
     main()
