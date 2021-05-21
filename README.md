@@ -1,6 +1,7 @@
 # MATT - A FRAMEWORK FOR MODIFYING AND TESTING TOPOLOGIES
 
 [![PyPI version](https://badge.fury.io/py/phylo-matt.svg)](https://pypi.org/project/phylo-matt/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Github Build](https://github.com/BIONF/MATT/workflows/build/badge.svg)
 
 ![MATT](https://github.com/BIONF/MATT/blob/master/matt/static/logo.png)
