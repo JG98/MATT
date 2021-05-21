@@ -1,5 +1,7 @@
 # MATT - A FRAMEWORK FOR MODIFYING AND TESTING TOPOLOGIES
 
+[![PyPI version](https://badge.fury.io/py/phylo-matt.svg)](https://pypi.org/project/phylo-matt/)
+
 ![MATT](https://github.com/BIONF/MATT/blob/master/matt/static/logo.png)
 
 # Table of Contents
