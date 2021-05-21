@@ -1,6 +1,6 @@
 # MATT - A FRAMEWORK FOR MODIFYING AND TESTING TOPOLOGIES
 
-![MATT](matt/static/logo.png "MATT")
+![MATT](https://github.com/BIONF/MATT/blob/master/matt/static/logo.png)
 
 # Table of Contents
 * [Installation](#installation)
@@ -11,13 +11,13 @@
 * [Contact](contact)
 
 # Installation
-*MATT* is distributed as a python package called *bionf-matt*. *MATT* requires a
+*MATT* is distributed as a python package called *phylo-matt*. *MATT* requires a
 [Python](https://www.python.org/downloads/) version of 3.5 or higher.
 
 Once python and the included package manager are installed, *MATT* can be installed using the `pip` command in a
 console:
 ```
-pip install bionf-matt
+pip install phylo-matt
 ```
 
 # Usage
