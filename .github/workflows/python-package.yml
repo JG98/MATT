@@ -42,9 +42,10 @@ jobs:
         pwd
         pip install .
     - name: Deploy
-      if: startsWith(github.event.ref, 'refs/tags')
+      #if: startsWith(github.event.ref, 'refs/tags')
       uses: casperdcl/deploy-pypi@v2
       with:
+        skip_existing: true
         password: ${{ secrets.pypi }}
         build: true
-        upload: ${{ github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') }}
+        #upload: ${{ github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') }}
