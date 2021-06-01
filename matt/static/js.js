@@ -25,6 +25,8 @@ $(function() {
     let svg;
     let trees;
     let g;
+    let buttons_activated = false;
+    let counter_of_trees = 0;
 
     $("#logo-main").offset({left: maxWidth/2 - $("#logo-main").width()/2, top: maxHeight/2 - $("#logo-main").height()/2});
 
@@ -171,6 +173,11 @@ $(function() {
         });
     });
 
+    $(".btn").mouseup(function(){
+        $(this).blur();
+    })
+
+
     function getOptions() {
         $.get("get-options", "", function(data) {
             data = JSON.parse(data);
@@ -215,9 +222,23 @@ $(function() {
         // TODO work with status?!
         data = JSON.parse(data);
         trees = data;
-        set_testing(xhr.getResponseHeader("Testing"));
-        draw(eval(data.slice(-1)[0][1]));
-        snapshots(data);
+        number_of_trees = trees.length;
+        if (typeof xhr !== "undefined") {
+            counter_of_trees += 1;
+            set_testing(xhr.getResponseHeader("Testing"));
+        }
+        if (counter_of_trees > 1) {
+            $("#undo-button").prop("disabled", false);
+        }
+        if (counter_of_trees < number_of_trees) {
+            $("#redo-button").prop("disabled", false);
+        }
+        if (counter_of_trees == number_of_trees) {
+            $("#redo-button").prop("disabled", true);
+        }
+        console.log("Building tree " + counter_of_trees + " of " + number_of_trees);
+        draw(eval(trees[counter_of_trees - 1][1]));
+        //snapshots(trees);
     }
 
     function set_testing(testing) {
@@ -399,27 +420,7 @@ $(function() {
             strokeWidth: 2
         }));
 
-        $("#zoom-in-button").show();
-        $("#zoom-out-button").show();
-        $("#search").css("display", "flex");
-
-        $("#zoom-in-button").click(function (event) {
-            setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
-        });
-
-        $("#zoom-out-button").click(function (event) {
-            setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
-        });
-
-        $("#search-button").click(function (event) {
-            search($("#search-text").val());
-        });
-
-        $('#search-text').keypress(function (event) {
-            if (event.which == '13') {
-                search($("#search-text").val());
-            }
-        });
+        activate_buttons();
 
         minimapMaxWidth = $("#tab1").width();
         minimapMaxHeight = $("#tab1").height();
@@ -546,9 +547,16 @@ $(function() {
         });
         outgroupButton.click(function() {
             if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
-                load("get", {
-                    'id': clickedPath.attr("data-id")
-                });
+                if (counter_of_trees == number_of_trees) {
+                    load("get", {
+                        'id': clickedPath.attr("data-id")
+                    });
+                } else {
+                    load("get", {
+                        'id': clickedPath.attr("data-id"),
+                        'current': counter_of_trees
+                    });
+                }
             } else if (clickedPath.attr("data-parent") != 0) {
                 clickedPath.attr({
                     strokeOpacity: ''
@@ -773,10 +781,18 @@ $(function() {
                             clickedPath = null;
                             toggleOutgroupButton();
                         } else {
-                            load("get", {
-                                'from': clickedPath.attr("data-id"),
-                                'to': itemPath.attr("data-id")
-                            });
+                            if (counter_of_trees == number_of_trees) {
+                                load("get", {
+                                    'from': clickedPath.attr("data-id"),
+                                    'to': itemPath.attr("data-id")
+                                });
+                            } else {
+                                load("get", {
+                                    'from': clickedPath.attr("data-id"),
+                                    'to': itemPath.attr("data-id"),
+                                    'current': counter_of_trees
+                                });
+                            }
                         }
                     });
 
@@ -979,6 +995,43 @@ $(function() {
             }
         }
 
+        function activate_buttons() {
+            if (!(buttons_activated)) {
+                $("#undo-button").show();
+                $("#redo-button").show();
+                $("#zoom-in-button").show();
+                $("#zoom-out-button").show();
+                $("#search").css("display", "flex");
+
+                $("#undo-button").click(function (event) {
+                    undo();
+                });
+
+                $("#redo-button").click(function (event) {
+                    redo();
+                });
+
+                $("#zoom-in-button").click(function (event) {
+                    setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
+                });
+
+                $("#zoom-out-button").click(function (event) {
+                    setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
+                });
+
+                $("#search-button").click(function (event) {
+                    search($("#search-text").val());
+                });
+
+                $('#search-text').keypress(function (event) {
+                    if (event.which == '13') {
+                        search($("#search-text").val());
+                    }
+                });
+                buttons_activated = true;
+            }
+        }
+
         function search(value) {
             data.some(function(item, index, array) {
                 if (item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
@@ -993,6 +1046,26 @@ $(function() {
                     return true;
                 }
             });
+        }
+
+        function undo() {
+            if (counter_of_trees > 1) {
+                counter_of_trees -= 1;
+            }
+            if (counter_of_trees == 1) {
+                $("#undo-button").prop("disabled", true);
+            }
+            update(JSON.stringify(trees));
+        }
+
+        function redo() {
+            if (counter_of_trees < number_of_trees) {
+                counter_of_trees += 1;
+            }
+            if (counter_of_trees == number_of_trees) {
+                $("#redo-button").prop("disabled", true);
+            }
+            update(JSON.stringify(trees));
         }
     }
 
