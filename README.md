@@ -41,13 +41,13 @@ snapshots can be saved under the snapshots tab and different tree topologies can
 
 # Contribution
 Any bug reports, comments and suggestions are highly appreciated. Please
-[open an issue on GitHub](https://github.com/BIONF/MATT/issues/new) or contact us via [email](mailto:TODO).
+[open an issue on GitHub](https://github.com/BIONF/MATT/issues/new) or contact us via [email](mailto:jeffgower98@gmail.com).
 
 # License
 *MATT* is licensed under the [GNU General Public License v3.0](https://github.com/BIONF/MATT/blob/mater/LICENSE).
 
 # Citation
-TODO
+WIP
 
 # Contact
-For further support or bug reports please contact us via [email](mailto:TODO).
+For further support or bug reports please contact us via [email](mailto:jeffgower98@gmail.com).
