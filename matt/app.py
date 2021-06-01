@@ -101,9 +101,9 @@ def download(id):
 def description():
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
-    id = request.form.get("id")
-    description = request.form.get("description")
-    rowcount = c.execute("UPDATE trees SET description = ? WHERE id = ?", (description, id)).rowcount
+    form_id = request.form.get("id")
+    form_description = request.form.get("description")
+    rowcount = c.execute("UPDATE trees SET description = ? WHERE id = ?", (form_description, form_id)).rowcount
     conn.commit()
     if rowcount == 1:
         response = make_response("OK")
@@ -202,14 +202,19 @@ def load():
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
+        print(request.args)
         if len(request.args) == 0:
             json_args = None
-        if len(request.args) == 1:
+        if request.args.get("id") is not None:
             json_args = [request.args.get("id")]
-        elif len(request.args) == 2:
+        elif request.args.get("from") is not None:
             json_args = [request.args.get("from"), request.args.get("to")]
         else:
             pass  # TODO
+        if request.args.get("current") is not None:
+            current = request.args.get("current")
+        else:
+            current = None
         if enable_lengths:
             # TODO same for case 2, provide options there too
             tree = Tree(tree_json, json_args, enable_lengths).to_newick(True)
@@ -229,11 +234,15 @@ def load():
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
         else:
             tree = Tree(tree_json, json_args, enable_lengths).to_json()
+        if current is not None:
+            del session["trees"][int(current):]
     else:
         pass  # TODO
+
     c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
     session["tree"] = c.lastrowid
     session["trees"].append(session["tree"])
+    print(session["trees"])
     trees = c.execute('SELECT * FROM trees WHERE id IN ({seq})'.format(seq=','.join(['?'] * len(session["trees"]))),
                       session["trees"]).fetchall()
     conn.commit()
@@ -356,6 +365,7 @@ def set_default_config():
 def open_browser():
     time.sleep(2)
     webbrowser.open("http://127.0.0.1:5000/")
+
 
 def main():
     conn = sqlite3.connect(root_folder + 'trees.db')
