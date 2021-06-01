@@ -39,23 +39,37 @@ html, body {
     width: 100px;
 }
 
+#undo-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: none;
+}
+
+#redo-button {
+    position: absolute;
+    top: 10px;
+    left: 54px;
+    display: none;
+}
+
 #zoom-in-button {
      position: absolute;
      top: 10px;
-     left: 10px;
-     display:none;
+     left: 102px;
+     display: none;
 }
 
 #zoom-out-button {
     position: absolute;
     top: 10px;
-    left: 52px;
-    display:none;
+    left: 146px;
+    display: none;
 }
 
 #search {
     position: absolute;
     top: 10px;
-    left: 98px;
-    display:none;
+    left: 194px;
+    display: none;
 }

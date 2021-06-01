@@ -171,6 +171,11 @@ $(function() {
         });
     });
 
+    $(".btn").mouseup(function(){
+        $(this).blur();
+    })
+
+
     function getOptions() {
         $.get("get-options", "", function(data) {
             data = JSON.parse(data);
@@ -399,9 +404,19 @@ $(function() {
             strokeWidth: 2
         }));
 
+        $("#undo-button").show();
+        $("#redo-button").show();
         $("#zoom-in-button").show();
         $("#zoom-out-button").show();
         $("#search").css("display", "flex");
+
+        $("#undo-button").click(function (event) {
+            undo();
+        });
+
+        $("#redo-button").click(function (event) {
+            redo();
+        });
 
         $("#zoom-in-button").click(function (event) {
             setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
