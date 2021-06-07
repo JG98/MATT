@@ -27,6 +27,7 @@ $(function() {
     let g;
     let buttons_activated = false;
     let counter_of_trees = 0;
+    let found = null;
 
     $("#logo-main").offset({left: maxWidth/2 - $("#logo-main").width()/2, top: maxHeight/2 - $("#logo-main").height()/2});
 
@@ -1035,12 +1036,12 @@ $(function() {
         function search(value) {
             data.some(function(item, index, array) {
                 if (item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
+                    if (found) {
+                        found.attr('fill', null);
+                    }
                     found = svg.select("text[data-id='" + item.id + "']");
                     if (found) {
                         found.attr('fill', 'red');
-                        setTimeout(function() {
-                            found.attr('fill', null);
-                        }, 2000);
                     }
                     setTransform("translate", -(maxX - offset) + maxWidth / 2, -((index + 1) * scaleY) + maxHeight / 2);
                     return true;
