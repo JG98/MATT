@@ -53,23 +53,30 @@ html, body {
     display: none;
 }
 
+#save-button {
+    position: absolute;
+    top: 10px;
+    left: 98px;
+    display: none;
+}
+
 #zoom-in-button {
      position: absolute;
      top: 10px;
-     left: 102px;
+     left: 146px;
      display: none;
 }
 
 #zoom-out-button {
     position: absolute;
     top: 10px;
-    left: 146px;
+    left: 190px;
     display: none;
 }
 
 #search {
     position: absolute;
     top: 10px;
-    left: 194px;
+    left: 238px;
     display: none;
 }

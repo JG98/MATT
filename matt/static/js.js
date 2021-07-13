@@ -24,6 +24,7 @@ $(function() {
     let maxY;
     let svg;
     let trees;
+    let snapshotTrees = [];
     let g;
     let buttons_activated = false;
     let counter_of_trees = 0;
@@ -34,9 +35,6 @@ $(function() {
     getOptions();
 
     $("#import").click(function() {
-        $("#modalLabel").text("Import clicked!")
-        $("#modalBody").text("Tree is getting calculated!")
-        $("#modal").modal("show");
         // TODO
         /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
           alert('The File APIs are not fully supported in this browser.');
@@ -95,6 +93,9 @@ $(function() {
         function sendAlignmentAndTree() {
             if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
                 if ((typeof senddataAlignment.fileData !== "undefined") && (typeof senddataTree.fileData !== "undefined")) {
+                    $("#info-modal-label").text("Import clicked!")
+                    $("#info-modal-body").text("Tree is getting calculated!")
+                    $("#info-modal").modal("show");
                     load("post", {
                         alignment: {
                             data: senddataAlignment.fileData,
@@ -108,6 +109,9 @@ $(function() {
                 }
             } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
                 if (typeof senddataAlignment.fileData !== "undefined") {
+                    $("#info-modal-label").text("Import clicked!")
+                    $("#info-modal-body").text("Tree is getting calculated!")
+                    $("#info-modal").modal("show");
                     load("post", {
                         alignment: {
                             data: senddataAlignment.fileData,
@@ -238,8 +242,8 @@ $(function() {
             $("#redo-button").prop("disabled", true);
         }
         console.log("Building tree " + counter_of_trees + " of " + number_of_trees);
-        draw(eval(trees[counter_of_trees - 1][1]));
-        //snapshots(trees);
+        console.log(trees);
+        draw(JSON.parse(trees[counter_of_trees - 1][1]));
     }
 
     function set_testing(testing) {
@@ -261,44 +265,75 @@ $(function() {
 
     function description(id, description) {
         $.post("description", {"id": id, "description": description});
+        trees.find(element => element[0] == id)[2] = description;
+        snapshotTrees.find(element => element[0] == id)[2] = description;
+        update(JSON.stringify(trees));
+        snapshots(snapshotTrees);
+    }
+
+    function save() {
+        descriptionValue = $("#snapshot-label").val();
+        trees[counter_of_trees - 1][2] = descriptionValue;
+        snapshotTrees.push(trees[counter_of_trees - 1]);
+        snapshots(snapshotTrees);
+        description(trees[counter_of_trees - 1][0], descriptionValue);
+
+        // TODO
+        // clicking on it should break redo chain
     }
 
     function snapshots(data) {
         $("#no-entries").remove();
         $("#snapshots").empty();
         $("#select-snapshots").empty();
-        // TODO $("#snapshots").append('<thead><tr><th scope="col">#</th><th scope="col">JSON</th><th scope="col">Newick</th><th scope="col">DateTime</th></tr></thead>');
-        $("#snapshots").append('<thead><tr><th>#</th><th>Description</th><th>Download</th></tr></thead>');
+        $("#snapshots").append('<thead><tr><th>Name</th><th>Change Name</th><th>Download</th></tr></thead>');
         $("#snapshots").append('<tbody>');
         data.forEach(function(value) {
             text = '<tr>';
-            text += '<td><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + value[0] + '</button></td>';
-            text += '<td><input type="text" class="form-control" id="snapshot-description-' + value[0] + '" value="' + ((value[2] != null) ? value[2] : "") + '"></td>';
+            text += '<td><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + ((value[2] != "") ? value[2] : value[0]) + '</button></td>';
+            text += '<td><button type="button" class="btn btn-link" id="snapshot-edit-' + value[0] + '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg></button></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-download-' + value[0] + '"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></button></td>';
             text += '</tr>';
             $("#snapshots").append(text);
             $("#snapshot-" + value[0]).click(function() {
                 snapshotId = $(this).attr("id").split("-")[1];
-                draw(eval(trees[snapshotId - 1][1]));
+                counter_of_trees = snapshotId;
+                if (counter_of_trees == 1) {
+                    $("#undo-button").prop("disabled", true);
+                }
+                if (counter_of_trees == number_of_trees) {
+                    $("#redo-button").prop("disabled", true);
+                }
+                draw(JSON.parse(trees[snapshotId - 1][1]));
             });
-            $("#snapshot-description-" + value[0]).change(function() {
+            $("#snapshot-edit-" + value[0]).click(function() {
                 snapshotId = $(this).attr("id").split("-")[2];
-                description(snapshotId, $(this).val());
+                $("#change-snapshot-label").val(value[2]);
+                $("#change-modal").modal("show");
+                $("#change-modal").on("shown.bs.modal", function () {
+                    $("#change-snapshot-label").focus();
+                });
+                // TODO das muss eventuell vorher unbinded werden?
+                $("#change-modal-button").click(function (event) {
+                    var newValue = $("#change-snapshot-label").val();
+                    description(snapshotId, newValue);
+                    $("#change-modal").modal("hide");
+                });
             });
             $("#snapshot-download-" + value[0]).click(function() {
                 snapshotId = $(this).attr("id").split("-")[2];
                 download(snapshotId);
             });
             // TODO no-entries option for tests too?!
-            $("#select-snapshots").append('<option>' + value[0] + '</option>');
+            $("#select-snapshots").append('<option value="' + value[0] + '">' + value[2] + '</option>');
         });
         $("#snapshots").append('</tbody>');
     }
 
     function tests(data) {
-        $("#modalLabel").text("Tests clicked!")
-        $("#modalBody").text("Tests are getting calculated!")
-        $("#modal").modal("show");
+        $("#info-modal-label").text("Tests clicked!")
+        $("#info-modal-body").text("Tests are getting calculated!")
+        $("#info-modal").modal("show");
         $.post("tests", data, function(data) {
             data = JSON.parse(data);
 
@@ -313,7 +348,7 @@ $(function() {
             testData[2].push('<a href="#" title="deltaL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="logL difference from the maximal logL in the set">deltaL</a>');
             testData[3].push('<a href="#" title="bp-RELL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="bootstrap proportion using <a href=\'https://doi.org/10.1007/BF02109483\' target=\'_blank\'>RELL method (Kishino et al. 1990)</a>">bp-RELL</a>');
             testData[4].push('<a href="#" title="p-KH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of one sided <a href=\'https://doi.org/10.1007/BF02100115\' target=\'_blank\'>Kishino-Hasegawa test (1989)</a>">p-KH</a>');
-            testData[5].push('<a href="#" title="p-SH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1093/oxfordjournals.molbev.a026201\' target=\'_blank\'>Shimodaira-Hasegawa test (2000)</a>">p-SH</a>');
+            testData[5].push('<a href="#" title="p-SH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1093/oxfordjournals.molbev.a026201\' target=\'_blank\'>Shimodaira-Hasegawa test (1999)</a>">p-SH</a>');
             testData[6].push('<a href="#" title="p-WKH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href=\'https://doi.org/10.1007/BF02100115\' target=\'_blank\'>KH</a>">p-WKH</a>');
             testData[7].push('<a href="#" title="p-WSH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href=\'https://doi.org/10.1093/oxfordjournals.molbev.a026201\' target=\'_blank\'>SH</a>">p-WSH</a>');
             testData[8].push('<a href="#" title="c-ELW" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="Expected Likelihood Weight <a href=\'https://doi.org/10.1098/rspb.2001.1862\' target=\'_blank\'>(Strimmer & Rambaut 2002)</a>">c-ELW</a>');
@@ -359,6 +394,7 @@ $(function() {
     }
 
     function download(id) {
+        $.get("download/" + id);
         window.open("download/" + id);
     }
 
@@ -1000,6 +1036,7 @@ $(function() {
             if (!(buttons_activated)) {
                 $("#undo-button").show();
                 $("#redo-button").show();
+                $("#save-button").show();
                 $("#zoom-in-button").show();
                 $("#zoom-out-button").show();
                 $("#search").css("display", "flex");
@@ -1010,6 +1047,19 @@ $(function() {
 
                 $("#redo-button").click(function (event) {
                     redo();
+                });
+
+                $("#save-button").click(function (event) {
+                    $("#snapshot-label").val("");
+                    $("#save-modal").modal("show");
+                    $("#save-modal").on("shown.bs.modal", function () {
+                        $("#snapshot-label").focus();
+                    });
+                });
+
+                $("#save-modal-button").click(function (event) {
+                    save();
+                    $("#save-modal").modal("hide");
                 });
 
                 $("#zoom-in-button").click(function (event) {

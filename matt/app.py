@@ -82,19 +82,20 @@ def get_options():
     return response
 
 
-@app.route("/download/<id>", methods=["GET"])
-def download(id):
+@app.route("/download/<tree_id>", methods=["GET"])
+def download(tree_id):
     path = os.path.join(root_folder, "tmp", "download.nck")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
-    tree_json = c.execute("SELECT json FROM trees WHERE id = ?", (id,)).fetchall()
-    tree_json = tree_json[0][0]
+    tree_db = c.execute("SELECT json, description FROM trees WHERE id = ?", (tree_id,)).fetchall()
+    tree_json = tree_db[0][0]
+    tree_description = tree_db[0][1]
     tree = Tree(tree_json).to_newick()
     file.write(tree + "\n")
     file.close()
     return send_from_directory(os.path.join(root_folder, "tmp"), "download.nck", as_attachment=True,
-                               attachment_filename=id + ".nck")
+                               attachment_filename=tree_description + ".nck")
 
 
 @app.route("/description", methods=["POST"])
