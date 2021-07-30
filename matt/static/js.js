@@ -406,6 +406,8 @@ $(function() {
     }
 
     function draw(data) {
+        $("#outgroup-button").css("display", "none");
+
         xBefore = getTransform("x");
         yBefore = getTransform("y");
         scaleBefore = getTransform("scale");
