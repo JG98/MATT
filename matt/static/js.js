@@ -924,8 +924,8 @@ $(function() {
                 newScale = currentScale - step;
             }
 
-            moveX = currentX + (currentX - posX) * (newScale - currentScale);
-            moveY = currentY + (currentY - posY) * (newScale - currentScale);
+            moveX = currentX;// + (currentX - posX) * (newScale - currentScale);
+            moveY = currentY;// + (currentY - posY) * (newScale - currentScale);
 
             setTransform("scale", newScale, moveX, moveY);
         }
@@ -983,7 +983,7 @@ $(function() {
 
             g.transform("translate(" + translateX + " " + translateY + ") scale(" + scale + " " + scale + ")");
             // TODO
-            minimapWindow.transform("translate(" + -translateX / ratio + " " + -translateY / ratio + ") scale(" + scale + " " + scale + ")");
+            minimapWindow.transform("translate(" + -translateX / ratio + " " + -translateY / ratio + ") scale(" + scale / ratio + " " + scale / ratio + ")");
         }
 
         function getTransform() {
@@ -1080,7 +1080,7 @@ $(function() {
                     if (found) {
                         found.attr('fill', 'red');
                     }
-                    setTransform("translate", -(maxX - offset) + maxWidth / 2, -((index + 1) * scaleY) + maxHeight / 2);
+                    setTransform("translate", -(maxX - offset) * scale + maxWidth / 2, -((index + 1) * scaleY) * scale + maxHeight / 2);
                     return true;
                 }
             });
@@ -1240,9 +1240,3 @@ $(function() {
     $("#btn2").click();
 
 });
-
-/*
-//TODO
-$(window).resize(function() {
-    svg.size($(window).width(), $(window).height());
-});*/
