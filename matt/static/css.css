@@ -80,3 +80,10 @@ html, body {
     left: 238px;
     display: none;
 }
+
+#outgroup-button {
+    position: absolute;
+    top: 10px;
+    left: 467px;
+    display: none;
+}

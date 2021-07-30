@@ -397,6 +397,14 @@ $(function() {
         window.open("download/" + id);
     }
 
+    function toggleOutgroupButton() {
+        if ($("#outgroup-button").css("display") == "none") {
+            $("#outgroup-button").css("display", "block");
+        } else if ($("#outgroup-button").css("display") == "block") {
+            $("#outgroup-button").css("display", "none");
+        }
+    }
+
     function draw(data) {
         xBefore = getTransform("x");
         yBefore = getTransform("y");
@@ -565,23 +573,7 @@ $(function() {
         let clickedPath;
         let nameText;
 
-        let outgroupButton;
-        let outgroupButtonBlock = svg.rect(-50, 0, 40, maxY, 10).attr({
-            fill: "#007bff"
-        });
-        let outgroupButtonText = svg.text(-maxY/2, -30, "Set Root").attr({ //#+textLength/2 TODO
-            dominantBaseline: 'middle',
-            fontSize: 25,
-            textAnchor: 'middle',
-            fill: 'white'
-        });
-        outgroupButtonText.transform("rotate(270)");
-        outgroupButton = svg.g(outgroupButtonBlock, outgroupButtonText);
-        outgroupButton.attr({
-            display: 'none',
-            id: 'outgroupButton'
-        });
-        outgroupButton.click(function() {
+        function outgroup() {
             if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
                 if (counter_of_trees == number_of_trees) {
                     load("get", {
@@ -619,11 +611,9 @@ $(function() {
                     }
                 }
                 clickedPath = null;
-                toggleOutgroupButton();
             }
-        });
-        $("#outgroupButton").css("cursor", "pointer");
-        g.add(outgroupButton);
+            toggleOutgroupButton();
+        }
 
         data.forEach(function(item, index, array) {
             if (item["name"] != "None") {
@@ -1023,14 +1013,6 @@ $(function() {
         $(svg.node).mousemove(funcMouseMove);
         $(svg.node).on("wheel", funcWheel);
 
-        function toggleOutgroupButton() {
-            if (outgroupButton.attr("display") == "none") {
-                outgroupButton.attr({display: "inline"});
-            } else if (outgroupButton.attr("display") == "inline") {
-                outgroupButton.attr({display: "none"});
-            }
-        }
-
         function activate_buttons() {
             if (!(buttons_activated)) {
                 $("#undo-button").show();
@@ -1077,6 +1059,10 @@ $(function() {
                     if (event.which == '13') {
                         search($("#search-text").val());
                     }
+                });
+
+                $("#outgroup-button").click(function (event) {
+                    outgroup();
                 });
                 buttons_activated = true;
             }
