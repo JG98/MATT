@@ -257,6 +257,14 @@ def load():
     return response
 
 
+@app.route("/reset/<tree_id>", methods=["GET"])
+def reset(tree_id):
+    session["trees"] = [tree_id]
+    response = make_response("OK")
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 @app.route("/options", methods=["POST"])
 def options():
     config.read(config_path)

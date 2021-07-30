@@ -229,7 +229,9 @@ $(function() {
         trees = data;
         number_of_trees = trees.length;
         if (typeof xhr !== "undefined") {
+            counter_of_trees = parseInt(counter_of_trees);
             counter_of_trees += 1;
+            console.log(counter_of_trees);
             set_testing(xhr.getResponseHeader("Testing"));
         }
         if (counter_of_trees > 1) {
@@ -243,6 +245,7 @@ $(function() {
         }
         console.log("Building tree " + counter_of_trees + " of " + number_of_trees);
         console.log(trees);
+        console.log(snapshotTrees);
         draw(JSON.parse(trees[counter_of_trees - 1][1]));
     }
 
@@ -277,9 +280,6 @@ $(function() {
         snapshotTrees.push(trees[counter_of_trees - 1]);
         snapshots(snapshotTrees);
         description(trees[counter_of_trees - 1][0], descriptionValue);
-
-        // TODO
-        // clicking on it should break redo chain
     }
 
     function snapshots(data) {
@@ -297,14 +297,13 @@ $(function() {
             $("#snapshots").append(text);
             $("#snapshot-" + value[0]).click(function() {
                 snapshotId = $(this).attr("id").split("-")[1];
-                counter_of_trees = snapshotId;
-                if (counter_of_trees == 1) {
-                    $("#undo-button").prop("disabled", true);
-                }
-                if (counter_of_trees == number_of_trees) {
-                    $("#redo-button").prop("disabled", true);
-                }
-                draw(JSON.parse(trees[snapshotId - 1][1]));
+                draw(JSON.parse(snapshotTrees.find(tree => tree[0] == snapshotId)[1]));
+                $.get("reset/" + snapshotId);
+                counter_of_trees = 1;
+                number_of_trees = 1;
+                $("#undo-button").prop("disabled", true);
+                $("#redo-button").prop("disabled", true);
+                update(JSON.stringify([snapshotTrees.find(tree => tree[0] == snapshotId)]));
             });
             $("#snapshot-edit-" + value[0]).click(function() {
                 snapshotId = $(this).attr("id").split("-")[2];
@@ -570,7 +569,7 @@ $(function() {
         let outgroupButtonBlock = svg.rect(-50, 0, 40, maxY, 10).attr({
             fill: "#007bff"
         });
-        let outgroupButtonText = svg.text(-maxY/2, -30, "Outgroup").attr({ //#+textLength/2 TODO
+        let outgroupButtonText = svg.text(-maxY/2, -30, "Set Root").attr({ //#+textLength/2 TODO
             dominantBaseline: 'middle',
             fontSize: 25,
             textAnchor: 'middle',
