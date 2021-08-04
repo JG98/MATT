@@ -23,7 +23,6 @@ import os.path
 import platform
 import configparser
 import webbrowser
-import stat
 import threading
 import time
 
@@ -39,7 +38,7 @@ if platform.system() == "Windows":
     addition = ".exe"
 else:
     addition = ""
-os.chmod(os.path.join(app_location, "bin", "iqtree" + addition), stat.S_IXOTH)
+os.chmod(os.path.join(app_location, "bin", "iqtree" + addition), 0o755)
 config = configparser.ConfigParser()
 config_path = os.path.join(root_folder, "config.ini")
 

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="phylo-matt",
-    version="0.6.1",
+    version="0.6.2",
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
     description="A Framework For Modifying And Testing Topologies",
