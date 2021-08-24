@@ -128,7 +128,7 @@ def load():
         set_default_config()
     else:
         enable_lengths = config.getboolean("Options", "enable-lengths")
-        working_directory = config.getboolean("Options", "working-directory")
+        working_directory = config.get("Options", "working-directory")
         dna_protein = config.get("Options", "dna-protein")
         if dna_protein == "dna":
             dna_bsr = config.get("Options", "dna-bsr")
