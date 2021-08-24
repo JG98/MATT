@@ -59,6 +59,7 @@ def get_options():
         set_default_config()
     else:
         enable_lengths = config.getboolean("Options", "enable-lengths")
+        working_directory = config.get("Options", "working-directory")
         dna_protein = config.get("Options", "dna-protein")
         dna_bsr = config.get("Options", "dna-bsr")
         dna_bf = config.get("Options", "dna-bf")
@@ -68,6 +69,7 @@ def get_options():
         protein_aaf = config.get("Options", "protein-aaf")
         protein_rhas = config.get("Options", "protein-rhas")
     options = dumps({"enable_lengths": enable_lengths,
+                     "working_directory": working_directory,
                      "dna_protein": dna_protein,
                      "dna_bsr": dna_bsr,
                      "dna_bf": dna_bf,
@@ -126,6 +128,7 @@ def load():
         set_default_config()
     else:
         enable_lengths = config.getboolean("Options", "enable-lengths")
+        working_directory = config.getboolean("Options", "working-directory")
         dna_protein = config.get("Options", "dna-protein")
         if dna_protein == "dna":
             dna_bsr = config.get("Options", "dna-bsr")
@@ -272,6 +275,8 @@ def options():
     else:
         config.set("Options", "enable-lengths", request.form.get("enable-lengths"))
 
+    print(request.form)
+
     if request.form.get("dna-protein") == "dna" or request.form.get("dna-protein") == "protein":
         config.set("Options", "dna-protein", request.form.get("dna-protein"))
 
@@ -313,6 +318,7 @@ def tests():
     while not config.has_section("Options"):
         set_default_config()
     else:
+        working_directory = config.get("Options", "working-directory")
         dna_protein = config.get("Options", "dna-protein")
         if dna_protein == "dna":
             dna_bsr = config.get("Options", "dna-bsr")
@@ -357,6 +363,7 @@ def tests():
 def set_default_config():
     config["Options"] = {
         'enable-lengths': 'false',
+        'working-directory': '-',
         'dna-protein': 'dna',
         'dna-bsr': 'JC',
         'dna-bf': '-',
