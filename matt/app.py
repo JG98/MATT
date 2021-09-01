@@ -275,7 +275,7 @@ def options():
     else:
         config.set("Options", "enable-lengths", request.form.get("enable-lengths"))
 
-    print(request.form)
+    print(request.form) # TODO
 
     if request.form.get("dna-protein") == "dna" or request.form.get("dna-protein") == "protein":
         config.set("Options", "dna-protein", request.form.get("dna-protein"))
@@ -365,10 +365,10 @@ def set_default_config():
         'enable-lengths': 'false',
         'working-directory': '-',
         'dna-protein': 'dna',
-        'dna-bsr': 'JC',
+        'dna-bsr': 'GTR',
         'dna-bf': '-',
         'dna-rhas': '-',
-        'protein-aaerm': 'Blosum62',
+        'protein-aaerm': 'LG',
         'protein-pmm': '-',
         'protein-aaf': '-',
         'protein-rhas': '-'
