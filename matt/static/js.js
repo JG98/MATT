@@ -29,6 +29,7 @@ $(function() {
     let buttons_activated = false;
     let counter_of_trees = 0;
     let found = null;
+    let context_id;
 
     $("#logo-main").offset({left: maxWidth/2 - $("#logo-main").width()/2, top: maxHeight/2 - $("#logo-main").height()/2});
 
@@ -576,7 +577,12 @@ $(function() {
         let nameText;
 
         function outgroup() {
-            if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
+             if (context_id != null) {
+                load("get", {
+                    'id': context_id
+                });
+                context_id = null;
+            } else if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
                 if (counter_of_trees == number_of_trees) {
                     load("get", {
                         'id': clickedPath.attr("data-id")
@@ -1027,12 +1033,28 @@ $(function() {
                 $("#undo-button").click(function (event) {
                     undo();
                 });
+                $("#context-undo").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    undo();
+                });
 
                 $("#redo-button").click(function (event) {
                     redo();
                 });
+                $("#context-redo").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    redo();
+                });
 
                 $("#save-button").click(function (event) {
+                    $("#snapshot-label").val("");
+                    $("#save-modal").modal("show");
+                    $("#save-modal").on("shown.bs.modal", function () {
+                        $("#snapshot-label").focus();
+                    });
+                });
+                $("#context-save").click(function (event) {
+                    $("#context-menu").removeClass("visible");
                     $("#snapshot-label").val("");
                     $("#save-modal").modal("show");
                     $("#save-modal").on("shown.bs.modal", function () {
@@ -1048,8 +1070,16 @@ $(function() {
                 $("#zoom-in-button").click(function (event) {
                     setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
                 });
+                $("#context-zoom-in").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
+                });
 
                 $("#zoom-out-button").click(function (event) {
+                    setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
+                });
+                $("#context-zoom-out").click(function (event) {
+                    $("#context-menu").removeClass("visible");
                     setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
                 });
 
@@ -1065,6 +1095,10 @@ $(function() {
 
                 $("#outgroup-button").click(function (event) {
                     outgroup();
+                });
+                $("#context-outgroup").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    outgroup("id");
                 });
                 buttons_activated = true;
             }
@@ -1246,6 +1280,17 @@ $(function() {
         $("#alignment-file-button").html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-check" viewBox="0 0 16 16"><path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>');
         $('label[for="alignment-file-button"]').html($(this)[0].files[0].name);
         console.log($(this));
+
+        let autoReader = new FileReader();
+        autoReader.onload = function(data) {
+            text = atob(data.target.result.split("base64,")[1]);
+            if ((text.match(/[ACGT]/g) || []).length > text.length / 2) {
+                console.log("more");
+            } else {
+                console.log("less");
+            }
+        }
+        autoReader.readAsDataURL($(this)[0].files[0]);
     });
 
     $("#tree-file-button").on("click", function () {
@@ -1267,6 +1312,40 @@ $(function() {
         console.log($(this));
         var path = (window.URL || window.webkitURL).createObjectURL($(this)[0].files[0]);
         console.log('path', path);
+    });
+
+    function normalizePosition(mouseX, mouseY) {
+        let normalizedX = mouseX;
+        let normalizedY = mouseY;
+        if (mouseX + $("#context-menu").outerWidth() > $("#mainDiv").outerWidth()) {
+            normalizedX = $("#mainDiv").outerWidth() - $("#context-menu").outerWidth();
+        }
+        if (mouseY + $("#context-menu").outerHeight() > $("#mainDiv").outerHeight()) {
+            normalizedY = $("#mainDiv").outerHeight() - $("#context-menu").outerHeight();
+        }
+        return {normalizedX, normalizedY};
+    }
+
+    $("#mainDiv").contextmenu(function (event) {
+        if (event.target.tagName == "line" || event.target.tagName == "svg" || event.target.tagName == "path") {
+            event.preventDefault();
+            const {clientX: mouseX, clientY: mouseY} = event;
+            const {normalizedX, normalizedY} = normalizePosition(mouseX, mouseY);
+            $("#context-menu").css({top: normalizedY, left: normalizedX});
+            $("#context-menu").addClass("visible");
+            if (event.target.tagName == "path") {
+                $("#context-outgroup").show();
+                context_id = $(event.target).data("id");
+            } else {
+                $("#context-outgroup").hide();
+            }
+        }
+    });
+
+    $("#mainDiv").mousedown(function (event) {
+        if (event.target.offsetParent != $("#context-menu")) {
+            $("#context-menu").removeClass("visible");
+        }
     });
 
 });
