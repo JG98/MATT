@@ -43,7 +43,7 @@ Make sure to set all the needed options under the options tab and import the ali
 After a tree has been constructed or imported the tree can be viewed in the main window and under the overview tab,
 snapshots can be saved under the snapshots tab and different tree topologies can be tested under the test tab.
 
-To close *MATT* again, simply kill the server by hitting Ctrl+C in the console.
+To close *MATT* again, simply kill the server by hitting <kbd>Ctrl</kbd> + <kbd>C</kbd> in the console.
 
 # Contribution
 Any bug reports, comments and suggestions are highly appreciated. Please
