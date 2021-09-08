@@ -1,6 +1,5 @@
 /venv/
-/trees.db
-/config.ini
+/matt/config.ini
 /.idea/
 /Examples/
 /matt/tmp/
@@ -8,3 +7,4 @@
 /build/
 /dist/
 /files/
+/matt/trees.db
