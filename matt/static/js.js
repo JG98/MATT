@@ -94,8 +94,8 @@ $(function() {
         function sendAlignmentAndTree() {
             if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
                 if ((typeof senddataAlignment.fileData !== "undefined") && (typeof senddataTree.fileData !== "undefined")) {
-                    $("#info-modal-label").text("Import clicked!")
-                    $("#info-modal-body").text("Tree is getting calculated!")
+                    $("#info-modal-label").text("Import started!");
+                    $("#info-modal-body").text("The alignment is saved and the tree is getting drawn!");
                     $("#info-modal").modal("show");
                     load("post", {
                         alignment: {
@@ -110,23 +110,50 @@ $(function() {
                 }
             } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
                 if (typeof senddataAlignment.fileData !== "undefined") {
-                    $("#info-modal-label").text("Import clicked!")
-                    $("#info-modal-body").text("Tree is getting calculated!")
-                    $("#info-modal").modal("show");
-                    load("post", {
-                        alignment: {
-                            data: senddataAlignment.fileData,
-                            name: senddataAlignment.name
-                        }
+                    $("#warning-modal-label").text("Only an alignment is provided!");
+                    $("#warning-modal-body").text("Please also provide an initial tree, otherwise MATT will calculate the ML-tree. This might take some time!");
+                    $("#warning-modal-continue-button").text("Compute tree");
+                    $("#warning-modal-cancel-button").text("Upload tree");
+                    $("#warning-modal").modal("show");
+                    $("#warning-modal-continue-button").click(function (event) {
+                        $("#info-modal-label").text("Import started!");
+                        $("#info-modal-body").text("The alignment is saved and the tree is getting calculated. Once this is finished, it will be drawn!");
+                        $("#info-modal").modal("show");
+                        load("post", {
+                            alignment: {
+                                data: senddataAlignment.fileData,
+                                name: senddataAlignment.name
+                            }
+                        });
+                        $("#warning-modal").modal("hide");
+                    });
+                    $("#warning-modal-cancel-button").click(function (event) {
+                        $("#warning-modal").modal("hide");
+                        $("#tree-file-button").trigger("click");
                     });
                 }
             } else if ((typeof alignmentFile === "undefined") && (typeof treeFile !== "undefined")) {
                 if (typeof senddataTree.fileData !== "undefined") {
-                    load("post", {
-                        tree: {
-                            data: senddataTree.fileData,
-                            name: senddataTree.name
-                        }
+                    $("#warning-modal-label").text("Only a tree is provided!");
+                    $("#warning-modal-body").text("Please also provide an alignment, otherwise MATT will not be able to calculate tests!");
+                    $("#warning-modal-continue-button").text("Show tree");
+                    $("#warning-modal-cancel-button").text("Upload alignment");
+                    $("#warning-modal").modal("show");
+                    $("#warning-modal-continue-button").click(function (event) {
+                        $("#info-modal-label").text("Import started!");
+                        $("#info-modal-body").text("The tree is saved and will be drawn. Tests are disabled!");
+                        $("#info-modal").modal("show");
+                        load("post", {
+                            tree: {
+                                data: senddataTree.fileData,
+                                name: senddataTree.name
+                            }
+                        });
+                        $("#warning-modal").modal("hide");
+                    });
+                    $("#warning-modal-cancel-button").click(function (event) {
+                        $("#warning-modal").modal("hide");
+                        $("#alignment-file-button").trigger("click");
                     });
                 }
             }
