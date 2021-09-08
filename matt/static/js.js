@@ -1093,6 +1093,12 @@ $(function() {
                     save();
                     $("#save-modal").modal("hide");
                 });
+                $('#snapshot-label').keypress(function (event) {
+                    if (event.which == '13') {
+                        save();
+                        $("#save-modal").modal("hide");
+                    }
+                });
 
                 $("#zoom-in-button").click(function (event) {
                     setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));

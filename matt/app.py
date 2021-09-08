@@ -46,7 +46,6 @@ config_path = os.path.join(root_folder, "config.ini")
 @app.route("/")
 def home():
     session["trees"] = []
-    # TODO set options from file
     response = make_response(render_template("index.html"))
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -157,7 +156,8 @@ def load():
     if request.method == "POST":
         # TODO always delete tmp afterwards maybe??
         # TODO here already without lengths too? Maybe, needs to be checked^^
-        alignment = tree = None
+        alignment = None
+        tree = None
 
         if request.form.get("example") is not None:
             example_alignment = open(os.path.join(root_folder, "static", "example.phy"), "r")
