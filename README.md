@@ -53,7 +53,7 @@ Any bug reports, comments and suggestions are highly appreciated. Please
 *MATT* is licensed under the [GNU General Public License v3.0](https://github.com/BIONF/MATT/blob/mater/LICENSE).
 
 # Citation
-WIP
+An Application Note is in the works. Stay tuned.
 
 # Contact
 For further support or bug reports please contact us via [email](mailto:jeffgower98@gmail.com).
