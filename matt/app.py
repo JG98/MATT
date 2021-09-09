@@ -302,6 +302,13 @@ def options():
 def tests():
     # TODO handle that testing is disabled but ppl still try to test
     snapshots = request.form.getlist("snapshots[]")
+    if len(snapshots) == 1:
+        if snapshots[0] == str(session["trees"][0]):
+            response = make_response("NO")
+            response.headers["Cache-Control"] = "no-store"
+            return response
+        else:
+            snapshots.append(str(session["trees"][0]))
     path = os.path.join(root_folder, "tmp", "tests.nck")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')

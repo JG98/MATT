@@ -389,6 +389,14 @@ $(function() {
         $("#info-modal-body").text("Tree toplogy tests are being performed now. A progress bar will be added soon!")
         $("#info-modal").modal("show");
         $.post("tests", data, function(data) {
+
+            if (data == "NO") {
+                $("#info-modal-label").text("Initial tree selected!")
+                $("#info-modal-body").text("When selecting only one tree, please do not select the initally provided tree!")
+                $("#info-modal").modal("show");
+                return;
+            }
+
             data = JSON.parse(data);
 
             var testData = new Array(10);
