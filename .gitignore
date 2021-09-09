@@ -1,10 +1,5 @@
+/.idea/
 /venv/
 /matt/config.ini
-/.idea/
-/Examples/
-/matt/tmp/
-/bio_matt_preview.egg-info/
-/build/
-/dist/
-/files/
 /matt/trees.db
+/matt/tmp/
