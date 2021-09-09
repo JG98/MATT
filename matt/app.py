@@ -29,7 +29,7 @@ import time
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
-root_folder = __file__[:-6]
+root_folder = app.instance_path[:-8]
 system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
@@ -77,6 +77,9 @@ def get_options():
                      "protein_pmm": protein_pmm,
                      "protein_aaf": protein_aaf,
                      "protein_rhas": protein_rhas})
+    session["working-directory"] = config.get("Options", "working-directory")
+    if not os.path.isdir(session["working-directory"]):
+        session["working-directory"] = root_folder
     response = make_response(options)
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -84,7 +87,7 @@ def get_options():
 
 @app.route("/download/<tree_id>", methods=["GET"])
 def download(tree_id):
-    path = os.path.join(root_folder, "tmp", "download.nck")
+    path = os.path.join(session["working-directory"], "download.nck")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
@@ -94,7 +97,7 @@ def download(tree_id):
     tree = Tree(tree_json).to_newick()
     file.write(tree + "\n")
     file.close()
-    return send_from_directory(os.path.join(root_folder, "tmp"), "download.nck", as_attachment=True,
+    return send_from_directory(os.path.join(session["working-directory"]), "download.nck", as_attachment=True,
                                attachment_filename=tree_description + ".nck")
 
 
@@ -175,17 +178,17 @@ def load():
                 # tree_type = request.form.get("tree[name]").split(".")[-1]
 
         if alignment is not None and tree is not None:  # Case 1, alignment and tree given, default behaviour
-            with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
+            with open(os.path.join(session["working-directory"], "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
             session["disable_testing"] = False
         elif alignment is not None:  # Case 2, only alignment given, construct ml-tree
-            with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
+            with open(os.path.join(session["working-directory"], "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
             if model is not None:
                 print("Starting IQTree. This could take some time!")
                 sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
-                                     os.path.join(root_folder, "tmp", "alignment.phy"), "-m", model, "-redo"],
+                                     os.path.join(session["working-directory"], "alignment.phy"), "-m", model, "-redo"],
                                     capture_output=True)
                 print(sp)
                 if sp.returncode == 2:
@@ -193,9 +196,9 @@ def load():
             else:
                 print("Starting IQTree. This could take some time!")
                 sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
-                                     os.path.join(root_folder, "tmp", "alignment.phy"), "-redo"], capture_output=True)
+                                     os.path.join(session["working-directory"], "alignment.phy"), "-redo"], capture_output=True)
                 print(sp)
-            with open(os.path.join(root_folder, "tmp", "alignment.phy.treefile"), "r") as tree_file:
+            with open(os.path.join(session["working-directory"], "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
             session["disable_testing"] = False
@@ -222,18 +225,18 @@ def load():
         if enable_lengths:
             # TODO same for case 2, provide options there too
             tree = Tree(tree_json, json_args, enable_lengths).to_newick(True)
-            path = os.path.join(root_folder, "tmp", "tree.nck")
+            path = os.path.join(session["working-directory"], "tree.nck")
             file = open(path, "w")
             file.write(tree + "\n")
             file.close()
             print("Starting IQTree. This could take some time!")
-            sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp",
+            sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
                                                                                                  "alignment.phy"),
                                  "-te", path, "-nt", "4", "-m", model, "-redo"], capture_output=True)
             print(sp)
             if sp.returncode == 2:
                 print("WRONG DECISION DNA/PROTEIN")
-            with open(os.path.join(root_folder, "tmp", "alignment.phy.treefile"), "r") as tree_file:
+            with open(os.path.join(session["working-directory"], "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
         else:
@@ -275,8 +278,7 @@ def options():
         set_default_config()
     else:
         config.set("Options", "enable-lengths", request.form.get("enable-lengths"))
-
-    print(request.form) # TODO
+        config.set("Options", "working-directory", request.form.get("working-directory"))
 
     if request.form.get("dna-protein") == "dna" or request.form.get("dna-protein") == "protein":
         config.set("Options", "dna-protein", request.form.get("dna-protein"))
@@ -292,6 +294,9 @@ def options():
         config.set("Options", "protein-rhas", request.form.get("protein-rhas"))
     with open(root_folder + "config.ini", "w") as config_file:
         config.write(config_file)
+    session["working-directory"] = request.form.get("working-directory")
+    if not os.path.isdir(session["working-directory"]):
+        session["working-directory"] = root_folder
     response = make_response("OK")  # TODO
     # TODO PRINT NEW TREE (options to the whole data thingy too)
     response.headers["Cache-Control"] = "no-store"
@@ -309,7 +314,7 @@ def tests():
             return response
         else:
             snapshots.append(str(session["trees"][0]))
-    path = os.path.join(root_folder, "tmp", "tests.nck")
+    path = os.path.join(session["working-directory"], "tests.nck")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
@@ -326,7 +331,6 @@ def tests():
     while not config.has_section("Options"):
         set_default_config()
     else:
-        working_directory = config.get("Options", "working-directory")
         dna_protein = config.get("Options", "dna-protein")
         if dna_protein == "dna":
             dna_bsr = config.get("Options", "dna-bsr")
@@ -351,11 +355,11 @@ def tests():
                 model += "+" + protein_rhas
     print("Starting IQTree. This could take some time!")
     sp = subprocess.run(
-        [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(root_folder, "tmp", "alignment.phy"), "-z",
+        [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"], "alignment.phy"), "-z",
          path, "-n", "0", "-zb", "10000", "-zw", "-au", "-m", model, "-redo"]) # TODO capture_output=True
     print(sp)
     results = []
-    path = os.path.join(root_folder, "tmp", "alignment.phy.iqtree")
+    path = os.path.join(session["working-directory"], "alignment.phy.iqtree")
     file = open(path, "r")
     for line in file:
         if line.startswith(
@@ -371,7 +375,7 @@ def tests():
 def set_default_config():
     config["Options"] = {
         'enable-lengths': 'false',
-        'working-directory': '-',
+        'working-directory': '',
         'dna-protein': 'dna',
         'dna-bsr': 'GTR',
         'dna-bf': '-',
@@ -402,8 +406,16 @@ def main():
     if not os.path.exists(root_folder + "config.ini"):
         set_default_config()
 
-    if not os.path.exists(os.path.join(root_folder, "tmp")):
-        os.makedirs(os.path.join(root_folder, "tmp"))
+    config.read(config_path)
+    while not config.has_section("Options"):
+        set_default_config()
+
+    working_directory = config.get("Options", "working-directory")
+    if not os.path.isdir(working_directory):
+        working_directory = root_folder
+
+    if not os.path.exists(os.path.join(working_directory)):
+        os.makedirs(os.path.join(working_directory))
 
     thread = threading.Thread(target=open_browser)
     thread.start()
