@@ -151,7 +151,6 @@ def load():
             if protein_rhas != "-":
                 model += "+" + protein_rhas
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
-    disable_testing = False
 
     if request.method == "POST":
         # TODO always delete tmp afterwards maybe??
@@ -179,6 +178,7 @@ def load():
             with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
+            session["disable_testing"] = False
         elif alignment is not None:  # Case 2, only alignment given, construct ml-tree
             with open(os.path.join(root_folder, "tmp", "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
@@ -198,10 +198,11 @@ def load():
             with open(os.path.join(root_folder, "tmp", "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
+            session["disable_testing"] = False
         elif tree is not None:  # Case 3, only tree given, disable testing and lengths
             enable_lengths = False
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
-            disable_testing = True
+            session["disable_testing"] = True
     elif request.method == "GET":  # TODO post too?
         c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
         tree_json = c.fetchone()[0]
@@ -252,7 +253,7 @@ def load():
     conn.close()
     response = make_response(dumps(trees))
     response.headers["Cache-Control"] = "no-store"
-    if disable_testing:
+    if session["disable_testing"]:
         response.headers["Testing"] = "disabled"
     else:
         response.headers["Testing"] = "enabled"

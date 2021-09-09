@@ -111,7 +111,7 @@ $(function() {
             } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
                 if (typeof senddataAlignment.fileData !== "undefined") {
                     $("#warning-modal-label").text("Only an alignment is provided!");
-                    $("#warning-modal-body").text("Please also provide an initial tree, otherwise MATT will calculate the ML-tree. This might take some time!");
+                    $("#warning-modal-body").text("Please also provide an tree file, otherwise MATT will calculate the ML-tree. This might take some time!");
                     $("#warning-modal-continue-button").text("Compute tree");
                     $("#warning-modal-cancel-button").text("Upload tree");
                     $("#warning-modal").modal("show");
@@ -135,7 +135,7 @@ $(function() {
             } else if ((typeof alignmentFile === "undefined") && (typeof treeFile !== "undefined")) {
                 if (typeof senddataTree.fileData !== "undefined") {
                     $("#warning-modal-label").text("Only a tree is provided!");
-                    $("#warning-modal-body").text("Please also provide an alignment, otherwise MATT will not be able to calculate tests!");
+                    $("#warning-modal-body").text("Please also provide an alignment file, otherwise MATT will not be able to calculate tests!");
                     $("#warning-modal-continue-button").text("Show tree");
                     $("#warning-modal-cancel-button").text("Upload alignment");
                     $("#warning-modal").modal("show");
@@ -163,10 +163,6 @@ $(function() {
 
     });
 
-    $("#example-import").click(function() {
-        load("post", "example");
-    });
-
     let dnaProtein;
     $("#dna").click(function() {
         $("#dna-options").show();
@@ -178,6 +174,28 @@ $(function() {
         $("#dna-options").hide();
         dnaProtein = "protein";
     });
+
+    $("#example-import").click(function() {
+        $("#dna").trigger("click");
+        optionsJSON = {
+            "enable-lengths": $("#enable-lengths")[0].checked
+        }
+        if (dnaProtein == "dna") {
+            optionsJSON["dna-protein"] = "dna";
+            optionsJSON["dna-bsr"] = $("#selectBSR").val();
+            optionsJSON["dna-bf"] = $("#selectBF").val();
+            optionsJSON["dna-rhas"] = $("#selectDNARHAS").val();
+        } else if (dnaProtein == "protein") {
+            optionsJSON["dna-protein"] = "protein";
+            optionsJSON["protein-aaerm"] = $("#selectAAERM").val();
+            optionsJSON["protein-pmm"] = $("#selectPMM").val();
+            optionsJSON["protein-aaf"] = $("#selectAAF").val();
+            optionsJSON["protein-rhas"] = $("#selectAARHAS").val();
+        }
+        options(optionsJSON);
+        load("post", "example");
+    });
+
     $("#save-options").click(function() {
         optionsJSON = {
             "enable-lengths": $("#enable-lengths")[0].checked
@@ -201,9 +219,15 @@ $(function() {
         $.each($("#select-snapshots option:selected"), function(){
             snapshots.push($(this).val());
         });
-        tests({
-            "snapshots": snapshots
-        });
+        if (snapshots.length != 0) {
+            tests({
+                "snapshots": snapshots
+            });
+        } else {
+            $("#info-modal-label").text("No snapshots selected!")
+            $("#info-modal-body").text("Please select at least one snapshot first!")
+            $("#info-modal").modal("show");
+        }
     });
 
     $(".btn").mouseup(function(){
@@ -304,6 +328,9 @@ $(function() {
 
     function save() {
         descriptionValue = $("#snapshot-label").val();
+        if (descriptionValue == "") {
+            descriptionValue = trees[counter_of_trees - 1][0];
+        }
         trees[counter_of_trees - 1][2] = descriptionValue;
         snapshotTrees.push(trees[counter_of_trees - 1]);
         snapshots(snapshotTrees);
@@ -1318,8 +1345,14 @@ $(function() {
             text = atob(data.target.result.split("base64,")[1]);
             if ((text.match(/[ACGT]/g) || []).length > text.length / 2) {
                 $("#dna").trigger("click");
+                $("#info-modal-label").text("DNA file detected!");
+                $("#info-modal-body").text("A DNA file has been detected and the options have been set to DNA accordingly!");
+                $("#info-modal").modal("show");
             } else {
                 $("#protein").trigger("click");
+                $("#info-modal-label").text("Protein file detected!");
+                $("#info-modal-body").text("A protein file has been detected and the options have been set to protein accordingly!");
+                $("#info-modal").modal("show");
             }
             optionsJSON = {
                 "enable-lengths": $("#enable-lengths")[0].checked

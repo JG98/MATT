@@ -297,13 +297,12 @@
                 <div id="tab4" class="tabs comp">
                     <h3>Tests</h3>
                     <p></p>
-                    <form enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="select-snapshots">Select the snapshots you want to test</label>
-                            <select multiple class="form-control" id="select-snapshots"></select>
-                        </div>
-                        <input type="button" class="btn btn-primary" id="test-snapshots" value="Test Snapshots" disabled>
-                    </form>
+                    <div class="form-group">
+                        <label for="select-snapshots">Select the snapshots you want to test</label>
+                        <select multiple class="form-control" id="select-snapshots"></select>
+                    </div>
+                    <input type="button" class="btn btn-primary" id="test-snapshots" value="Test Snapshots" disabled>
+                    <p></p>
                     <p id="testing-disabled-message">When no alignment is provided, testing is disabled!</p>
                     <table class="table" id="tests">
                     </table>
