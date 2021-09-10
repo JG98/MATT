@@ -320,10 +320,6 @@ $(function() {
                 $("#info-modal-label").text("Invalid working directory set!")
                 $("#info-modal-body").text("Please make sure that you select a valid working directory that already exists!")
                 $("#info-modal").modal("show");
-            } else {
-                $("#info-modal-label").text("Options saved!")
-                $("#info-modal-body").text("Your options have been saved!")
-                $("#info-modal").modal("show");
             }
         });
         if (typeof trees !== "undefined") {
@@ -401,8 +397,11 @@ $(function() {
         $("#info-modal-label").text("Tree topoplogy tests started!")
         $("#info-modal-body").text("Tree toplogy tests are being performed now. A progress bar will be added soon!")
         $("#info-modal").modal("show");
-        $.post("tests", data, function(data) {
 
+        ids = data["snapshots"];
+
+        $.post("tests", data, function(data) {
+            $("#info-modal").modal("hide");
             if (data == "NO") {
                 $("#info-modal-label").text("Initial tree selected!")
                 $("#info-modal-body").text("When selecting only one tree, please do not select the initally provided tree!")
@@ -429,8 +428,8 @@ $(function() {
             testData[8].push('<a href="#" title="c-ELW" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="Expected Likelihood Weight <a href=\'https://doi.org/10.1098/rspb.2001.1862\' target=\'_blank\'>(Strimmer & Rambaut 2002)</a>">c-ELW</a>');
             testData[9].push('<a href="#" title="p-AU" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1080/10635150290069913\' target=\'_blank\'>approximately unbiased (AU) test (Shimodaira, 2002)</a>">p-AU</a>');
 
-            data.forEach(function(value) {
-                testData[0].push(value[0], "");
+            data.forEach(function(value, index) {
+                testData[0].push(trees.find(element => element[0] == ids[index])[2], "");
                 testData[1].push(parseFloat(value[1]).toFixed(2), "");
                 testData[2].push(parseFloat(value[2]).toFixed(2), "");
                 testData[3].push(value[3], value[4]);

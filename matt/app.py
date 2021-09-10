@@ -297,9 +297,12 @@ def options():
         config.write(config_file)
     session["working-directory"] = request.form.get("working-directory")
     if not os.path.isdir(session["working-directory"]):
+        if session["working-directory"] == "":
+            response = make_response("OK")
+        else:
+            response = make_response("Invalid directory")
         session["working-directory"] = root_folder
         config.set("Options", "working-directory", root_folder)
-        response = make_response("Invalid directory")
     else:
         response = make_response("OK")
     # TODO PRINT NEW TREE (options to the whole data thingy too)
