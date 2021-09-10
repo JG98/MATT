@@ -29,7 +29,7 @@ import time
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
-root_folder = app.instance_path[:-8]
+root_folder = __file__[:-6]
 system = platform.system()
 if platform.system() == "Darwin":
     system = "MacOSX"
@@ -80,6 +80,7 @@ def get_options():
     session["working-directory"] = config.get("Options", "working-directory")
     if not os.path.isdir(session["working-directory"]):
         session["working-directory"] = root_folder
+        config.set("Options", "working-directory", root_folder)
     response = make_response(options)
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -297,7 +298,10 @@ def options():
     session["working-directory"] = request.form.get("working-directory")
     if not os.path.isdir(session["working-directory"]):
         session["working-directory"] = root_folder
-    response = make_response("OK")  # TODO
+        config.set("Options", "working-directory", root_folder)
+        response = make_response("Invalid directory")
+    else:
+        response = make_response("OK")
     # TODO PRINT NEW TREE (options to the whole data thingy too)
     response.headers["Cache-Control"] = "no-store"
     return response

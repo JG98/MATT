@@ -315,7 +315,17 @@ $(function() {
     }
 
     function options(data) {
-        $.post("options", data);
+        $.post("options", data, function(response) {
+            if (response == "Invalid directory") {
+                $("#info-modal-label").text("Invalid working directory set!")
+                $("#info-modal-body").text("Please make sure that you select a valid working directory that already exists!")
+                $("#info-modal").modal("show");
+            } else {
+                $("#info-modal-label").text("Options saved!")
+                $("#info-modal-body").text("Your options have been saved!")
+                $("#info-modal").modal("show");
+            }
+        });
         if (typeof trees !== "undefined") {
             load("get", null);
         }
