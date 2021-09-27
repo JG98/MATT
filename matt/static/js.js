@@ -95,7 +95,7 @@ $(function() {
             if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
                 if ((typeof senddataAlignment.fileData !== "undefined") && (typeof senddataTree.fileData !== "undefined")) {
                     $("#info-modal-label").text("Import started!");
-                    $("#info-modal-body").text("The alignment is saved and the tree is getting drawn!");
+                    $("#info-modal-body").text("The sequence alignment was saved and the tree is drawn!");
                     $("#info-modal").modal("show");
                     load("post", {
                         alignment: {
@@ -111,13 +111,13 @@ $(function() {
             } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
                 if (typeof senddataAlignment.fileData !== "undefined") {
                     $("#warning-modal-label").text("Only an alignment is provided!");
-                    $("#warning-modal-body").text("Please also provide an tree file, otherwise MATT will calculate the ML-tree. This might take some time!");
+                    $("#warning-modal-body").text("Please also provide a tree file. Otherwise, MATT can calculate the ML-tree, which may take some time!");
                     $("#warning-modal-continue-button").text("Compute tree");
                     $("#warning-modal-cancel-button").text("Upload tree");
                     $("#warning-modal").modal("show");
                     $("#warning-modal-continue-button").click(function (event) {
                         $("#info-modal-label").text("Import started!");
-                        $("#info-modal-body").text("The alignment is saved and the tree is getting calculated. Once this is finished, it will be drawn!");
+                        $("#info-modal-body").text("The alignment was saved and the tree will be computed.");
                         $("#info-modal").modal("show");
                         load("post", {
                             alignment: {
@@ -135,13 +135,13 @@ $(function() {
             } else if ((typeof alignmentFile === "undefined") && (typeof treeFile !== "undefined")) {
                 if (typeof senddataTree.fileData !== "undefined") {
                     $("#warning-modal-label").text("Only a tree is provided!");
-                    $("#warning-modal-body").text("Please also provide an alignment file, otherwise MATT will not be able to calculate tests!");
-                    $("#warning-modal-continue-button").text("Show tree");
+                    $("#warning-modal-body").text("Please also provide an alignment file. Otherwise you cannot use MATT for topology testing!");
+                    $("#warning-modal-continue-button").text("Display tree only");
                     $("#warning-modal-cancel-button").text("Upload alignment");
                     $("#warning-modal").modal("show");
                     $("#warning-modal-continue-button").click(function (event) {
                         $("#info-modal-label").text("Import started!");
-                        $("#info-modal-body").text("The tree is saved and will be drawn. Tests are disabled!");
+                        $("#info-modal-body").text("The tree was saved and will be displayed. Tests are disabled! ");
                         $("#info-modal").modal("show");
                         load("post", {
                             tree: {
@@ -226,8 +226,8 @@ $(function() {
                 "snapshots": snapshots
             });
         } else {
-            $("#info-modal-label").text("No snapshots selected!")
-            $("#info-modal-body").text("Please select at least one snapshot first!")
+            $("#info-modal-label").text("No tree selected!")
+            $("#info-modal-body").text("Please select at least one tree first!")
             $("#info-modal").modal("show");
         }
     });
@@ -318,7 +318,7 @@ $(function() {
         $.post("options", data, function(response) {
             if (response == "Invalid directory") {
                 $("#info-modal-label").text("Invalid working directory set!")
-                $("#info-modal-body").text("Please make sure that you select a valid working directory that already exists!")
+                $("#info-modal-body").text("Please select an existing working directory!")
                 $("#info-modal").modal("show");
             }
         });
@@ -394,8 +394,8 @@ $(function() {
     }
 
     function tests(data) {
-        $("#info-modal-label").text("Tree topoplogy tests started!")
-        $("#info-modal-body").text("Tree toplogy tests are being performed now. A progress bar will be added soon!")
+        $("#info-modal-label").text("Tree topoplogy testing started!")
+        $("#info-modal-body").text("Tree toplogy testing in progress.")
         $("#info-modal").modal("show");
 
         ids = data["snapshots"];
@@ -404,7 +404,7 @@ $(function() {
             $("#info-modal").modal("hide");
             if (data == "NO") {
                 $("#info-modal-label").text("Initial tree selected!")
-                $("#info-modal-body").text("When selecting only one tree, please do not select the initally provided tree!")
+                $("#info-modal-body").text("When selecting only one tree, please do not select the initially provided tree!")
                 $("#info-modal").modal("show");
                 return;
             }
@@ -1365,13 +1365,13 @@ $(function() {
             text = atob(data.target.result.split("base64,")[1]);
             if ((text.match(/[ACGT]/g) || []).length > text.length / 2) {
                 $("#dna").trigger("click");
-                $("#info-modal-label").text("DNA file detected!");
-                $("#info-modal-body").text("A DNA file has been detected and the options have been set to DNA accordingly!");
+                $("#info-modal-label").text("DNA sequence detected!");
+                $("#info-modal-body").text("A DNA sequence has been auto-detected and the options have been set to DNA. You can overrule this manually by checking PROTEIN in the options.");
                 $("#info-modal").modal("show");
             } else {
                 $("#protein").trigger("click");
-                $("#info-modal-label").text("Protein file detected!");
-                $("#info-modal-body").text("A protein file has been detected and the options have been set to protein accordingly!");
+                $("#info-modal-label").text("Protein sequence detected!");
+                $("#info-modal-body").text("A protein file has been detected and the options have been set to protein. You can overrule this manually by checking DNA in the options.");
                 $("#info-modal").modal("show");
             }
             optionsJSON = {
