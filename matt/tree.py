@@ -1,5 +1,5 @@
 # MATT - A Framework For Modifying And Testing Topologies
-# Copyright (C) 2020 Jeff Raffael Gower
+# Copyright (C) 2021 Jeff Raffael Gower
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,8 +22,17 @@ getcontext().prec = 10
 
 
 class Tree:
+    """
+    Tree class representing a topology tree
+    """
 
     def __init__(self, string, json_args=None, enable_lengths=False):
+        """
+        Initialises the tree
+        :param string: String containing the information about the tree and his nodes
+        :param json_args: Further arguments from database if given
+        :param enable_lengths: Determines whether branch lengths shall be drawn
+        """
         self.node_counter = 0
         self.enable_lengths = enable_lengths
         if string.rstrip()[-1] == ";":
@@ -33,6 +42,11 @@ class Tree:
             self.from_json(string, json_args)
 
     def from_newick(self, newick):
+        """
+        Build a tree from a newick string
+        :param newick: the newick string containing the tree info
+        :return: None
+        """
         self.root = Node(self.node_counter, Decimal(0), Decimal(0))  # TODO BOOTSTRAP FOR EVEN THE FIRST TWO NODES?
         self.node_counter += 1
         level = 0
@@ -66,10 +80,16 @@ class Tree:
                     self.root.l_child = self.make_node_from_newick(
                         "(" + newick[:last_comma] + "):" + str(length), self.root)
                     self.root.r_child = self.make_node_from_newick(
-                        newick[last_comma+1:last_colon] + ":" + str(length), self.root)
+                        newick[last_comma + 1:last_colon] + ":" + str(length), self.root)
                     return
 
     def from_json(self, string, json_args=None):
+        """
+        Build a tree from a json string
+        :param string: the string from the database containing the tree info
+        :param json_args: Further information for rehaning or rerooting if given
+        :return: None
+        """
         print(string)
         print(json_args)
         json = loads(string)
@@ -94,7 +114,7 @@ class Tree:
 
         if json_args:
             if len(json_args) == 1:
-                #OUTGROUP
+                # OUTGROUP
                 id = json_args[0]
 
                 id_node = None
@@ -198,7 +218,7 @@ class Tree:
                         length = Decimal(to_node.length)
                         total_length = Decimal(to_parent.total_length) + length
 
-                        #to_node.length = Decimal(to_node.length + 1)
+                        # to_node.length = Decimal(to_node.length + 1)
                         to_node.total_length = Decimal(to_node.total_length + 1)
 
                         from_node.length = Decimal(to_node.length)
@@ -235,6 +255,12 @@ class Tree:
                 pass  # TODO
 
     def make_node_from_newick(self, string, parent):
+        """
+        Helper function to build nodes from newick files
+        :param string: the string containing information about the current node in the recursion
+        :param parent: the parent node calling this function
+        :return: the newly created node
+        """
         colon = string.rfind(":")
         last_parenthesis = string.rfind(")")
         if self.enable_lengths:
@@ -269,6 +295,11 @@ class Tree:
         return node  # TODO none?
 
     def in_order(self, root):
+        """
+        Traverses the tree in in-order and saves the result in a list
+        :param root: the node where traversal should start
+        :return: list of nodes
+        """
         result = []
         if root.l_child:
             result.extend(self.in_order(root.l_child))
@@ -278,6 +309,10 @@ class Tree:
         return result
 
     def to_json(self):
+        """
+        Dumps the tree info to a json string
+        :return: json
+        """
         output = []
         max_length = 0
         longest_name = ""
@@ -307,15 +342,28 @@ class Tree:
                 longest_name = str_name
             if node.total_length > max_length:
                 max_length = node.total_length
-        return dumps(output + [{"enable_lengths": self.enable_lengths, "max_length": str(max_length), "longest_name": longest_name}])
+        return dumps(output + [
+            {"enable_lengths": self.enable_lengths, "max_length": str(max_length), "longest_name": longest_name}])
 
     def to_newick(self, as_constraint=False):
+        """
+        Returns the tree in newick format
+        :param as_constraint: determines whether only simple information should be added
+        :return: newick string
+        """
         return self.newick_helper(self.root, as_constraint) + ";\n"
 
     def newick_helper(self, root, as_constraint=False):
+        """
+        Helper function for building the newick tree
+        :param root: the root node to start from in the current recursion
+        :param as_constraint: determines whether only simple information should be added
+        :return: newick string
+        """
         result = ""
         if root.l_child and root.r_child:
-            result += "(" + self.newick_helper(root.l_child, as_constraint) + "," + self.newick_helper(root.r_child, as_constraint) + ")"
+            result += "(" + self.newick_helper(root.l_child, as_constraint) + "," + self.newick_helper(root.r_child,
+                                                                                                       as_constraint) + ")"
             if not as_constraint:
                 if root.bootstrap:
                     result += root.bootstrap
@@ -329,6 +377,13 @@ class Tree:
 
     # TODO overhaul, does not require this much
     def change_children_level(self, node, amount, total_only=False):
+        """
+        Changes the level of a node after rehanging or rerooting
+        :param node: the node to change
+        :param amount: the amount of levels that should be added (or removed when negative)
+        :param total_only: determines whether only the total length should be altered
+        :return: None
+        """
         if not total_only:
             node.length = Decimal(node.length + amount)
         node.total_length = Decimal(node.total_length + amount)
@@ -338,6 +393,11 @@ class Tree:
             self.change_children_level(node.r_child, amount, total_only)
 
     def find_node(self, node):
+        """
+        Returns a string explaining the path from the root to given node
+        :param node: the node to search
+        :return: path to node from root
+        """
         string = ""
         while node != self.root:
             if node == node.parent.l_child:
@@ -350,6 +410,11 @@ class Tree:
         return string
 
     def get_node(self, path):
+        """
+        Returns a node for given path
+        :param path: path to node
+        :return: found node
+        """
         node = self.root
         for c in path:
             if c == "L":
@@ -361,6 +426,12 @@ class Tree:
         return node
 
     def outgroup_helper(self, node, id_path):
+        """
+        Helper function for rebuilding after rerooting
+        :param node: node in current recursion
+        :param id_path: path to new root
+        :return: None
+        """
         # TODO LENGTH HANDLING WHEN LENGTHS ARE NOT DISABLED
 
         l_child = node.l_child

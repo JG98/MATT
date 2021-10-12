@@ -1,5 +1,5 @@
 # MATT - A Framework For Modifying And Testing Topologies
-# Copyright (C) 2020 Jeff Raffael Gower
+# Copyright (C) 2021 Jeff Raffael Gower
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,8 +43,12 @@ config = configparser.ConfigParser()
 config_path = os.path.join(root_folder, "config.ini")
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
+    """
+    Returns the index.html which acts as the frontend
+    :return: response
+    """
     session["trees"] = []
     response = make_response(render_template("index.html"))
     response.headers["Cache-Control"] = "no-store"
@@ -53,6 +57,10 @@ def home():
 
 @app.route("/get-options", methods=["GET"])
 def get_options():
+    """
+    Returns the options from the config.ini
+    :return: response
+    """
     config.read(config_path)
     while not config.has_section("Options"):
         set_default_config()
@@ -88,6 +96,11 @@ def get_options():
 
 @app.route("/download/<tree_id>", methods=["GET"])
 def download(tree_id):
+    """
+    Downloads the given tree
+    :param tree_id: the tree id in the database
+    :return: tree in newick format
+    """
     path = os.path.join(session["working-directory"], "download.nck")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
@@ -104,6 +117,10 @@ def download(tree_id):
 
 @app.route("/description", methods=["POST"])
 def description():
+    """
+    Sets the description of given tree
+    :return: response
+    """
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     form_id = request.form.get("id")
@@ -122,6 +139,10 @@ def description():
 
 @app.route("/load", methods=["POST", "GET"])
 def load():
+    """
+    Loads the tree from alignment and/or tree file or alters the tree by rehanging or rerooting using given parameters
+    :return: response
+    """
     model = None
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
@@ -197,14 +218,14 @@ def load():
             else:
                 print("Starting IQTree. This could take some time!")
                 sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
-                                     os.path.join(session["working-directory"], "alignment.phy"), "-redo"], capture_output=True)
+                                     os.path.join(session["working-directory"], "alignment.phy"), "-redo"],
+                                    capture_output=True)
                 print(sp)
             with open(os.path.join(session["working-directory"], "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree = Tree(tree[:-1], enable_lengths=enable_lengths).to_json()
             session["disable_testing"] = False
-        elif tree is not None:  # Case 3, only tree given, disable testing and lengths
-            enable_lengths = False
+        elif tree is not None:  # Case 3, only tree given, disable testing
             tree = Tree(tree, enable_lengths=enable_lengths).to_json()
             session["disable_testing"] = True
     elif request.method == "GET":  # TODO post too?
@@ -231,9 +252,10 @@ def load():
             file.write(tree + "\n")
             file.close()
             print("Starting IQTree. This could take some time!")
-            sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
-                                                                                                 "alignment.phy"),
-                                 "-te", path, "-nt", "4", "-m", model, "-redo"], capture_output=True)
+            sp = subprocess.run(
+                [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
+                                                                                 "alignment.phy"),
+                 "-te", path, "-nt", "4", "-m", model, "-redo"], capture_output=True)
             print(sp)
             if sp.returncode == 2:
                 print("WRONG DECISION DNA/PROTEIN")
@@ -266,6 +288,11 @@ def load():
 
 @app.route("/reset/<tree_id>", methods=["GET"])
 def reset(tree_id):
+    """
+    Resets the session object
+    :param tree_id: id of the tree that should be saved in the session afterwards
+    :return: response
+    """
     session["trees"] = [tree_id]
     response = make_response("OK")
     response.headers["Cache-Control"] = "no-store"
@@ -274,6 +301,10 @@ def reset(tree_id):
 
 @app.route("/options", methods=["POST"])
 def options():
+    """
+    Sets the options and saves them to the config.ini
+    :return: response
+    """
     config.read(config_path)
     while not config.has_section("Options"):
         set_default_config()
@@ -312,6 +343,10 @@ def options():
 
 @app.route("/tests", methods=["POST"])
 def tests():
+    """
+    Tests the given trees
+    :return: response
+    """
     # TODO handle that testing is disabled but ppl still try to test
     snapshots = request.form.getlist("snapshots[]")
     if len(snapshots) == 1:
@@ -362,8 +397,9 @@ def tests():
                 model += "+" + protein_rhas
     print("Starting IQTree. This could take some time!")
     sp = subprocess.run(
-        [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"], "alignment.phy"), "-z",
-         path, "-n", "0", "-zb", "10000", "-zw", "-au", "-m", model, "-redo"]) # TODO capture_output=True
+        [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"], "alignment.phy"),
+         "-z",
+         path, "-n", "0", "-zb", "10000", "-zw", "-au", "-m", model, "-redo"])  # TODO capture_output=True
     print(sp)
     results = []
     path = os.path.join(session["working-directory"], "alignment.phy.iqtree")
@@ -380,6 +416,10 @@ def tests():
 
 
 def set_default_config():
+    """
+    Saves the default config to the config.ini
+    :return: None
+    """
     config["Options"] = {
         'enable-lengths': 'false',
         'working-directory': '',
@@ -397,11 +437,19 @@ def set_default_config():
 
 
 def open_browser():
+    """
+    Opens the frontend after a two second delay
+    :return: None
+    """
     time.sleep(2)
     webbrowser.open("http://127.0.0.1:5000/")
 
 
 def main():
+    """
+    Main function that sets up the database and the config and opens the frontend
+    :return: None
+    """
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
     c.execute('''DROP TABLE IF EXISTS trees''')

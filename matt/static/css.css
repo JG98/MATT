@@ -61,10 +61,10 @@ html, body {
 }
 
 #zoom-in-button {
-     position: absolute;
-     top: 10px;
-     left: 146px;
-     display: none;
+    position: absolute;
+    top: 10px;
+    left: 146px;
+    display: none;
 }
 
 #zoom-out-button {

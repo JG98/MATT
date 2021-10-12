@@ -1,6 +1,6 @@
 /*
 * MATT - A Framework For Modifying And Testing Topologies
-* Copyright (C) 2020 Jeff Raffael Gower
+* Copyright (C) 2021 Jeff Raffael Gower
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,10 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
-$(function() {
+/**
+ * Main function that runs after the document is ready
+ */
+$(function () {
     // TODO check all lets and maybe make them consts
     // TODO check all variables and maybe make them lets or consts or back to var?
     let maxHeight = $(window).height();
@@ -31,11 +34,17 @@ $(function() {
     let found = null;
     let context_id;
 
-    $("#logo-main").offset({left: maxWidth/2 - $("#logo-main").width()/2, top: maxHeight/2 - $("#logo-main").height()/2});
+    $("#logo-main").offset({
+        left: maxWidth / 2 - $("#logo-main").width() / 2,
+        top: maxHeight / 2 - $("#logo-main").height() / 2
+    });
 
     getOptions();
 
-    $("#import").click(function() {
+    /**
+     * Handles the alignment and/or tree file after the import button has been clicked
+     */
+    $("#import").click(function () {
         // TODO
         /*if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
           alert('The File APIs are not fully supported in this browser.');
@@ -69,7 +78,7 @@ $(function() {
                 type: alignmentFile.type
             }
             alignmentReader = new FileReader();
-            alignmentReader.onload = function(theFileData) {
+            alignmentReader.onload = function (theFileData) {
                 senddataAlignment.fileData = theFileData.target.result;
                 sendAlignmentAndTree();
             }
@@ -84,13 +93,16 @@ $(function() {
                 type: treeFile.type
             }
             treeReader = new FileReader();
-            treeReader.onload = function(theFileData) {
+            treeReader.onload = function (theFileData) {
                 senddataTree.fileData = theFileData.target.result;
                 sendAlignmentAndTree();
             }
             treeReader.readAsDataURL(treeFile);
         }
 
+        /**
+         * Sens the alignment and/or tree to the backend
+         */
         function sendAlignmentAndTree() {
             if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
                 if ((typeof senddataAlignment.fileData !== "undefined") && (typeof senddataTree.fileData !== "undefined")) {
@@ -164,18 +176,27 @@ $(function() {
     });
 
     let dnaProtein;
-    $("#dna").click(function() {
+    /**
+     * Switches to dna when a dna file has been detected
+     */
+    $("#dna").click(function () {
         $("#dna-options").show();
         $("#protein-options").hide();
         dnaProtein = "dna";
     });
-    $("#protein").click(function() {
+    /**
+     * Switches to protein when a protein file has been detected
+     */
+    $("#protein").click(function () {
         $("#protein-options").show();
         $("#dna-options").hide();
         dnaProtein = "protein";
     });
 
-    $("#example-import").click(function() {
+    /**
+     * Requests the example tree
+     */
+    $("#example-import").click(function () {
         $("#dna").trigger("click");
         optionsJSON = {
             "enable-lengths": $("#enable-lengths")[0].checked,
@@ -197,7 +218,10 @@ $(function() {
         load("post", "example");
     });
 
-    $("#save-options").click(function() {
+    /**
+     * Takes the options and sends them to the backend
+     */
+    $("#save-options").click(function () {
         optionsJSON = {
             "enable-lengths": $("#enable-lengths")[0].checked,
             "working-directory": $("#working-directory").val()
@@ -216,9 +240,13 @@ $(function() {
         }
         options(optionsJSON);
     });
-    $("#test-snapshots").click(function() {
+
+    /**
+     * Tests the selected snapshots by sending them to the backend
+     */
+    $("#test-snapshots").click(function () {
         var snapshots = [];
-        $.each($("#select-snapshots option:selected"), function(){
+        $.each($("#select-snapshots option:selected"), function () {
             snapshots.push($(this).val());
         });
         if (snapshots.length != 0) {
@@ -232,13 +260,18 @@ $(function() {
         }
     });
 
-    $(".btn").mouseup(function(){
+    /**
+     * Adds a blur effect to the tabs
+     */
+    $(".btn").mouseup(function () {
         $(this).blur();
     })
 
-
+    /**
+     * Gets the options from the backend and shows them in the options tab
+     */
     function getOptions() {
-        $.get("get-options", "", function(data) {
+        $.get("get-options", "", function (data) {
             data = JSON.parse(data);
             if (data["enable_lengths"]) {
                 $("#enable-lengths").prop("checked", true);
@@ -269,6 +302,11 @@ $(function() {
         });
     }
 
+    /**
+     * Handles the requests to the load route
+     * @param method post for import, get for rehanging and rerooting
+     * @param httpData tree information
+     */
     function load(method, httpData) {
         if (method == "post") {
             $.post("load", httpData, update);
@@ -277,6 +315,12 @@ $(function() {
         }
     }
 
+    /**
+     * Updates the frontend after data has been received from the backend
+     * @param data tree information
+     * @param status http response code
+     * @param xhr response itself for reading response headers
+     */
     function update(data, status, xhr) {
         //alert("Data: " + data + "\nStatus: " + status);
         // TODO work with status?!
@@ -304,6 +348,10 @@ $(function() {
         draw(JSON.parse(trees[counter_of_trees - 1][1]));
     }
 
+    /**
+     * Enables or disables testing capabilities
+     * @param testing whether testing should be enabled or not
+     */
     function set_testing(testing) {
         if (testing == "enabled") {
             $("#test-snapshots").prop("disabled", false);
@@ -314,8 +362,12 @@ $(function() {
         }
     }
 
+    /**
+     * Sends the selected options to the backend
+     * @param data information on the options
+     */
     function options(data) {
-        $.post("options", data, function(response) {
+        $.post("options", data, function (response) {
             if (response == "Invalid directory") {
                 $("#info-modal-label").text("Invalid working directory set!")
                 $("#info-modal-body").text("Please select an existing working directory!")
@@ -327,6 +379,11 @@ $(function() {
         }
     }
 
+    /**
+     * Sends the description to the backend and calls the update and snapshots functions
+     * @param id the tree to be altered
+     * @param description the new description
+     */
     function description(id, description) {
         $.post("description", {"id": id, "description": description});
         trees.find(element => element[0] == id)[2] = description;
@@ -335,6 +392,9 @@ $(function() {
         snapshots(snapshotTrees);
     }
 
+    /**
+     * Gets the description and sends it to the snapthots and description functions
+     */
     function save() {
         descriptionValue = $("#snapshot-label").val();
         if (descriptionValue == "") {
@@ -346,20 +406,24 @@ $(function() {
         description(trees[counter_of_trees - 1][0], descriptionValue);
     }
 
+    /**
+     * Updates the snapshots and displays them
+     * @param data snapshot informations
+     */
     function snapshots(data) {
         $("#no-entries").remove();
         $("#snapshots").empty();
         $("#select-snapshots").empty();
         $("#snapshots").append('<thead><tr><th>Name</th><th>Change Name</th><th>Download</th></tr></thead>');
         $("#snapshots").append('<tbody>');
-        data.forEach(function(value) {
+        data.forEach(function (value) {
             text = '<tr>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + ((value[2] != "") ? value[2] : value[0]) + '</button></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-edit-' + value[0] + '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg></button></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-download-' + value[0] + '"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></button></td>';
             text += '</tr>';
             $("#snapshots").append(text);
-            $("#snapshot-" + value[0]).click(function() {
+            $("#snapshot-" + value[0]).click(function () {
                 snapshotId = $(this).attr("id").split("-")[1];
                 draw(JSON.parse(snapshotTrees.find(tree => tree[0] == snapshotId)[1]));
                 $.get("reset/" + snapshotId);
@@ -369,7 +433,7 @@ $(function() {
                 $("#redo-button").prop("disabled", true);
                 update(JSON.stringify([snapshotTrees.find(tree => tree[0] == snapshotId)]));
             });
-            $("#snapshot-edit-" + value[0]).click(function() {
+            $("#snapshot-edit-" + value[0]).click(function () {
                 snapshotId = $(this).attr("id").split("-")[2];
                 $("#change-snapshot-label").val(value[2]);
                 $("#change-modal").modal("show");
@@ -383,7 +447,7 @@ $(function() {
                     $("#change-modal").modal("hide");
                 });
             });
-            $("#snapshot-download-" + value[0]).click(function() {
+            $("#snapshot-download-" + value[0]).click(function () {
                 snapshotId = $(this).attr("id").split("-")[2];
                 download(snapshotId);
             });
@@ -393,6 +457,10 @@ $(function() {
         $("#snapshots").append('</tbody>');
     }
 
+    /**
+     * Requests and prints the test results
+     * @param data tree informations
+     */
     function tests(data) {
         $("#info-modal-label").text("Tree topoplogy testing started!")
         $("#info-modal-body").text("Tree toplogy testing in progress.")
@@ -400,7 +468,7 @@ $(function() {
 
         ids = data["snapshots"];
 
-        $.post("tests", data, function(data) {
+        $.post("tests", data, function (data) {
             $("#info-modal").modal("hide");
             if (data == "NO") {
                 $("#info-modal-label").text("Initial tree selected!")
@@ -428,7 +496,7 @@ $(function() {
             testData[8].push('<a href="#" title="c-ELW" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="Expected Likelihood Weight <a href=\'https://doi.org/10.1098/rspb.2001.1862\' target=\'_blank\'>(Strimmer & Rambaut 2002)</a>">c-ELW</a>');
             testData[9].push('<a href="#" title="p-AU" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1080/10635150290069913\' target=\'_blank\'>approximately unbiased (AU) test (Shimodaira, 2002)</a>">p-AU</a>');
 
-            data.forEach(function(value, index) {
+            data.forEach(function (value, index) {
                 testData[0].push(trees.find(element => element[0] == ids[index])[2], "");
                 testData[1].push(parseFloat(value[1]).toFixed(2), "");
                 testData[2].push(parseFloat(value[2]).toFixed(2), "");
@@ -467,11 +535,18 @@ $(function() {
         });
     }
 
+    /**
+     * Requests and downloads the given tree
+     * @param id tree to download
+     */
     function download(id) {
         $.get("download/" + id);
         window.open("download/" + id);
     }
 
+    /**
+     * Toggles displaying of the rerooting button
+     */
     function toggleOutgroupButton() {
         if ($("#outgroup-button").css("display") == "none") {
             $("#outgroup-button").css("display", "block");
@@ -480,6 +555,10 @@ $(function() {
         }
     }
 
+    /**
+     * Draws the svg in the main div
+     * @param data tree informations
+     */
     function draw(data) {
         $("#outgroup-button").css("display", "none");
 
@@ -579,7 +658,7 @@ $(function() {
             strokeWidth: 1
         });
 
-        border.click(function(event) {
+        border.click(function (event) {
             posX = event.offsetX;
             posY = event.offsetY;
             moveX = posX * ratio;
@@ -590,7 +669,7 @@ $(function() {
         // TODO write this nicer
         topBottom = [-5, maxY + 15];
         let topBottomLine;
-        topBottom.forEach(function(value) {
+        topBottom.forEach(function (value) {
             for (var i = 0; i < maxLength * multiplier; i++) {
                 topBottomLine = svg.line(10 + scaleX * i / multiplier, value - 10, 10 + scaleX * i / multiplier, value).attr({
                     fill: 'none',
@@ -650,8 +729,11 @@ $(function() {
         let clickedPath;
         let nameText;
 
+        /**
+         * Handles rerooting
+         */
         function outgroup() {
-             if (context_id != null) {
+            if (context_id != null) {
                 load("get", {
                     'id': context_id
                 });
@@ -697,7 +779,7 @@ $(function() {
             toggleOutgroupButton();
         }
 
-        data.forEach(function(item, index, array) {
+        data.forEach(function (item, index, array) {
             if (item["name"] != "None") {
                 // TODO draw all texts at the right
                 // with path stroke dasharray
@@ -719,7 +801,7 @@ $(function() {
                 }
             } else {
                 if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
-                    parent = array.findIndex((elem)=>elem.id == item["parent"]);
+                    parent = array.findIndex((elem) => elem.id == item["parent"]);
                     // TODO could be put exactly in the middle, now only puts the beginning in the middle
                     g.add(svg.text((parseFloat(array[parent]["total_length"]) + (item["length"] / 2)) * scaleX, (index + 1) * scaleY, item["bootstrap"]).attr({
                         dominantBaseline: 'baseline',
@@ -729,8 +811,8 @@ $(function() {
                     // TODO data-id added graying out of child bootstraps but not selected bootstrap
                 }
 
-                l_child = array.findIndex((elem)=>elem.id == item["l_child"]);
-                r_child = array.findIndex((elem)=>elem.id == item["r_child"]);
+                l_child = array.findIndex((elem) => elem.id == item["l_child"]);
+                r_child = array.findIndex((elem) => elem.id == item["r_child"]);
 
                 mX = (item["total_length"] * scaleX) + offset;
                 mYLeft = (index + 1) * scaleY - strokeWidth;
@@ -768,7 +850,7 @@ $(function() {
 
                 minimapPaths = [minimapLeft, minimapRight];
 
-                minimapPaths.forEach(function(itemMinimapPath, indexMinimapPath, arrayMinimapPath) {
+                minimapPaths.forEach(function (itemMinimapPath, indexMinimapPath, arrayMinimapPath) {
                     itemMinimapPath.attr({
                         fill: 'none',
                         stroke: 'black',
@@ -799,14 +881,14 @@ $(function() {
 
                 paths = [left, right];
 
-                paths.forEach(function(itemPath, indexPath, arrayPath) {
+                paths.forEach(function (itemPath, indexPath, arrayPath) {
                     itemPath.attr({
                         fill: 'none',
                         stroke: 'black',
                         strokeWidth: strokeWidth,
                         strokeLinecap: 'square'
                     });
-                    itemPath.mouseover(function() {
+                    itemPath.mouseover(function () {
                         itemPath.attr({
                             stroke: 'dodgerblue',
                             strokeWidth: strokeWidth * 2
@@ -817,7 +899,7 @@ $(function() {
                             });
                         }
                     });
-                    itemPath.mouseout(function() {
+                    itemPath.mouseout(function () {
                         itemPath.attr({
                             stroke: 'black',
                             strokeWidth: strokeWidth
@@ -825,7 +907,7 @@ $(function() {
                         hoveredPath.remove();
                         hoveredPath = null;
                     });
-                    itemPath.click(function() {
+                    itemPath.click(function () {
                         // Select first path
                         if (typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath)) {
                             hoveredPath.remove();
@@ -855,12 +937,12 @@ $(function() {
                                 }
                             }
                             toggleOutgroupButton();
-                        // Both paths are the same
+                            // Both paths are the same
                         } else if ((clickedPath == itemPath) ||
-                        // Both paths are neighbors
-                        (clickedPath.attr("data-parent") == itemPath.attr("data-parent")) ||
-                        // Second path is the first one's parent
-                        (clickedPath.attr("data-parent") == itemPath.attr("data-id"))) {
+                            // Both paths are neighbors
+                            (clickedPath.attr("data-parent") == itemPath.attr("data-parent")) ||
+                            // Second path is the first one's parent
+                            (clickedPath.attr("data-parent") == itemPath.attr("data-id"))) {
                             hoveredPath.remove();
                             clickedPath.attr({
                                 strokeOpacity: ''
@@ -949,6 +1031,10 @@ $(function() {
         let move;
         let step = 0.1;
 
+        /**
+         * Detect mouse movement start and change cursor appearence
+         * @param event mousedownevent
+         */
         function funcMouseDown(event) {
             startX = event.clientX;
             startY = event.clientY;
@@ -957,12 +1043,20 @@ $(function() {
             $(svg.node).css("cursor", "move");
         }
 
+        /**
+         * Detect mouse movement end and change cursor appearence
+         * @param event mouseupevent
+         */
         function funcMouseUp(event) {
             move = false;
             // TODO only when existing?
             $(svg.node).removeAttr("style");
         }
 
+        /**
+         * Detect mouse movement itself and move svg accordingly
+         * @param event mousemoveevent
+         */
         function funcMouseMove(event) {
             /*console.log(event.which + event.ctrlKey + event.clientX + event.clientY);*/
 
@@ -982,6 +1076,10 @@ $(function() {
             }
         }
 
+        /**
+         * Detect mouse wheel and zoom svg accordingly
+         * @param event mousewheelevent
+         */
         function funcWheel(event) {
             currentX = getTransform("x");
             currentY = getTransform("y");
@@ -1010,6 +1108,9 @@ $(function() {
             setTransform("scale", newScale, moveX, moveY);
         }
 
+        /**
+         * Sets the dimensions for the svg
+         */
         function setTransform() {
             if (typeof g === "undefined") {
                 return;
@@ -1066,6 +1167,10 @@ $(function() {
             minimapWindow.transform("translate(" + -translateX / ratio + " " + -translateY / ratio + ") scale(" + scale / ratio + " " + scale / ratio + ")");
         }
 
+        /**
+         * Gets the dimensions of the svg
+         * @returns {number|*|scale} requested dimension
+         */
         function getTransform() {
             if (typeof g === "undefined") {
                 return;
@@ -1081,12 +1186,12 @@ $(function() {
                 scale = 1;
             }
             switch (arguments[0]) {
-            case "x":
-                return translateX;
-            case "y":
-                return translateY;
-            case "scale":
-                return scale;
+                case "x":
+                    return translateX;
+                case "y":
+                    return translateY;
+                case "scale":
+                    return scale;
             }
         }
 
@@ -1095,6 +1200,9 @@ $(function() {
         $(svg.node).mousemove(funcMouseMove);
         $(svg.node).on("wheel", funcWheel);
 
+        /**
+         * Activates the buttons and adds their events
+         */
         function activate_buttons() {
             if (!(buttons_activated)) {
                 $("#undo-button").show();
@@ -1184,8 +1292,12 @@ $(function() {
             }
         }
 
+        /**
+         * Searches for a leaf and jumps to it and colors it when it is found
+         * @param value the searched leaf
+         */
         function search(value) {
-            data.some(function(item, index, array) {
+            data.some(function (item, index, array) {
                 if (item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
                     if (found) {
                         found.attr('fill', null);
@@ -1200,6 +1312,9 @@ $(function() {
             });
         }
 
+        /**
+         * Undoes the last action
+         */
         function undo() {
             if (counter_of_trees > 1) {
                 counter_of_trees -= 1;
@@ -1210,6 +1325,9 @@ $(function() {
             update(JSON.stringify(trees));
         }
 
+        /**
+         * Redoes the last action
+         */
         function redo() {
             if (counter_of_trees < number_of_trees) {
                 counter_of_trees += 1;
@@ -1230,7 +1348,10 @@ $(function() {
     var exnum = 0;
     var num = 0;
 
-    $("#btnClose").click(function() {
+    /**
+     * Handles tab clicking
+     */
+    $("#btnClose").click(function () {
         onOffBtn1 = "off";
         onOffBtn2 = "off";
         onOffBtn3 = "off";
@@ -1243,11 +1364,13 @@ $(function() {
         $("#tab4").hide("fast");
     });
 
-    $("#btn1").click(function() {
+    /**
+     * Handles the clicking of the overview tab
+     */
+    $("#btn1").click(function () {
         num = 1;
         switch (onOffBtn1) {
-        case "off":
-            {
+            case "off": {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
                 onOffBtn4 = "off";
@@ -1257,8 +1380,7 @@ $(function() {
                 exnum = 1;
                 break;
             }
-        case "on":
-            {
+            case "on": {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
                 onOffBtn4 = "off";
@@ -1270,11 +1392,13 @@ $(function() {
         }
     });
 
-    $("#btn2").click(function() {
+    /**
+     * Handles the clicking of the options tab
+     */
+    $("#btn2").click(function () {
         num = 2;
         switch (onOffBtn2) {
-        case "off":
-            {
+            case "off": {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
                 onOffBtn4 = "off";
@@ -1284,8 +1408,7 @@ $(function() {
                 exnum = 2;
                 break;
             }
-        case "on":
-            {
+            case "on": {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
                 onOffBtn4 = "off";
@@ -1297,11 +1420,13 @@ $(function() {
         }
     });
 
-    $("#btn3").click(function() {
+    /**
+     * Handles the clicking of the snapshots tab
+     */
+    $("#btn3").click(function () {
         num = 3;
         switch (onOffBtn3) {
-        case "off":
-            {
+            case "off": {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
                 onOffBtn4 = "off";
@@ -1311,8 +1436,7 @@ $(function() {
                 exnum = 3;
                 break;
             }
-        case "on":
-            {
+            case "on": {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
                 onOffBtn4 = "off";
@@ -1324,11 +1448,13 @@ $(function() {
         }
     });
 
-    $("#btn4").click(function() {
+    /**
+     * Handles the clicking of the tests tab
+     */
+    $("#btn4").click(function () {
         num = 4;
         switch (onOffBtn4) {
-        case "off":
-            {
+            case "off": {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
                 onOffBtn4 = "on";
@@ -1338,8 +1464,7 @@ $(function() {
                 exnum = 4;
                 break;
             }
-        case "on":
-            {
+            case "on": {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
                 onOffBtn4 = "off";
@@ -1351,17 +1476,21 @@ $(function() {
         }
     });
 
+    // Opens the options tab on launch
     $("#btn2").click();
 
+    /**
+     * Enables the custom buttons for alignment file handling
+     */
     $("#alignment-file-button").on("click", function () {
         $("#alignment-file").trigger("click");
     });
-    $("#alignment-file:file").change(function (){
+    $("#alignment-file:file").change(function () {
         $("#alignment-file-button").html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-check" viewBox="0 0 16 16"><path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>');
         $('label[for="alignment-file-button"]').html($(this)[0].files[0].name);
 
         let autoReader = new FileReader();
-        autoReader.onload = function(data) {
+        autoReader.onload = function (data) {
             text = atob(data.target.result.split("base64,")[1]);
             if ((text.match(/[ACGT]/g) || []).length > text.length / 2) {
                 $("#dna").trigger("click");
@@ -1395,16 +1524,25 @@ $(function() {
         autoReader.readAsDataURL($(this)[0].files[0]);
     });
 
+    /**
+     * Enables the custom buttons for tree file handling
+     */
     $("#tree-file-button").on("click", function () {
         $("#tree-file").trigger("click");
     });
-    $("#tree-file:file").change(function (){
+    $("#tree-file:file").change(function () {
         $("#tree-file-button").html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-check" viewBox="0 0 16 16"><path d="M10.854 7.854a.5.5 0 0 0-.708-.708L7.5 9.793 6.354 8.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>');
         $('label[for="tree-file-button"]').html($(this)[0].files[0].name);
         var path = (window.URL || window.webkitURL).createObjectURL($(this)[0].files[0]);
         console.log('path', path);
     });
 
+    /**
+     * Stops the context menu from being drawn out of bounds
+     * @param mouseX x position of the mouse
+     * @param mouseY y position of the mouse
+     * @returns {{normalizedY: number, normalizedX: number}} new mouse position
+     */
     function normalizePosition(mouseX, mouseY) {
         let normalizedX = mouseX;
         let normalizedY = mouseY;
@@ -1417,6 +1555,9 @@ $(function() {
         return {normalizedX, normalizedY};
     }
 
+    /**
+     * Changes the context menu to the custom one
+     */
     $("#mainDiv").contextmenu(function (event) {
         if (event.target.tagName == "line" || event.target.tagName == "svg" || event.target.tagName == "path") {
             event.preventDefault();
@@ -1433,6 +1574,9 @@ $(function() {
         }
     });
 
+    /**
+     * Hides the context menu on click
+     */
     $("#mainDiv").mousedown(function (event) {
         if (event.target.offsetParent != $("#context-menu")) {
             $("#context-menu").removeClass("visible");
