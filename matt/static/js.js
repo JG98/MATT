@@ -497,7 +497,15 @@ $(function () {
             testData[9].push('<a href="#" title="p-AU" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1080/10635150290069913\' target=\'_blank\'>approximately unbiased (AU) test (Shimodaira, 2002)</a>">p-AU</a>');
 
             data.forEach(function (value, index) {
-                testData[0].push(trees.find(element => element[0] == ids[index])[2], "");
+                if (ids.length == 1) {
+                    if (index == 0) {
+                        testData[0].push("Initial", "");
+                    } else {
+                        testData[0].push(trees.find(element => element[0] == ids[0])[2], "")
+                    }
+                } else {
+                    testData[0].push(trees.find(element => element[0] == ids[index])[2], "");
+                }
                 testData[1].push(parseFloat(value[1]).toFixed(2), "");
                 testData[2].push(parseFloat(value[2]).toFixed(2), "");
                 testData[3].push(value[3], value[4]);
