@@ -200,6 +200,7 @@ $(function () {
         $("#dna").trigger("click");
         optionsJSON = {
             "enable-lengths": $("#enable-lengths")[0].checked,
+            "align-labels": $("#align-labels")[0].checked,
             "working-directory": $("#working-directory").val()
         }
         if (dnaProtein == "dna") {
@@ -224,6 +225,7 @@ $(function () {
     $("#save-options").click(function () {
         optionsJSON = {
             "enable-lengths": $("#enable-lengths")[0].checked,
+            "align-labels": $("#align-labels")[0].checked,
             "working-directory": $("#working-directory").val()
         }
         if (dnaProtein == "dna") {
@@ -277,6 +279,11 @@ $(function () {
                 $("#enable-lengths").prop("checked", true);
             } else {
                 $("#enable-lengths").prop("checked", false);
+            }
+            if (data["align_labels"]) {
+                $("#align-labels").prop("checked", true);
+            } else {
+                $("#align-labels").prop("checked", false);
             }
             $("#working-directory").val(data["working_directory"])
             if (data["dna_protein"] == "dna") {
@@ -591,6 +598,7 @@ $(function () {
         extraData = data.pop();
 
         enableLengths = extraData["enable_lengths"];
+        alignLabels = extraData["align_labels"];
         maxLength = extraData["max_length"];
         longestName = extraData["longest_name"];
 
@@ -616,7 +624,11 @@ $(function () {
         svg.remove();
         //svg = Snap(((scaleX * maxLength) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
         //$(svg.node).appendTo($("#mainDiv"));
-        maxX = (scaleX * maxLength) + (3.5 * offset) + longestNameWidth;
+        if (alignLabels) {
+            maxX = (scaleX * maxLength) + (3.5 * offset) + longestNameWidth;
+        } else {
+            maxX = (scaleX * maxLength) - offset + longestNameWidth;
+        }
         maxY = scaleY * (amount + 1);
         svg = Snap(maxWidth, maxHeight);
         $(svg.node).appendTo($("#mainDiv"));
@@ -792,20 +804,29 @@ $(function () {
                 // TODO draw all texts at the right
                 // with path stroke dasharray
                 //g.add(svg.text(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize, 'data-id': item["id"]}));
-                nameText = svg.text(maxX - offset, (index + 1) * scaleY, item["name"]).attr({
-                    dominantBaseline: 'middle',
-                    fontSize: fontSize,
-                    'data-id': item["id"],
-                    textAnchor: 'end'
-                });
-                g.add(nameText);
-                if (item["total_length"] * scaleX + (1.5 * offset) < maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width) - offset) {
-                    g.add(svg.line(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width), (index + 1) * scaleY).attr({
-                        fill: 'none',
-                        stroke: 'black',
-                        strokeWidth: 2,
-                        strokeDasharray: 4
-                    }));
+                if (alignLabels) {
+                    nameText = svg.text(maxX - offset, (index + 1) * scaleY, item["name"]).attr({
+                        dominantBaseline: 'middle',
+                        fontSize: fontSize,
+                        'data-id': item["id"],
+                        textAnchor: 'end'
+                    });
+                    g.add(nameText);
+                    if (item["total_length"] * scaleX + (1.5 * offset) < maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width) - offset) {
+                        g.add(svg.line(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, maxX - (1.5 * offset) - Math.ceil(nameText.getBBox().width), (index + 1) * scaleY).attr({
+                            fill: 'none',
+                            stroke: 'black',
+                            strokeWidth: 2,
+                            strokeDasharray: 4
+                        }));
+                    }
+                } else {
+                    nameText = svg.text(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({
+                        dominantBaseline: 'middle',
+                        fontSize: fontSize,
+                        'data-id': item["id"]
+                    });
+                    g.add(nameText);
                 }
             } else {
                 if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
@@ -1513,6 +1534,7 @@ $(function () {
             }
             optionsJSON = {
                 "enable-lengths": $("#enable-lengths")[0].checked,
+                "align-labels": $("#align-labels")[0].checked,
                 "working-directory": $("#working-directory").val()
             }
             if (dnaProtein == "dna") {

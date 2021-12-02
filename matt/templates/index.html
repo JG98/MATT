@@ -36,7 +36,10 @@
     </head>
     <body>
         <div id="mainDiv">
-            <img id="logo-main" src="/static/logo_alt.png" class="img-fluid" alt="MATT Logo" style="position:absolute">
+            <div id="logo-main" class="text-center" style="position:absolute">
+                <h1>Version {{data}}</h1>
+                <img id="logo-main-img" src="/static/logo_alt.png" class="img-responsive" alt="MATT Logo">
+            </div>
             <button id="undo-button" type="button" class="btn btn-secondary" title="Undo" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left" viewBox="0 0 16 16">
                     <path d="M10 12.796V3.204L4.519 8 10 12.796zm-.659.753-5.48-4.796a1 1 0 0 1 0-1.506l5.48-4.796A1 1 0 0 1 11 3.204v9.592a1 1 0 0 1-1.659.753z"/>
@@ -87,7 +90,10 @@
                     <button id="btn4" class="btnTab btn btn-dark">Tests</button>
                 </div>
                 <div id="tab1" class="tabs comp">
-                    <img id="logo-slide" src="/static/logo.svg" class="img-fluid" alt="MATT Logo">
+                    <div id="logo-slide" class="text-center">
+                        <h1>Version {{data}}</h1>
+                        <img id="logo-slide-img" src="/static/logo.svg" class="img-responsive" alt="MATT Logo">
+                    </div>
                     <!--<h3>Overview</h3>
                     <p></p>
                     TODO-->
@@ -124,13 +130,17 @@
                         <input type="button" class="btn btn-primary" id="import" value="Import">
                         <input type="button" class="btn btn-secondary" id="example-import" value="Example">
                     </form>
-                    <br><br>
+                    <br>
                     <h3>Options</h3>
                     <p></p>
                     <form enctype="multipart/form-data">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="enable-lengths" name="enable-lengths">
                             <label class="form-check-label" for="enable-lengths">Enable branch lengths</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="align-labels" name="align-labels">
+                            <label class="form-check-label" for="align-labels">Align labels</label>
                         </div>
                         <h4>Working directory</h4>
                         <div class="form-group">

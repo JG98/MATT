@@ -26,7 +26,7 @@ class Tree:
     Tree class representing a topology tree
     """
 
-    def __init__(self, string, json_args=None, enable_lengths=False):
+    def __init__(self, string, json_args=None, enable_lengths=False, align_labels=True):
         """
         Initialises the tree
         :param string: String containing the information about the tree and his nodes
@@ -35,6 +35,7 @@ class Tree:
         """
         self.node_counter = 0
         self.enable_lengths = enable_lengths
+        self.align_labels = align_labels
         if string.rstrip()[-1] == ";":
             self.from_newick(string.rstrip()[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
@@ -343,7 +344,8 @@ class Tree:
             if node.total_length > max_length:
                 max_length = node.total_length
         return dumps(output + [
-            {"enable_lengths": self.enable_lengths, "max_length": str(max_length), "longest_name": longest_name}])
+            {"enable_lengths": self.enable_lengths, "align_labels": self.align_labels, "max_length": str(max_length),
+             "longest_name": longest_name}])
 
     def to_newick(self, as_constraint=False):
         """
