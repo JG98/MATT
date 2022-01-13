@@ -8,7 +8,7 @@ with open("version.txt", "r") as vf:
 
 setuptools.setup(
     name="phylo-matt",
-    version=vf,
+    version=version,
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
     description="A Framework For Modifying And Testing Topologies",
