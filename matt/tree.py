@@ -26,7 +26,7 @@ class Tree:
     Tree class representing a topology tree
     """
 
-    def __init__(self, string, json_args=None, enable_lengths=False, align_labels=True):
+    def __init__(self, string, json_args=None, align_labels=True, enable_lengths=False):
         """
         Initialises the tree
         :param string: String containing the information about the tree and his nodes
@@ -88,7 +88,7 @@ class Tree:
         """
         Build a tree from a json string
         :param string: the string from the database containing the tree info
-        :param json_args: Further information for rehaning or rerooting if given
+        :param json_args: Further information for rehanging or rerooting if given
         :return: None
         """
         print(string)
@@ -130,39 +130,6 @@ class Tree:
                         return
 
                 self.outgroup_helper(self.root, id_path)
-
-                # if id_path[-1] == "L":
-                #     id_node.parent.l_child = None
-                # elif id_path[-1] == "R":
-                #     id_node.parent.r_child = None
-                #
-                # id_parent_parent = id_node.parent.parent
-                # if id_path[-1] == "L":
-                #     id_neighbor = id_node.parent.r_child
-                # elif id_path[-1] == "R":
-                #     id_neighbor = id_node.parent.l_child
-                #
-                # id_neighbor.parent = id_parent_parent
-                # if id_path[-2] == "L":
-                #     id_parent_parent.l_child = id_neighbor
-                # elif id_path[-2] == "R":
-                #     id_parent_parent.r_child = id_neighbor
-                #
-                # # TODO ELSE
-                # if not self.enable_lengths:
-                #     new_node = Node(id_node.parent.id, Decimal(1), Decimal(1), self.root, self.root.l_child, self.root.r_child)
-                #     self.root.l_child = id_node
-                #     self.root.r_child = new_node
-                #     new_node.l_child.parent = new_node
-                #     new_node.r_child.parent = new_node
-                #     id_node.length = Decimal(1)
-                #     id_node.total_length = Decimal(1)
-                #     self.change_children_level(new_node.l_child, 1, True)
-                #     self.change_children_level(new_node.r_child, 1, True)
-                #     if id_neighbor:  # TODO necessary?
-                #         self.change_children_level(id_neighbor, -1, True)
-                #
-                # id_node.parent = self.root
 
             elif len(json_args) == 2:
                 # REHANG

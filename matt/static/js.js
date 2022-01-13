@@ -199,7 +199,6 @@ $(function () {
     $("#example-import").click(function () {
         $("#dna").trigger("click");
         optionsJSON = {
-            "enable-lengths": $("#enable-lengths")[0].checked,
             "align-labels": $("#align-labels")[0].checked,
             "working-directory": $("#working-directory").val()
         }
@@ -224,7 +223,6 @@ $(function () {
      */
     $("#save-options").click(function () {
         optionsJSON = {
-            "enable-lengths": $("#enable-lengths")[0].checked,
             "align-labels": $("#align-labels")[0].checked,
             "working-directory": $("#working-directory").val()
         }
@@ -263,6 +261,23 @@ $(function () {
     });
 
     /**
+     * Redraws the tree showing the branch lengths
+     */
+    $("#compute-branch-lengths").click(function () {
+        if ($(this).prop("value") == "Compute branch lengths") {
+            load("get", {
+                'lengths': "enabled"
+            });
+            $(this).prop("value", "Unfreeze");
+        } else {
+            load("get", {
+                'lengths': "disabled"
+            });
+            $(this).prop("value", "Compute branch lengths");
+        }
+    });
+
+    /**
      * Adds a blur effect to the tabs
      */
     $(".btn").mouseup(function () {
@@ -275,11 +290,6 @@ $(function () {
     function getOptions() {
         $.get("get-options", "", function (data) {
             data = JSON.parse(data);
-            if (data["enable_lengths"]) {
-                $("#enable-lengths").prop("checked", true);
-            } else {
-                $("#enable-lengths").prop("checked", false);
-            }
             if (data["align_labels"]) {
                 $("#align-labels").prop("checked", true);
             } else {
@@ -598,6 +608,11 @@ $(function () {
         extraData = data.pop();
 
         enableLengths = extraData["enable_lengths"];
+
+        if (enableLengths) {
+            $("#compute-branch-lengths").prop("value", "Unfreeze");
+        }
+
         alignLabels = extraData["align_labels"];
         maxLength = extraData["max_length"];
         longestName = extraData["longest_name"];
@@ -753,6 +768,9 @@ $(function () {
          * Handles rerooting
          */
         function outgroup() {
+            if (enableLengths) {
+                return;
+            }
             if (context_id != null) {
                 load("get", {
                     'id': context_id
@@ -937,6 +955,9 @@ $(function () {
                         hoveredPath = null;
                     });
                     itemPath.click(function () {
+                        if (enableLengths) {
+                            return;
+                        }
                         // Select first path
                         if (typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath)) {
                             hoveredPath.remove();
@@ -1014,28 +1035,6 @@ $(function () {
                             }
                         }
                     });
-
-                    /*itemPath.drag(function(dx, dy, x, y, event) {
-                        // TODO does not have to be set every frame
-                        pos = itemPath.attr("d");
-                        posX = pos.split("H")[1];
-                        posY = pos.split("H")[0].split("V")[1];
-                        hoveredLine.remove();
-                        hoveredLine = svg.line(posX, posY, x, y);
-                        hoveredLine.attr({stroke: 'black', strokeWidth: strokeWidth});
-                        console.log("move");
-                    }, function(x, y, event) {
-                        pos = itemPath.attr("d");
-                        posX = pos.split("H")[1];
-                        posY = pos.split("H")[0].split("V")[1];
-                        hoveredPath.remove();
-                        itemPath.remove();
-                        hoveredLine = svg.line(posX, posY, x, y);
-                        hoveredLine.attr({stroke: 'black', strokeWidth: strokeWidth});
-                        console.log("start");
-                    }, function(event) {
-                        console.log("stop");
-                    });*/
 
                 });
             }
@@ -1345,6 +1344,9 @@ $(function () {
          * Undoes the last action
          */
         function undo() {
+            if (enableLengths) {
+                return;
+            }
             if (counter_of_trees > 1) {
                 counter_of_trees -= 1;
             }
@@ -1358,6 +1360,9 @@ $(function () {
          * Redoes the last action
          */
         function redo() {
+            if (enableLengths) {
+                return;
+            }
             if (counter_of_trees < number_of_trees) {
                 counter_of_trees += 1;
             }
@@ -1533,7 +1538,6 @@ $(function () {
                 $("#info-modal").modal("show");
             }
             optionsJSON = {
-                "enable-lengths": $("#enable-lengths")[0].checked,
                 "align-labels": $("#align-labels")[0].checked,
                 "working-directory": $("#working-directory").val()
             }
