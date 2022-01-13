@@ -3,9 +3,12 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open("version.txt", "r") as vf:
+    version = vf.read()
+
 setuptools.setup(
     name="phylo-matt",
-    version="1.0.2",
+    version=vf,
     author="Jeff Raffael Gower",
     author_email="jeffgower98@gmail.com",
     description="A Framework For Modifying And Testing Topologies",

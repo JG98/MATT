@@ -50,7 +50,10 @@ def home():
     :return: response
     """
     session["trees"] = []
-    version = "1.0.2"
+    version = ""
+    with open("../version.txt", "r") as vf:
+        version = vf.read()
+    print(version)
     response = make_response(render_template("index.html", data=version))
     response.headers["Cache-Control"] = "no-store"
     return response
