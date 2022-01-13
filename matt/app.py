@@ -51,7 +51,7 @@ def home():
     """
     session["trees"] = []
     version = ""
-    with open("../version.txt", "r") as vf:
+    with open("version.txt", "r") as vf:
         version = vf.read()
     response = make_response(render_template("index.html", data=version))
     response.headers["Cache-Control"] = "no-store"
