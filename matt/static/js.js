@@ -264,16 +264,14 @@ $(function () {
      * Redraws the tree showing the branch lengths
      */
     $("#compute-branch-lengths").click(function () {
-        if ($(this).prop("value") == "Compute branch lengths") {
+        if (!(enableLengths)) {
             load("get", {
                 'lengths': "enabled"
             });
-            $(this).prop("value", "Unfreeze");
         } else {
-            load("get", {
-                'lengths': "disabled"
-            });
-            $(this).prop("value", "Compute branch lengths");
+            $("#info-modal-label").text("Tree already has branch lengths!")
+            $("#info-modal-body").text("The branch lengths for this tree have already been computed! Use the \"Show/Hide branch lengths\" button!")
+            $("#info-modal").modal("show");
         }
     });
 
@@ -346,7 +344,10 @@ $(function () {
         number_of_trees = trees.length;
         if (typeof xhr !== "undefined") {
             counter_of_trees = parseInt(counter_of_trees);
-            counter_of_trees += 1;
+            console.log(xhr.getResponseHeader("Length"));
+            if (!(xhr.getResponseHeader("Length"))) {
+                counter_of_trees += 1;
+            }
             console.log(counter_of_trees);
             set_testing(xhr.getResponseHeader("Testing"));
         }
@@ -362,7 +363,11 @@ $(function () {
         console.log("Building tree " + counter_of_trees + " of " + number_of_trees);
         console.log(trees);
         console.log(snapshotTrees);
-        draw(JSON.parse(trees[counter_of_trees - 1][1]));
+        if (typeof xhr !== "undefined" && xhr.getResponseHeader("Length")) {
+            draw(JSON.parse(trees[counter_of_trees - 1][2]));
+        } else {
+            draw(JSON.parse(trees[counter_of_trees - 1][1]));
+        }
     }
 
     /**
@@ -609,10 +614,6 @@ $(function () {
 
         enableLengths = extraData["enable_lengths"];
 
-        if (enableLengths) {
-            $("#compute-branch-lengths").prop("value", "Unfreeze");
-        }
-
         alignLabels = extraData["align_labels"];
         maxLength = extraData["max_length"];
         longestName = extraData["longest_name"];
@@ -768,9 +769,6 @@ $(function () {
          * Handles rerooting
          */
         function outgroup() {
-            if (enableLengths) {
-                return;
-            }
             if (context_id != null) {
                 load("get", {
                     'id': context_id
@@ -955,9 +953,6 @@ $(function () {
                         hoveredPath = null;
                     });
                     itemPath.click(function () {
-                        if (enableLengths) {
-                            return;
-                        }
                         // Select first path
                         if (typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath)) {
                             hoveredPath.remove();
@@ -1238,6 +1233,7 @@ $(function () {
                 $("#save-button").show();
                 $("#zoom-in-button").show();
                 $("#zoom-out-button").show();
+                $("#lengths-button").show();
                 $("#search").css("display", "flex");
 
                 $("#undo-button").click(function (event) {
@@ -1299,6 +1295,14 @@ $(function () {
                     setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
                 });
 
+                $("#lengths-button").click(function (event) {
+                    toggleLength();
+                });
+                $("#context-lengths").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    toggleLength();
+                });
+
                 $("#search-button").click(function (event) {
                     search($("#search-text").val());
                 });
@@ -1344,9 +1348,6 @@ $(function () {
          * Undoes the last action
          */
         function undo() {
-            if (enableLengths) {
-                return;
-            }
             if (counter_of_trees > 1) {
                 counter_of_trees -= 1;
             }
@@ -1360,9 +1361,6 @@ $(function () {
          * Redoes the last action
          */
         function redo() {
-            if (enableLengths) {
-                return;
-            }
             if (counter_of_trees < number_of_trees) {
                 counter_of_trees += 1;
             }
@@ -1370,6 +1368,23 @@ $(function () {
                 $("#redo-button").prop("disabled", true);
             }
             update(JSON.stringify(trees));
+        }
+
+        /**
+         * Shows the branch lengths if they are available and hides them if they are shown
+         */
+        function toggleLength() {
+            if (enableLengths) {
+                draw(JSON.parse(trees[counter_of_trees - 1][1]));
+            } else {
+                if (trees[counter_of_trees - 1][2] != null) {
+                    draw(JSON.parse(trees[counter_of_trees - 1][2]));
+                } else {
+                    $("#info-modal-label").text("Tree without branch lengths!")
+                    $("#info-modal-body").text("Please compute the branch lengths for this tree first under the options tab!")
+                    $("#info-modal").modal("show");
+                }
+            }
         }
     }
 

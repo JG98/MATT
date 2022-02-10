@@ -92,6 +92,8 @@ def get_options():
     if not os.path.isdir(session["working-directory"]):
         session["working-directory"] = root_folder
         config.set("Options", "working-directory", root_folder)
+    files = [f for f in os.listdir(session["working-directory"]) if os.path.isfile(os.path.join(session["working-directory"], f))]
+    print(files)
     response = make_response(options)
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -108,7 +110,7 @@ def download(tree_id):
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
-    tree_db = c.execute("SELECT json, description FROM trees WHERE id = ?", (tree_id,)).fetchall()
+    tree_db = c.execute("SELECT json, description FROM trees WHERE id = ?", (tree_id,)).fetchall() #TODO make branch tree downloadable?
     tree_json = tree_db[0][0]
     tree_description = tree_db[0][1]
     tree = Tree(tree_json).to_newick()
@@ -231,30 +233,33 @@ def load():
             tree = Tree(tree, align_labels=align_labels).to_json()
             session["disable_testing"] = True
     elif request.method == "GET":  # TODO post too?
-        c.execute('SELECT json FROM trees WHERE id = ?', [session["tree"]])
-        tree_json = c.fetchone()[0]
+        c.execute('SELECT json, json_lengths FROM trees WHERE id = ?', [session["tree"]])
+        tree_json, tree_branch_json = c.fetchone()
         if len(request.args) == 0:
             json_args = None
         if request.args.get("lengths") is not None:
-            tree = Tree(tree_json, align_labels=align_labels, enable_lengths=True).to_newick(True)
-            path = os.path.join(session["working-directory"], "tree.nck")
-            file = open(path, "w")
-            file.write(tree + "\n")
-            file.close()
-            print("Starting IQTree. This could take some time!")
-            sp = subprocess.run(
-                [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
-                                                                                 "alignment.phy"),
-                 "-te", path, "-nt", "4", "-m", model, "-redo"], capture_output=True)
-            print(sp)
-            if sp.returncode == 2:
-                print("WRONG DECISION DNA/PROTEIN")
-            with open(os.path.join(session["working-directory"], "alignment.phy.treefile"), "r") as tree_file:
-                tree = tree_file.readline()
-            if request.args.get("lengths") == "enabled":
-                tree = Tree(tree[:-1], align_labels=align_labels, enable_lengths=True).to_json()
+            if tree_branch_json is not None:
+                tree = Tree(tree_branch_json, align_labels=align_labels).to_json()
             else:
-                tree = Tree(tree[:-1], align_labels=align_labels, enable_lengths=False).to_json()
+                tree = Tree(tree_json, align_labels=align_labels, enable_lengths=True).to_newick(True)
+                path = os.path.join(session["working-directory"], "tree.nck")
+                file = open(path, "w")
+                file.write(tree + "\n")
+                file.close()
+                print("Starting IQTree. This could take some time!")
+                sp = subprocess.run(
+                    [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
+                                                                                     "alignment.phy"),
+                     "-te", path, "-nt", "4", "-m", model, "-redo"], capture_output=True)
+                print(sp)
+                if sp.returncode == 2:
+                    print("WRONG DECISION DNA/PROTEIN")
+                with open(os.path.join(session["working-directory"], "alignment.phy.treefile"), "r") as tree_file:
+                    tree = tree_file.readline()
+                if request.args.get("lengths") == "enabled":
+                    tree = Tree(tree[:-1], align_labels=align_labels, enable_lengths=True).to_json()
+                else:
+                    tree = Tree(tree[:-1], align_labels=align_labels, enable_lengths=False).to_json()
         else:
             if request.args.get("id") is not None:
                 json_args = [request.args.get("id")]
@@ -272,9 +277,12 @@ def load():
     else:
         pass  # TODO
 
-    c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
-    session["tree"] = c.lastrowid
-    session["trees"].append(session["tree"])
+    if request.method == "GET" and request.args.get("lengths") is not None:
+        c.execute('UPDATE trees SET json_lengths = ? WHERE id = ?', (tree, session["tree"]))
+    else:
+        c.execute('INSERT INTO trees (json, datetime) VALUES (?, datetime("now", "localtime"))', [tree])
+        session["tree"] = c.lastrowid
+        session["trees"].append(session["tree"])
     print(session["trees"])
     trees = c.execute('SELECT * FROM trees WHERE id IN ({seq})'.format(seq=','.join(['?'] * len(session["trees"]))),
                       session["trees"]).fetchall()
@@ -286,6 +294,8 @@ def load():
         response.headers["Testing"] = "disabled"
     else:
         response.headers["Testing"] = "enabled"
+    if request.method == "GET" and request.args.get("lengths") is not None:
+        response.headers["Length"] = "true"
     return response
 
 
@@ -475,7 +485,7 @@ def main():
     c = conn.cursor()
     c.execute('''DROP TABLE IF EXISTS trees''')
     c.execute(
-        '''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, description TEXT, datetime TEXT)''')
+        '''CREATE TABLE trees (id INTEGER PRIMARY KEY AUTOINCREMENT, json TEXT, json_lengths TEXT, description TEXT, datetime TEXT)''')
     conn.commit()
     conn.close()
 

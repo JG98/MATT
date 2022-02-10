@@ -74,10 +74,17 @@ html, body {
     display: none;
 }
 
-#search {
+#lengths-button {
     position: absolute;
     top: 10px;
     left: 238px;
+    display: none;
+}
+
+#search {
+    position: absolute;
+    top: 10px;
+    left: 286px;
     display: none;
 }
 

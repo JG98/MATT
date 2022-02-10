@@ -69,6 +69,12 @@
                     <path fill-rule="evenodd" d="M3 6.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z"/>
                 </svg>
             </button>
+            <button id="lengths-button" type="button" class="btn btn-secondary" title="Show/Hide branch lengths">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                </svg>
+            </button>
             <div id="search">
                 <input type="text" placeholder="Search" id="search-text" class="form-inline">
                 <div class="input-group-append">
@@ -130,15 +136,19 @@
                         <input type="button" class="btn btn-primary" id="import" value="Import">
                         <input type="button" class="btn btn-secondary" id="example-import" value="Example">
                     </form>
-                    <br>
-                    <input type="button" class="btn btn-primary" id="compute-branch-lengths" value="Compute branch lengths">
-                    <br>
+                    <p></p>
                     <h3>Options</h3>
                     <p></p>
                     <form enctype="multipart/form-data">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="align-labels" name="align-labels">
-                            <label class="form-check-label" for="align-labels">Align labels</label>
+                        <div class="form-check form-check-inline">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="align-labels" name="align-labels">
+                                <label class="custom-control-label" for="align-labels">Align labels</label>
+                            </div>
+                            &nbsp;
+                            <div>
+                                <input type="button" class="btn btn-primary" id="compute-branch-lengths" value="Compute branch lengths">
+                            </div>
                         </div>
                         <h4>Working directory</h4>
                         <div class="form-group">
@@ -399,6 +409,7 @@
             <div class="item" id="context-save">Save snapshot</div>
             <div class="item" id="context-zoom-in">Zoom in</div>
             <div class="item" id="context-zoom-out">Zoom out</div>
+            <div class="item" id="context-lengths">Show/Hide branch lengths</div>
         </div>
     </body>
 </html>
