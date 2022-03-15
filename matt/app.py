@@ -92,6 +92,8 @@ def get_options():
     if not os.path.isdir(session["working-directory"]):
         session["working-directory"] = root_folder
         config.set("Options", "working-directory", root_folder)
+        with open(root_folder + "config.ini", "w") as config_file:
+            config.write(config_file)
     files = [f for f in os.listdir(session["working-directory"]) if os.path.isfile(os.path.join(session["working-directory"], f))]
     print(files)
     response = make_response(options)
@@ -347,6 +349,8 @@ def options():
             response = make_response("Invalid directory")
         session["working-directory"] = root_folder
         config.set("Options", "working-directory", root_folder)
+        with open(root_folder + "config.ini", "w") as config_file:
+            config.write(config_file)
     else:
         response = make_response("OK")
     # TODO PRINT NEW TREE (options to the whole data thingy too)
@@ -498,7 +502,11 @@ def main():
 
     working_directory = config.get("Options", "working-directory")
     if not os.path.isdir(working_directory):
-        working_directory = root_folder
+        home_path = os.path.join(os.path.expanduser('~'), "phylo-matt")
+        working_directory = home_path
+        config.set("Options", "working-directory", home_path)
+        with open(root_folder + "config.ini", "w") as config_file:
+            config.write(config_file)
 
     if not os.path.exists(os.path.join(working_directory)):
         os.makedirs(os.path.join(working_directory))
