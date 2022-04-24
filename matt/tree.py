@@ -152,14 +152,16 @@ class Tree:
                             (len(from_path) == len(to_path) and from_path[-2] == to_path[-2]):
                         return
 
-                    if len(from_path) < len(to_path):
-                        tmp_node = to_node
-                        to_node = from_node
-                        from_node = tmp_node
+                    # if len(from_path) < len(to_path):
+                    #     tmp_node = to_node
+                    #     to_node = from_node
+                    #     from_node = tmp_node
+                    #
+                    #     tmp_path = to_path
+                    #     to_path = from_path
+                    #     from_path = tmp_path
 
-                        tmp_path = to_path
-                        to_path = from_path
-                        from_path = tmp_path
+                    difference = len(to_path) - len(from_path)
 
                     if from_path[-1] == "L":
                         from_node.parent.l_child = None
@@ -216,9 +218,10 @@ class Tree:
                         if from_neighbor:  # TODO necessary?
                             self.change_children_level(from_neighbor, -1, True)
                         if from_node.l_child:
-                            self.change_children_level(from_node.l_child, 1, True)
+                            self.change_children_level(from_node.l_child, 1 + difference, True)
                         if from_node.r_child:
-                            self.change_children_level(from_node.r_child, 1, True)
+                            self.change_children_level(from_node.r_child, 1 + difference, True)
+
             else:
                 pass  # TODO
 
