@@ -695,8 +695,8 @@ $(function () {
         });
 
         border.click(function (event) {
-            posX = event.offsetX;
-            posY = event.offsetY;
+            posX = event.offsetX * scale;
+            posY = event.offsetY * scale;
             moveX = posX * ratio;
             moveY = posY * ratio;
             setTransform("translate", -moveX + maxWidth / 2, -moveY + maxHeight / 2);
@@ -1035,15 +1035,15 @@ $(function () {
             }
         });
 
-        if (xBefore === "undefined") {
+        if (typeof xBefore === "undefined") {
             xBefore = 20;
         }
 
-        if (yBefore === "undefined") {
+        if (typeof yBefore === "undefined") {
             yBefore = 20;
         }
 
-        if (scaleBefore === "undefined") {
+        if (typeof scaleBefore === "undefined") {
             setTransform("translate", xBefore, yBefore);
         } else {
             setTransform("scale", scaleBefore, xBefore, yBefore);
@@ -1186,8 +1186,7 @@ $(function () {
             }*/
 
             g.transform("translate(" + translateX + " " + translateY + ") scale(" + scale + " " + scale + ")");
-            // TODO
-            minimapWindow.transform("translate(" + -translateX / ratio + " " + -translateY / ratio + ") scale(" + scale / ratio + " " + scale / ratio + ")");
+            minimapWindow.transform("translate(" + -(translateX/scale) / ratio + " " + -(translateY/scale) / ratio + ") scale(" + 1 / scale  + " " +  1 / scale + ")");
         }
 
         /**
