@@ -95,6 +95,13 @@ html, body {
     display: none;
 }
 
+#color-button {
+    position: absolute;
+    top: 98px;
+    left: 10px;
+    display: none;
+}
+
 #context-menu {
     position: fixed;
     z-index: 10000;
@@ -118,4 +125,13 @@ html, body {
 
 #context-menu .item:hover {
     background: #343434;
+}
+
+:root {
+    --palette-1: #e41a1c;
+    --palette-2: #377eb8;
+    --palette-3: #4daf4a;
+    --palette-4: #984ea3;
+    --palette-5: #ff7f00;
+    --palette-6: #ffff33;
 }

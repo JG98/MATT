@@ -571,13 +571,18 @@ $(function () {
     }
 
     /**
-     * Toggles displaying of the rerooting button
+     * Toggles displaying of the rerooting and coloring button
      */
-    function toggleOutgroupButton() {
+    function toggleOutgroupAndColorButton() {
         if ($("#outgroup-button").css("display") == "none") {
             $("#outgroup-button").css("display", "block");
         } else if ($("#outgroup-button").css("display") == "block") {
             $("#outgroup-button").css("display", "none");
+        }
+        if ($("#color-button").css("display") == "none") {
+            $("#color-button").css("display", "block");
+        } else if ($("#color-button").css("display") == "block") {
+            $("#color-button").css("display", "none");
         }
     }
 
@@ -586,8 +591,8 @@ $(function () {
      * @param data tree informations
      */
     function draw(data) {
-        console.log(data);
         $("#outgroup-button").css("display", "none");
+        $("#color-button").css("display", "none");
 
         xBefore = getTransform("x");
         yBefore = getTransform("y");
@@ -809,7 +814,36 @@ $(function () {
                 }
                 clickedPath = null;
             }
-            toggleOutgroupButton();
+            toggleOutgroupAndColorButton();
+        }
+
+        /**
+         * Handles coloring
+         */
+        function color() {
+            if (context_id != null) {
+                console.log(context_id);
+
+                if (!(enableLengths)) {
+                    data = JSON.parse(trees[counter_of_trees - 1][1]);
+                } else {
+                    data = JSON.parse(trees[counter_of_trees - 1][2]);
+                }
+                data.some(function (item, index, array) {
+                    console.log(item.id, context_id);
+                    if (item.id == context_id) {
+                        color1 = svg.select("path[data-id='" + item.id + "']");
+                        if (color1) {
+                            color1.attr('stroke', $(":root").css("--palette-2"));
+                            //color1.attr('fill', "red");
+                        }
+                        return true;
+                    }
+                });
+
+                context_id = null;
+            }
+            toggleOutgroupAndColorButton();
         }
 
         data.forEach(function (item, index, array) {
@@ -978,7 +1012,7 @@ $(function () {
                                     });
                                 }
                             }
-                            toggleOutgroupButton();
+                            toggleOutgroupAndColorButton();
                             // Both paths are the same
                         } else if ((clickedPath == itemPath) ||
                             // Both paths are neighbors
@@ -1011,7 +1045,7 @@ $(function () {
                                 }
                             }
                             clickedPath = null;
-                            toggleOutgroupButton();
+                            toggleOutgroupAndColorButton();
                         } else {
                             if (counter_of_trees == number_of_trees) {
                                 load("get", {
@@ -1314,7 +1348,15 @@ $(function () {
                 });
                 $("#context-outgroup").click(function (event) {
                     $("#context-menu").removeClass("visible");
-                    outgroup("id");
+                    outgroup();
+                });
+
+                $("color-button").click(function (event) {
+                    color();
+                });
+                $("#context-color").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    color();
                 });
                 buttons_activated = true;
             }
@@ -1339,7 +1381,6 @@ $(function () {
                     if (found) {
                         found.attr('fill', 'red');
                     }
-                    console.log(item, index);
                     if (!(optionsJSON["align-labels"])) {
                         setTransform("translate", -(item["total_length"] * scaleX + offset) + maxWidth / 2, -((index + 1) * scaleY) * scale + maxHeight / 2);
                     } else {
@@ -1622,9 +1663,11 @@ $(function () {
             $("#context-menu").addClass("visible");
             if (event.target.tagName == "path") {
                 $("#context-outgroup").show();
+                $("#context-color").show();
                 context_id = $(event.target).data("id");
             } else {
                 $("#context-outgroup").hide();
+                $("#context-color").hide();
             }
         }
     });
