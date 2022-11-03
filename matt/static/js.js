@@ -1125,8 +1125,8 @@ $(function () {
                 newScale = currentScale - step;
             }
 
-            moveX = currentX;// + (currentX - posX) * (newScale - currentScale);
-            moveY = currentY;// + (currentY - posY) * (newScale - currentScale);
+            moveX = currentX - ((newScale / currentScale) - 1) * (posX - currentX);
+            moveY = currentY - ((newScale / currentScale) - 1) * (posY - currentY);
 
             setTransform("scale", newScale, moveX, moveY);
         }
@@ -1186,7 +1186,7 @@ $(function () {
             }*/
 
             g.transform("translate(" + translateX + " " + translateY + ") scale(" + scale + " " + scale + ")");
-            minimapWindow.transform("translate(" + -(translateX/scale) / ratio + " " + -(translateY/scale) / ratio + ") scale(" + 1 / scale  + " " +  1 / scale + ")");
+            minimapWindow.transform("translate(" + -(translateX / scale) / ratio + " " + -(translateY / scale) / ratio + ") scale(" + (1 / scale)  + " " +  (1 / scale) + ")");
         }
 
         /**
