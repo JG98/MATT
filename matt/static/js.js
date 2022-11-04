@@ -404,8 +404,8 @@ $(function () {
      */
     function description(id, description) {
         $.post("description", {"id": id, "description": description});
-        trees.find(element => element[0] == id)[2] = description;
-        snapshotTrees.find(element => element[0] == id)[2] = description;
+        trees.find(element => element[0] == id)[3] = description;
+        snapshotTrees.find(element => element[0] == id)[3] = description;
         update(JSON.stringify(trees));
         snapshots(snapshotTrees);
     }
@@ -418,7 +418,7 @@ $(function () {
         if (descriptionValue == "") {
             descriptionValue = trees[counter_of_trees - 1][0];
         }
-        trees[counter_of_trees - 1][2] = descriptionValue;
+        trees[counter_of_trees - 1][3] = descriptionValue;
         snapshotTrees.push(trees[counter_of_trees - 1]);
         snapshots(snapshotTrees);
         description(trees[counter_of_trees - 1][0], descriptionValue);
@@ -436,7 +436,7 @@ $(function () {
         $("#snapshots").append('<tbody>');
         data.forEach(function (value) {
             text = '<tr>';
-            text += '<td><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + ((value[2] != "") ? value[2] : value[0]) + '</button></td>';
+            text += '<td><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + ((value[3] != "") ? value[3] : value[0]) + '</button></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-edit-' + value[0] + '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg></button></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-download-' + value[0] + '"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></button></td>';
             text += '</tr>';
@@ -453,7 +453,7 @@ $(function () {
             });
             $("#snapshot-edit-" + value[0]).click(function () {
                 snapshotId = $(this).attr("id").split("-")[2];
-                $("#change-snapshot-label").val(value[2]);
+                $("#change-snapshot-label").val(value[3]);
                 $("#change-modal").modal("show");
                 $("#change-modal").on("shown.bs.modal", function () {
                     $("#change-snapshot-label").focus();
@@ -464,13 +464,21 @@ $(function () {
                     description(snapshotId, newValue);
                     $("#change-modal").modal("hide");
                 });
+                $('#change-snapshot-label').keypress(function (event) {
+                    if (event.which == '13') {
+                        event.preventDefault();
+                        var newValue = $("#change-snapshot-label").val();
+                        description(snapshotId, newValue);
+                        $("#change-modal").modal("hide");
+                    }
+                });
             });
             $("#snapshot-download-" + value[0]).click(function () {
                 snapshotId = $(this).attr("id").split("-")[2];
                 download(snapshotId);
             });
             // TODO no-entries option for tests too?!
-            $("#select-snapshots").append('<option value="' + value[0] + '">' + value[2] + '</option>');
+            $("#select-snapshots").append('<option value="' + value[0] + '">' + value[3] + '</option>');
         });
         $("#snapshots").append('</tbody>');
     }
@@ -480,8 +488,8 @@ $(function () {
      * @param data tree informations
      */
     function tests(data) {
-        $("#info-modal-label").text("Tree topoplogy testing started!")
-        $("#info-modal-body").text("Tree toplogy testing in progress.")
+        $("#info-modal-label").text("Tree topology testing started!")
+        $("#info-modal-body").text("Tree topology testing in progress.")
         $("#info-modal").modal("show");
 
         ids = data["snapshots"];
@@ -519,10 +527,10 @@ $(function () {
                     if (index == 0) {
                         testData[0].push("Initial", "");
                     } else {
-                        testData[0].push(trees.find(element => element[0] == ids[0])[2], "")
+                        testData[0].push(snapshotTrees.find(element => element[0] == ids[0])[3], "")
                     }
                 } else {
-                    testData[0].push(trees.find(element => element[0] == ids[index])[2], "");
+                    testData[0].push(snapshotTrees.find(element => element[0] == ids[index])[3], "");
                 }
                 testData[1].push(parseFloat(value[1]).toFixed(2), "");
                 testData[2].push(parseFloat(value[2]).toFixed(2), "");
