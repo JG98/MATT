@@ -261,7 +261,7 @@ class Tree:
             else:
                 pass  # TODO ?
         else:
-            node = Node(self.node_counter, length, total_length, parent, name=string[:colon])
+            node = Node(self.node_counter, length, total_length, parent, name=string)
             self.node_counter += 1
         return node  # TODO none?
 
