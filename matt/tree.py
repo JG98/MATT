@@ -62,6 +62,7 @@ class Tree:
                 level -= 1
             elif char == "," and level == 0 and last_comma == -1:
                 last_comma = len(newick) - i - 1
+                break
 
         for i, char in enumerate(newick):
             if char == "(":
@@ -80,8 +81,12 @@ class Tree:
                         length = Decimal(1)
                     self.root.l_child = self.make_node_from_newick(
                         "(" + newick[:last_comma] + "):" + str(length), self.root)
-                    self.root.r_child = self.make_node_from_newick(
-                        newick[last_comma + 1:last_colon] + ":" + str(length), self.root)
+                    if last_colon != -1:
+                        self.root.r_child = self.make_node_from_newick(
+                            newick[last_comma + 1:last_colon] + ":" + str(length), self.root)
+                    else:
+                        self.root.r_child = self.make_node_from_newick(
+                            newick[last_comma + 1:] + ":" + str(length), self.root)
                     return
 
     def from_json(self, string, json_args=None):
