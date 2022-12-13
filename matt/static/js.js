@@ -33,6 +33,7 @@ $(function () {
     let counter_of_trees = 0;
     let found = null;
     let context_id;
+    let clicked_id;
 
     $("#logo-main").offset({
         left: maxWidth / 2 - $("#logo-main").width() / 2,
@@ -781,13 +782,15 @@ $(function () {
             } else if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
                 if (counter_of_trees == number_of_trees) {
                     load("get", {
-                        'id': clickedPath.attr("data-id")
+                        'id': clicked_id
                     });
+                    clicked_id = null;
                 } else {
                     load("get", {
-                        'id': clickedPath.attr("data-id"),
+                        'id': clicked_id,
                         'current': counter_of_trees
                     });
+                    clicked_id = null;
                 }
             } else if (clickedPath.attr("data-parent") != 0) {
                 clickedPath.attr({
@@ -961,6 +964,7 @@ $(function () {
                         if (typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath)) {
                             hoveredPath.remove();
                             clickedPath = itemPath;
+                            clicked_id = clickedPath.attr("data-id");
                             itemPath.attr({
                                 strokeOpacity: 0.25
                             });
@@ -992,6 +996,7 @@ $(function () {
                             (clickedPath.attr("data-parent") == itemPath.attr("data-parent")) ||
                             // Second path is the first one's parent
                             (clickedPath.attr("data-parent") == itemPath.attr("data-id"))) {
+
                             hoveredPath.remove();
                             clickedPath.attr({
                                 strokeOpacity: ''

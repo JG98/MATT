@@ -235,6 +235,13 @@ def load():
             tree = Tree(tree, align_labels=align_labels).to_json()
             session["disable_testing"] = True
     elif request.method == "GET":  # TODO post too?
+        if request.args.get("current") is not None:
+            current = request.args.get("current")
+        else:
+            current = None
+        if current is not None:
+            del session["trees"][int(current):]
+            session["tree"] = session["trees"][-1]
         c.execute('SELECT json, json_lengths FROM trees WHERE id = ?', [session["tree"]])
         tree_json, tree_branch_json = c.fetchone()
         if len(request.args) == 0:
@@ -269,13 +276,7 @@ def load():
                 json_args = [request.args.get("from"), request.args.get("to")]
             else:
                 pass  # TODO
-            if request.args.get("current") is not None:
-                current = request.args.get("current")
-            else:
-                current = None
             tree = Tree(tree_json, json_args, align_labels).to_json()
-            if current is not None:
-                del session["trees"][int(current):]
     else:
         pass  # TODO
 
