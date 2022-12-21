@@ -131,10 +131,98 @@ class Tree:
                 if id_node:
                     id_path = self.find_node(id_node)
 
+                    # if id_node is on the first level, do not do anything
                     if id_node.parent.id == "0":
                         return
 
-                self.outgroup_helper(self.root, id_path)
+                    lvl_2 = False
+
+                    # if id_node is on the 2nd level, small changes have to be made
+                    if id_node.parent.parent.id == "0":
+                        lvl_2 = True
+
+                    # id_node becomes new left child of root
+                    old_l_child = self.root.l_child
+                    self.root.l_child = id_node
+                    id_node_parent = id_node.parent
+                    if id_path[-1] == "L":
+                        id_node_parent.l_child = None
+                    elif id_path[-1] == "R":
+                        id_node_parent.r_child = None
+                    id_node.parent = self.root
+                    self.change_children_level(self.root.l_child, -(len(id_path) - 1), True)
+
+                    # id_node's parent becomes new right child of root
+                    if not lvl_2:
+                        old_r_child = self.root.r_child
+                        if id_path[0] == "R":
+                            if id_path[1] == "L":
+                                old_r_child.l_child = None
+                            elif id_path[1] == "R":
+                                old_r_child.r_child = None
+                        self.root.r_child = id_node_parent
+                        next_parent = id_node_parent.parent
+                        if id_path[-2] == "L":
+                            next_parent.l_child = None
+                        elif id_path[-2] == "R":
+                            next_parent.r_child = None
+                        id_node_parent.parent = self.root
+                        self.change_children_level(self.root.r_child, -(len(id_path) - 2), True)
+                    else:
+                        old_r_child = self.root.r_child
+
+                    # all of id_node's parents fill in the gaps from left to right
+                    current_node = self.root.r_child
+                    counter = 0
+                    for direction in id_path[:2:-1]:
+                        counter += 1
+                        next_parent_to_be = next_parent.parent
+                        if id_path[-2 - counter] == "L":
+                            next_parent_to_be.l_child = None
+                        elif id_path[-2 - counter] == "R":
+                            next_parent_to_be.r_child = None
+                        if direction == "L":
+                            current_node.l_child = next_parent
+                            current_node.l_child.parent = current_node
+                            current_node = current_node.l_child
+                        elif direction == "R":
+                            current_node.r_child = next_parent
+                            current_node.r_child.parent = current_node
+                            current_node = current_node.r_child
+                        next_parent = next_parent_to_be
+                        self.change_children_level(current_node, -(len(id_path) - 2 - counter * 2), True)
+
+                    # id_node's upper most ancestor fills the second to last gap
+                    if id_path[0] == "L":
+                        old_new_node = old_l_child
+                        last_node = old_r_child
+                    elif id_path[0] == "R":
+                        old_new_node = old_r_child
+                        last_node = old_l_child
+
+                    if not lvl_2:
+                        if id_path[2] == "L":
+                            current_node.l_child = old_new_node
+                            old_new_node.parent = current_node
+                            current_node = current_node.l_child
+                        elif id_path[2] == "R":
+                            current_node.r_child = old_new_node
+                            old_new_node.parent = current_node
+                            current_node = current_node.r_child
+                        self.change_children_level(current_node, len(id_path) - 2, True)
+                    else:
+                        self.root.r_child = old_new_node
+                        old_new_node.parent = self.root
+                        current_node = self.root.r_child
+
+                    # its neighbor fills the last gap
+                    if id_path[1] == "L":
+                        current_node.l_child = last_node
+                        last_node.parent = current_node
+                    elif id_path[1] == "R":
+                        current_node.r_child = last_node
+                        last_node.parent = current_node
+                    self.change_children_level(last_node, len(id_path) - 1, True)
 
             elif len(json_args) == 2:
                 # REHANG
@@ -404,64 +492,3 @@ class Tree:
             else:  # TODO
                 pass
         return node
-
-    def outgroup_helper(self, node, id_path):
-        """
-        Helper function for rebuilding after rerooting
-        :param node: node in current recursion
-        :param id_path: path to new root
-        :return: None
-        """
-        # TODO LENGTH HANDLING WHEN LENGTHS ARE NOT DISABLED
-
-        l_child = node.l_child
-        r_child = node.r_child
-        l_path = self.find_node(l_child)
-        r_path = self.find_node(r_child)
-
-        level = len(l_path) - 1
-
-        if l_path == id_path or r_path == id_path:
-            return
-
-        swap_node = self.get_node(id_path)
-        if level > 0:
-            current_node = swap_node
-            for i in range(1, level):
-                current_node = current_node.parent
-            if current_node.parent.l_child == current_node:
-                swap_node = current_node.parent.r_child
-            else:
-                swap_node = current_node.parent.l_child
-        swap_path = self.find_node(swap_node)
-        swap_level = len(swap_path) - 1
-
-        if id_path[level] == "R":
-            tmp_node = swap_node.parent
-            swap_node.parent = node
-            l_child.parent = tmp_node
-            node.l_child = swap_node
-            if swap_path[-1] == "L":
-                tmp_node.l_child = l_child
-            else:
-                tmp_node.r_child = l_child
-            if not self.enable_lengths:
-                self.change_children_level(node.l_child, -(swap_level - level), True)
-                self.change_children_level(l_child, (swap_level - level), True)
-            if r_child:
-                self.outgroup_helper(r_child, id_path)
-        elif id_path[level] == "L":
-            tmp_node = swap_node.parent
-            swap_node.parent = node
-            r_child.parent = tmp_node
-            node.r_child = swap_node
-            if swap_path[-1] == "L":
-                tmp_node.l_child = r_child
-            else:
-                tmp_node.r_child = r_child
-            if not self.enable_lengths:
-                self.change_children_level(node.r_child, -(swap_level - level), True)
-                self.change_children_level(r_child, (swap_level - level), True)
-            if l_child:
-                self.outgroup_helper(l_child, id_path)
-        return
