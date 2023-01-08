@@ -34,6 +34,9 @@ $(function () {
     let found = null;
     let context_id;
     let clicked_id;
+    let hoveredPath;
+    let clickedPath;
+    let nameText;
 
     $("#logo-main").offset({
         left: maxWidth / 2 - $("#logo-main").width() / 2,
@@ -765,11 +768,6 @@ $(function () {
 
         //let paths = [];
 
-        let hoveredPath;
-        let hoveredLine;
-        let clickedPath;
-        let nameText;
-
         /**
          * Handles rerooting
          */
@@ -785,12 +783,14 @@ $(function () {
                         'id': clicked_id
                     });
                     clicked_id = null;
+                    clickedPath = null;
                 } else {
                     load("get", {
                         'id': clicked_id,
                         'current': counter_of_trees
                     });
                     clicked_id = null;
+                    clickedPath = null;
                 }
             } else if (clickedPath.attr("data-parent") != 0) {
                 clickedPath.attr({
@@ -817,6 +817,7 @@ $(function () {
                         });
                     }
                 }
+                clicked_id = null;
                 clickedPath = null;
             }
             toggleOutgroupButton();
@@ -1022,6 +1023,7 @@ $(function () {
                                     });
                                 }
                             }
+                            clicked_id = null;
                             clickedPath = null;
                             toggleOutgroupButton();
                         } else {
@@ -1030,12 +1032,16 @@ $(function () {
                                     'from': clickedPath.attr("data-id"),
                                     'to': itemPath.attr("data-id")
                                 });
+                                clicked_id = null;
+                                clickedPath = null;
                             } else {
                                 load("get", {
                                     'from': clickedPath.attr("data-id"),
                                     'to': itemPath.attr("data-id"),
                                     'current': counter_of_trees
                                 });
+                                clicked_id = null;
+                                clickedPath = null;
                             }
                         }
                     });
