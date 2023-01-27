@@ -105,7 +105,7 @@ $(function () {
         }
 
         /**
-         * Sens the alignment and/or tree to the backend
+         * Sends the alignment and/or tree to the backend
          */
         function sendAlignmentAndTree() {
             if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
@@ -362,7 +362,11 @@ $(function () {
         if (counter_of_trees == number_of_trees) {
             $("#redo-button").prop("disabled", true);
         }
-        console.log(trees);
+        // TODO This should be toggleable in options
+        if (snapshotTrees.length == 0) {
+            snapshotTrees.push(trees[counter_of_trees - 1]);
+            description(trees[counter_of_trees - 1][0], "Original");
+        }
         if (typeof xhr !== "undefined" && xhr.getResponseHeader("Length")) {
             draw(JSON.parse(trees[counter_of_trees - 1][2]));
         } else {
@@ -415,16 +419,20 @@ $(function () {
     }
 
     /**
-     * Gets the description and sends it to the snapthots and description functions
+     * Gets the description, saves it and calls the description function
      */
     function save() {
+        if (snapshotTrees.find(element => element[0] == trees[counter_of_trees - 1][0])) {
+            $("#info-modal-label").text("This snapshot already exists!")
+            $("#info-modal-body").text("This tree has already been snapshot.")
+            $("#info-modal").modal("show");
+            return;
+        }
         descriptionValue = $("#snapshot-label").val();
         if (descriptionValue == "") {
             descriptionValue = trees[counter_of_trees - 1][0];
         }
-        trees[counter_of_trees - 1][3] = descriptionValue;
         snapshotTrees.push(trees[counter_of_trees - 1]);
-        snapshots(snapshotTrees);
         description(trees[counter_of_trees - 1][0], descriptionValue);
     }
 
@@ -774,24 +782,17 @@ $(function () {
         function outgroup() {
             if (context_id != null) {
                 load("get", {
-                    'id': context_id
+                    'id': context_id,
+                    'current': counter_of_trees
                 });
                 context_id = null;
             } else if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
-                if (counter_of_trees == number_of_trees) {
-                    load("get", {
-                        'id': clicked_id
-                    });
-                    clicked_id = null;
-                    clickedPath = null;
-                } else {
-                    load("get", {
-                        'id': clicked_id,
-                        'current': counter_of_trees
-                    });
-                    clicked_id = null;
-                    clickedPath = null;
-                }
+                load("get", {
+                    'id': clicked_id,
+                    'current': counter_of_trees
+                });
+                clicked_id = null;
+                clickedPath = null;
             } else if (clickedPath.attr("data-parent") != 0) {
                 clickedPath.attr({
                     strokeOpacity: ''
@@ -1268,6 +1269,12 @@ $(function () {
 
                 $("#save-button").click(function (event) {
                     $("#snapshot-label").val("");
+                    if (snapshotTrees.find(element => element[0] == trees[counter_of_trees - 1][0])) {
+                        $("#info-modal-label").text("This snapshot already exists!")
+                        $("#info-modal-body").text("This tree has already been snapshot.")
+                        $("#info-modal").modal("show");
+                        return;
+                    }
                     $("#save-modal").modal("show");
                     $("#save-modal").on("shown.bs.modal", function () {
                         $("#snapshot-label").focus();
@@ -1276,6 +1283,12 @@ $(function () {
                 $("#context-save").click(function (event) {
                     $("#context-menu").removeClass("visible");
                     $("#snapshot-label").val("");
+                    if (snapshotTrees.find(element => element[0] == trees[counter_of_trees - 1][0])) {
+                        $("#info-modal-label").text("This snapshot already exists!")
+                        $("#info-modal-body").text("This tree has already been snapshot.")
+                        $("#info-modal").modal("show");
+                        return;
+                    }
                     $("#save-modal").modal("show");
                     $("#save-modal").on("shown.bs.modal", function () {
                         $("#snapshot-label").focus();
@@ -1349,21 +1362,16 @@ $(function () {
             } else {
                 data = JSON.parse(trees[counter_of_trees - 1][2]);
             }
-            data.some(function (item, index, array) {
-                if (item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
-                    if (found) {
-                        found.attr('fill', null);
-                    }
-                    found = svg.select("text[data-id='" + item.id + "']");
-                    if (found) {
-                        found.attr('fill', 'red');
-                    }
+            data.forEach(function(item, index, array) {
+                if (typeof item.name !== 'undefined' && item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
+                    svg.select("text[data-id='" + item.id + "']").attr('fill', 'red');
                     if (!(optionsJSON["align-labels"])) {
                         setTransform("translate", -(item["total_length"] * scaleX + offset) + maxWidth / 2, -((index + 1) * scaleY) * scale + maxHeight / 2);
                     } else {
                         setTransform("translate", -(maxX - offset) * scale + maxWidth / 2, -((index + 1) * scaleY) * scale + maxHeight / 2);
                     }
-                    return true;
+                } else if (typeof item.name !== 'undefined' && item.name != "None") {
+                    svg.select("text[data-id='" + item.id + "']").attr('fill', null);
                 }
             });
         }
