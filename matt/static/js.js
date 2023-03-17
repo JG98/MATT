@@ -250,7 +250,7 @@ $(function () {
      */
     $("#test-snapshots").click(function () {
         var snapshots = [];
-        $.each($("#select-snapshots option:selected"), function () {
+        $.each($("#snapshots input:checked"), function () {
             snapshots.push($(this).val());
         });
         if (snapshots.length != 0) {
@@ -443,11 +443,11 @@ $(function () {
     function snapshots(data) {
         $("#no-entries").remove();
         $("#snapshots").empty();
-        $("#select-snapshots").empty();
-        $("#snapshots").append('<thead><tr><th>Name</th><th>Change Name</th><th>Download</th></tr></thead>');
+        $("#snapshots").append('<thead><tr><th>Select</th><th>Name</th><th>Change Name</th><th>Download</th></tr></thead>');
         $("#snapshots").append('<tbody>');
         data.forEach(function (value) {
             text = '<tr>';
+            text += '<td class="snapshots-table-checkbox"><input type="checkbox" value="' + value[0] + '"></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-' + value[0] + '">' + ((value[3] != "") ? value[3] : value[0]) + '</button></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-edit-' + value[0] + '"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg></button></td>';
             text += '<td><button type="button" class="btn btn-link" id="snapshot-download-' + value[0] + '"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></button></td>';
@@ -489,8 +489,6 @@ $(function () {
                 snapshotId = $(this).attr("id").split("-")[2];
                 download(snapshotId);
             });
-            // TODO no-entries option for tests too?!
-            $("#select-snapshots").append('<option value="' + value[0] + '">' + value[3] + '</option>');
         });
         $("#snapshots").append('</tbody>');
     }
@@ -517,67 +515,33 @@ $(function () {
 
             data = JSON.parse(data);
 
-            var testData = new Array(10);
-
-            for (var i = 0; i < testData.length; i++) {
-                testData[i] = new Array();
-            }
-
-            testData[0].push('#');
-            testData[1].push('logL');
-            testData[2].push('<a href="#" title="deltaL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="logL difference from the maximal logL in the set">deltaL</a>');
-            testData[3].push('<a href="#" title="bp-RELL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="bootstrap proportion using <a href=\'https://doi.org/10.1007/BF02109483\' target=\'_blank\'>RELL method (Kishino et al. 1990)</a>">bp-RELL</a>');
-            testData[4].push('<a href="#" title="p-KH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of one sided <a href=\'https://doi.org/10.1007/BF02100115\' target=\'_blank\'>Kishino-Hasegawa test (1989)</a>">p-KH</a>');
-            testData[5].push('<a href="#" title="p-SH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1093/oxfordjournals.molbev.a026201\' target=\'_blank\'>Shimodaira-Hasegawa test (1999)</a>">p-SH</a>');
-            testData[6].push('<a href="#" title="p-WKH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href=\'https://doi.org/10.1007/BF02100115\' target=\'_blank\'>KH</a>">p-WKH</a>');
-            testData[7].push('<a href="#" title="p-WSH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href=\'https://doi.org/10.1093/oxfordjournals.molbev.a026201\' target=\'_blank\'>SH</a>">p-WSH</a>');
-            testData[8].push('<a href="#" title="c-ELW" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="Expected Likelihood Weight <a href=\'https://doi.org/10.1098/rspb.2001.1862\' target=\'_blank\'>(Strimmer & Rambaut 2002)</a>">c-ELW</a>');
-            testData[9].push('<a href="#" title="p-AU" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href=\'https://doi.org/10.1080/10635150290069913\' target=\'_blank\'>approximately unbiased (AU) test (Shimodaira, 2002)</a>">p-AU</a>');
-
+            $("#tests").empty();
             data.forEach(function (value, index) {
+                let row = '';
+                row += '<tr>';
                 if (ids.length == 1) {
                     if (index == 0) {
-                        testData[0].push("Initial", "");
+                        row += '<td>Original</td>';
                     } else {
-                        testData[0].push(snapshotTrees.find(element => element[0] == ids[0])[3], "")
+                        row += '<td>' + snapshotTrees.find(element => element[0] == ids[0])[3] + '</td>';
                     }
                 } else {
-                    testData[0].push(snapshotTrees.find(element => element[0] == ids[index])[3], "");
+                    row += '<td>' + snapshotTrees.find(element => element[0] == ids[index])[3] + '</td>';
                 }
-                testData[1].push(parseFloat(value[1]).toFixed(2), "");
-                testData[2].push(parseFloat(value[2]).toFixed(2), "");
-                testData[3].push(value[3], value[4]);
-                testData[4].push(value[5], value[6]);
-                testData[5].push(value[7], value[8]);
-                testData[6].push(value[9], value[10]);
-                testData[7].push(value[11], value[12]);
-                testData[8].push(value[13], value[14]);
-                testData[9].push(value[15], value[16]);
+                row += '<td>' + parseFloat(value[1]).toFixed(2) + '</td>';
+                row += '<td>' + parseFloat(value[2]).toFixed(2) + '</td>';
+                row += '<td>' + value[3] + ' (' + value[4] + ')' + '</td>';
+                row += '<td>' + value[5] + ' (' + value[6] + ')' + '</td>';
+                row += '<td>' + value[7] + ' (' + value[8] + ')' + '</td>';
+                row += '<td>' + value[9] + ' (' + value[10] + ')' + '</td>';
+                row += '<td>' + value[11] + ' (' + value[12] + ')' + '</td>';
+                row += '<td>' + value[13] + ' (' + value[14] + ')' + '</td>';
+                row += '<td>' + value[15] + ' (' + value[16] + ')' + '</td>';
+                row += '</tr>';
+                $("#tests").append(row);
             });
-
-            $("#tests").empty();
-
-            for (var i = 0; i < testData.length; i++) {
-                if (i == 0) {
-                    start = "<thead><tr>";
-                    end = "</tr></thead>";
-                    first = true;
-                } else {
-                    start = "<tbody><tr>";
-                    end = "</tr></tbody>";
-                    first = false;
-                }
-                $("#tests").append(start);
-                for (var j = 0; j < testData[i].length; j++) {
-                    if (j == 0 || first) {
-                        $("#tests").append('<th>' + testData[i][j] + '</th>');
-                    } else {
-                        $("#tests").append('<td>' + testData[i][j] + '</td>');
-                    }
-                }
-                $("#tests").append(end);
-                $('[data-toggle="popover"]').popover();
-            }
+            $("#test-modal").modal("show");
+            $('[data-toggle="popover"]').popover();
         });
     }
 
@@ -1436,13 +1400,11 @@ $(function () {
         onOffBtn1 = "off";
         onOffBtn2 = "off";
         onOffBtn3 = "off";
-        onOffBtn4 = "off";
         exnum = 0;
         num = 0;
         $("#tab1").hide("fast");
         $("#tab2").hide("fast");
         $("#tab3").hide("fast");
-        $("#tab4").hide("fast");
     });
 
     /**
@@ -1454,7 +1416,6 @@ $(function () {
             case "off": {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
-                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "on";
@@ -1464,7 +1425,6 @@ $(function () {
             case "on": {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
-                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
@@ -1482,7 +1442,6 @@ $(function () {
             case "off": {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
-                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "on";
                 onOffBtn1 = "off";
@@ -1492,7 +1451,6 @@ $(function () {
             case "on": {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
-                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
@@ -1510,7 +1468,6 @@ $(function () {
             case "off": {
                 $("#tab" + exnum).hide("fast");
                 $("#tab" + num).show("fast");
-                onOffBtn4 = "off";
                 onOffBtn3 = "on";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";
@@ -1520,35 +1477,6 @@ $(function () {
             case "on": {
                 $("#tab" + num).hide("fast");
                 $("#tab" + exnum).hide("fast");
-                onOffBtn4 = "off";
-                onOffBtn3 = "off";
-                onOffBtn2 = "off";
-                onOffBtn1 = "off";
-                break;
-            }
-        }
-    });
-
-    /**
-     * Handles the clicking of the tests tab
-     */
-    $("#btn4").click(function () {
-        num = 4;
-        switch (onOffBtn4) {
-            case "off": {
-                $("#tab" + exnum).hide("fast");
-                $("#tab" + num).show("fast");
-                onOffBtn4 = "on";
-                onOffBtn3 = "off";
-                onOffBtn2 = "off";
-                onOffBtn1 = "off";
-                exnum = 4;
-                break;
-            }
-            case "on": {
-                $("#tab" + num).hide("fast");
-                $("#tab" + exnum).hide("fast");
-                onOffBtn4 = "off";
                 onOffBtn3 = "off";
                 onOffBtn2 = "off";
                 onOffBtn1 = "off";

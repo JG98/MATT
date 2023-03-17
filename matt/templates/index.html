@@ -93,7 +93,6 @@
                     <button id="btn1" class="btnTab btn btn-dark">Overview</button>
                     <button id="btn2" class="btnTab btn btn-dark">Options</button>
                     <button id="btn3" class="btnTab btn btn-dark">Snapshots</button>
-                    <button id="btn4" class="btnTab btn btn-dark">Tests</button>
                 </div>
                 <div id="tab1" class="tabs comp">
                     <div id="logo-slide" class="text-center">
@@ -303,19 +302,9 @@
                     <div id="no-entries">No entries yet!</div>
                     <table class="table" id="snapshots">
                     </table>
-                </div>
-                <div id="tab4" class="tabs comp">
-                    <h3>Tests</h3>
-                    <p></p>
-                    <div class="form-group">
-                        <label for="select-snapshots">Select the snapshots you want to test</label>
-                        <select multiple class="form-control" id="select-snapshots"></select>
-                    </div>
                     <input type="button" class="btn btn-primary" id="test-snapshots" value="Test Snapshots" disabled>
                     <p></p>
                     <p id="testing-disabled-message">When no alignment is provided, testing is disabled!</p>
-                    <table class="table" id="tests">
-                    </table>
                 </div>
             </div>
         </div>
@@ -398,6 +387,39 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" id="change-modal-button">Change snapshot name</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="test-modal" tabindex="-1" role="dialog" aria-labelledby="info-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="test-modal-label">Test results</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div id="test-modal-body" class="modal-body">
+                        <table class="table tests-results">
+                            <thead>
+                                <th>Snapshot</th>
+                                <th>logL</th>
+                                <th><a href="#" title="deltaL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="logL difference from the maximal logL in the set">deltaL</a></th>
+                                <th><a href="#" title="bp-RELL" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="bootstrap proportion using <a href='https://doi.org/10.1007/BF02109483' target='_blank'>RELL method (Kishino et al. 1990)</a>">bp-RELL</a></th>
+                                <th><a href="#" title="p-KH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of one sided <a href='https://doi.org/10.1007/BF02100115' target='_blank'>Kishino-Hasegawa test (1989)</a>">p-KH</a></th>
+                                <th><a href="#" title="p-SH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href='https://doi.org/10.1093/oxfordjournals.molbev.a026201' target='_blank'>Shimodaira-Hasegawa test (1999)</a>">p-SH</a></th>
+                                <th><a href="#" title="p-WKH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href='https://doi.org/10.1007/BF02100115' target='_blank'>KH</a>">p-WKH</a></th>
+                                <th><a href="#" title="p-WSH" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of weighted <a href='https://doi.org/10.1093/oxfordjournals.molbev.a026201' target='_blank'>SH</a>">p-WSH</a></th>
+                                <th><a href="#" title="c-ELW" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="Expected Likelihood Weight <a href='https://doi.org/10.1098/rspb.2001.1862' target='_blank'>(Strimmer & Rambaut 2002)</a>">c-ELW</a></th>
+                                <th><a href="#" title="p-AU" data-toggle="popover" data-trigger="focus" data-placement="left" data-html="true" data-content="p-value of <a href='https://doi.org/10.1080/10635150290069913' target='_blank'>approximately unbiased (AU) test (Shimodaira, 2002)</a>">p-AU</a></th>
+                            </thead>
+                            <tbody id="tests">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
