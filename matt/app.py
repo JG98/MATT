@@ -42,6 +42,8 @@ os.chmod(os.path.join(app_location, "bin", "iqtree" + addition), 0o755)
 config = configparser.ConfigParser()
 config_path = os.path.join(root_folder, "config.ini")
 
+jobs = {}
+
 
 @app.route("/", methods=["GET"])
 def home():
@@ -413,23 +415,72 @@ def tests():
             if protein_rhas != "-":
                 model += "+" + protein_rhas
     print("Starting IQTree. This could take some time!")
-    sp = subprocess.run(
+    sp = subprocess.Popen(
         [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"], "alignment.phy"),
          "-z",
-         path, "-n", "0", "-zb", "10000", "-zw", "-au", "-m", model, "-redo"])  # TODO capture_output=True
-    print(sp)
-    results = []
-    path = os.path.join(session["working-directory"], "alignment.phy.iqtree")
-    file = open(path, "r")
-    for line in file:
-        if line.startswith(
-                "-------------------------------------------------------------------------------------------"):
-            for j in range(len(snapshots)):
-                results.append(next(file).strip().split())
-    file.close()
-    response = make_response(dumps(results))
+         path, "-n", "0", "-zb", "10000", "-zw", "-au", "-m", model, "-redo"], stdout=subprocess.PIPE)
+    key = str(sp.__hash__())
+    jobs[key] = 0
+    thread = threading.Thread(target=testsupdate, args=[sp])
+    thread.start()
+    response = make_response(str(key))
     response.headers["Cache-Control"] = "no-store"
     return response
+
+
+@app.route("/testsresults/<job_id>", methods=["GET"])
+def testsresults(job_id):
+    """
+    Gets the test results of the given test
+    :param job_id: id of job of the test
+    :return: response
+    """
+    if job_id not in jobs:
+        response = make_response("NO")
+        response.headers["Cache-Control"] = "no-store"
+        return response
+    if jobs[job_id] != 120:
+        response = make_response(str(jobs[job_id]))
+        response.headers["Cache-Control"] = "no-store"
+        return response
+    else:
+        results = []
+        path = os.path.join(session["working-directory"], "alignment.phy.iqtree")
+        file = open(path, "r")
+        for line in file:
+            if line.startswith(
+                    "-------------------------------------------------------------------------------------------"):
+                while (result_line := next(file)) != "\n":
+                    results.append(result_line.strip().split())
+        file.close()
+        response = make_response(dumps(results))
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+
+def testsupdate(sp):
+    """
+    Updates the progress of the given test
+    :param sp: subprocess performing the tests
+    :return: None
+    """
+    key = str(sp.__hash__())
+    while True:
+        line = sp.stdout.readline().decode("utf-8")
+        if not line:
+            break
+        if line.startswith("Reading alignment file"):
+            jobs[key] = 20
+        elif line.startswith("Create initial"):
+            jobs[key] = 40
+        elif line.startswith("Reading trees"):
+            jobs[key] = 60
+        elif line.startswith("Creating 10000 bootstrap replicates"):
+            jobs[key] = 80
+        elif line.startswith("Analysis results"):
+            jobs[key] = 100
+        elif line.startswith("Date and Time"):
+            jobs[key] = 120
 
 """
 def compute_branch_lengths():
@@ -450,6 +501,7 @@ def compute_branch_lengths():
         tree = tree_file.readline()
     tree = Tree(tree[:-1], enable_lengths=enable_lengths, align_labels=align_labels).to_json()
 """
+
 
 def set_default_config():
     """

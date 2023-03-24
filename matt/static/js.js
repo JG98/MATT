@@ -37,6 +37,7 @@ $(function () {
     let hoveredPath;
     let clickedPath;
     let nameText;
+    let interval;
 
     $("#logo-main").offset({
         left: maxWidth / 2 - $("#logo-main").width() / 2,
@@ -494,54 +495,81 @@ $(function () {
     }
 
     /**
-     * Requests and prints the test results
+     * Requests the test results
      * @param data tree informations
      */
     function tests(data) {
         $("#info-modal-label").text("Tree topology testing started!")
         $("#info-modal-body").text("Tree topology testing in progress.")
+        $("#info-modal-body").append('<div id="progress-bar-wrapper" class="progress"><div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div></div>');
         $("#info-modal").modal("show");
 
         ids = data["snapshots"];
 
         $.post("tests", data, function (data) {
-            $("#info-modal").modal("hide");
             if (data == "NO") {
                 $("#info-modal-label").text("Initial tree selected!")
                 $("#info-modal-body").text("When selecting only one tree, please do not select the initially provided tree!")
                 $("#info-modal").modal("show");
                 return;
             }
+            interval = window.setInterval(function () {
+                check_test_progress(data);
+            }, 500);
+        });
+    }
 
-            data = JSON.parse(data);
+    /** Checks the progress of the test results and shows them when they are ready
+     * @param data the id of the test job
+     */
+    function check_test_progress(data) {
+        $.get("testsresults/" + data, "", function (data) {
+            if(data == "NO") {
+                window.clearInterval(interval);
+                $("#progress-bar-wrapper").remove();
+                $("#info-modal-label").text("Something went wrong!")
+                $("#info-modal-body").text("Please try again!")
+                $("#info-modal").modal("show");
+                return;
+            }
+            if (["20", "40", "60", "80", "100"].includes(data)) {
+                $("#progress-bar").css("width", data + "%");
+            } else {
+                window.clearInterval(interval);
+                $("#progress-bar-wrapper").remove();
 
-            $("#tests").empty();
-            data.forEach(function (value, index) {
-                let row = '';
-                row += '<tr>';
-                if (ids.length == 1) {
-                    if (index == 0) {
-                        row += '<td>Original</td>';
+                $("#info-modal").modal("hide");
+
+                data = JSON.parse(data);
+
+                $("#tests").empty();
+                data.forEach(function (value, index) {
+                    let row = '';
+                    row += '<tr>';
+                    if (ids.length == 1) {
+                        if (index == 0) {
+                            row += '<td>Original</td>';
+                        } else {
+                            row += '<td>' + snapshotTrees.find(element => element[0] == ids[0])[3] + '</td>';
+                        }
                     } else {
-                        row += '<td>' + snapshotTrees.find(element => element[0] == ids[0])[3] + '</td>';
+                        row += '<td>' + snapshotTrees.find(element => element[0] == ids[index])[3] + '</td>';
                     }
-                } else {
-                    row += '<td>' + snapshotTrees.find(element => element[0] == ids[index])[3] + '</td>';
-                }
-                row += '<td>' + parseFloat(value[1]).toFixed(2) + '</td>';
-                row += '<td>' + parseFloat(value[2]).toFixed(2) + '</td>';
-                row += '<td>' + value[3] + ' (' + value[4] + ')' + '</td>';
-                row += '<td>' + value[5] + ' (' + value[6] + ')' + '</td>';
-                row += '<td>' + value[7] + ' (' + value[8] + ')' + '</td>';
-                row += '<td>' + value[9] + ' (' + value[10] + ')' + '</td>';
-                row += '<td>' + value[11] + ' (' + value[12] + ')' + '</td>';
-                row += '<td>' + value[13] + ' (' + value[14] + ')' + '</td>';
-                row += '<td>' + value[15] + ' (' + value[16] + ')' + '</td>';
-                row += '</tr>';
-                $("#tests").append(row);
-            });
-            $("#test-modal").modal("show");
-            $('[data-toggle="popover"]').popover();
+                    row += '<td>' + parseFloat(value[1]).toFixed(2) + '</td>';
+                    row += '<td>' + parseFloat(value[2]).toFixed(2) + '</td>';
+                    row += '<td>' + value[3] + ' (' + value[4] + ')' + '</td>';
+                    row += '<td>' + value[5] + ' (' + value[6] + ')' + '</td>';
+                    row += '<td>' + value[7] + ' (' + value[8] + ')' + '</td>';
+                    row += '<td>' + value[9] + ' (' + value[10] + ')' + '</td>';
+                    row += '<td>' + value[11] + ' (' + value[12] + ')' + '</td>';
+                    row += '<td>' + value[13] + ' (' + value[14] + ')' + '</td>';
+                    row += '<td>' + value[15] + ' (' + value[16] + ')' + '</td>';
+                    row += '</tr>';
+                    $("#tests").append(row);
+                });
+                $("#test-modal").modal("show");
+                $('[data-toggle="popover"]').popover();
+            }
         });
     }
 
