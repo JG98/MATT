@@ -71,7 +71,6 @@ def get_options():
     while not config.has_section("Options"):
         set_default_config()
     else:
-        align_labels = config.getboolean("Options", "align-labels")
         working_directory = config.get("Options", "working-directory")
         dna_protein = config.get("Options", "dna-protein")
         dna_bsr = config.get("Options", "dna-bsr")
@@ -81,8 +80,7 @@ def get_options():
         protein_pmm = config.get("Options", "protein-pmm")
         protein_aaf = config.get("Options", "protein-aaf")
         protein_rhas = config.get("Options", "protein-rhas")
-    options = dumps({"align_labels": align_labels,
-                     "working_directory": working_directory,
+    options = dumps({"working_directory": working_directory,
                      "dna_protein": dna_protein,
                      "dna_bsr": dna_bsr,
                      "dna_bf": dna_bf,
@@ -187,7 +185,6 @@ def load():
     while not config.has_section("Options"):
         set_default_config()
     else:
-        align_labels = config.getboolean("Options", "align-labels")
         working_directory = config.get("Options", "working-directory")
         dna_protein = config.get("Options", "dna-protein")
         if dna_protein == "dna":
@@ -238,8 +235,8 @@ def load():
             with open(os.path.join(session["working-directory"], "alignment.phy"), "w") as alignment_file:
                 alignment_file.write(alignment)
             if tree.find(":") != -1:
-                tree_lengths = Tree(tree, align_labels=align_labels, enable_lengths=True).to_json()
-            tree = Tree(tree, align_labels=align_labels).to_json()
+                tree_lengths = Tree(tree, enable_lengths=True).to_json()
+            tree = Tree(tree).to_json()
             session["disable_testing"] = False
         elif alignment is not None:  # Case 2, only alignment given, construct ml-tree
             with open(os.path.join(session["working-directory"], "alignment.phy"), "w") as alignment_file:
@@ -258,13 +255,13 @@ def load():
                 print(sp)
             with open(os.path.join(session["working-directory"], "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
-            tree_lengths = Tree(tree[:-1], align_labels=align_labels, enable_lengths=True).to_json()
-            tree = Tree(tree[:-1], align_labels=align_labels).to_json()
+            tree_lengths = Tree(tree[:-1], enable_lengths=True).to_json()
+            tree = Tree(tree[:-1]).to_json()
             session["disable_testing"] = False
         elif tree is not None:  # Case 3, only tree given, disable testing
             if tree.find(":") != -1:
-                tree_lengths = Tree(tree, align_labels=align_labels, enable_lengths=True).to_json()
-            tree = Tree(tree, align_labels=align_labels).to_json()
+                tree_lengths = Tree(tree, enable_lengths=True).to_json()
+            tree = Tree(tree).to_json()
             session["disable_testing"] = True
     elif request.method == "GET":  # TODO post too?
         if request.args.get("current") is not None:
@@ -280,9 +277,9 @@ def load():
             json_args = None
         if request.args.get("lengths") is not None:
             if tree_branch_json is not None:
-                tree = Tree(tree_branch_json, align_labels=align_labels).to_json()
+                tree = Tree(tree_branch_json).to_json()
             else:
-                tree = Tree(tree_json, align_labels=align_labels, enable_lengths=True).to_newick(True)
+                tree = Tree(tree_json, enable_lengths=True).to_newick(True)
                 path = os.path.join(session["working-directory"], "tree.nck")
                 file = open(path, "w")
                 file.write(tree + "\n")
@@ -298,9 +295,9 @@ def load():
                 with open(os.path.join(session["working-directory"], "alignment.phy.treefile"), "r") as tree_file:
                     tree = tree_file.readline()
                 if request.args.get("lengths") == "enabled":
-                    tree = Tree(tree[:-1], align_labels=align_labels, enable_lengths=True).to_json()
+                    tree = Tree(tree[:-1], enable_lengths=True).to_json()
                 else:
-                    tree = Tree(tree[:-1], align_labels=align_labels, enable_lengths=False).to_json()
+                    tree = Tree(tree[:-1], enable_lengths=False).to_json()
         else:
             if request.args.get("id") is not None:
                 json_args = [request.args.get("id")]
@@ -308,7 +305,7 @@ def load():
                 json_args = [request.args.get("from"), request.args.get("to")]
             else:
                 pass  # TODO
-            tree = Tree(tree_json, json_args, align_labels).to_json()
+            tree = Tree(tree_json, json_args).to_json()
     else:
         pass  # TODO
 
@@ -360,7 +357,6 @@ def options():
     while not config.has_section("Options"):
         set_default_config()
     else:
-        config.set("Options", "align-labels", request.form.get("align-labels"))
         config.set("Options", "working-directory", request.form.get("working-directory"))
 
     if request.form.get("dna-protein") == "dna" or request.form.get("dna-protein") == "protein":
@@ -522,7 +518,6 @@ def set_default_config():
     :return: None
     """
     config["Options"] = {
-        'align-labels': 'true',
         'working-directory': '',
         'dna-protein': 'dna',
         'dna-bsr': 'GTR',

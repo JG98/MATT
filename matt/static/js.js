@@ -38,6 +38,8 @@ $(function () {
     let clickedPath;
     let nameText;
     let interval;
+    let enableLengths;
+    let alignLabels = true;
 
     $("#logo-main").offset({
         left: maxWidth / 2 - $("#logo-main").width() / 2,
@@ -204,7 +206,6 @@ $(function () {
     $("#example-import").click(function () {
         $("#dna").trigger("click");
         optionsJSON = {
-            "align-labels": $("#align-labels")[0].checked,
             "working-directory": $("#working-directory").val()
         }
         if (dnaProtein == "dna") {
@@ -228,7 +229,6 @@ $(function () {
      */
     $("#save-options").click(function () {
         optionsJSON = {
-            "align-labels": $("#align-labels")[0].checked,
             "working-directory": $("#working-directory").val()
         }
         if (dnaProtein == "dna") {
@@ -293,11 +293,6 @@ $(function () {
     function getOptions() {
         $.get("get-options", "", function (data) {
             data = JSON.parse(data);
-            if (data["align_labels"]) {
-                $("#align-labels").prop("checked", true);
-            } else {
-                $("#align-labels").prop("checked", false);
-            }
             $("#working-directory").val(data["working_directory"])
             if (data["dna_protein"] == "dna") {
                 dnaProtein = "dna";
@@ -622,7 +617,6 @@ $(function () {
 
         enableLengths = extraData["enable_lengths"];
 
-        alignLabels = extraData["align_labels"];
         maxLength = extraData["max_length"];
         longestName = extraData["longest_name"];
 
@@ -648,11 +642,7 @@ $(function () {
         svg.remove();
         //svg = Snap(((scaleX * maxLength) + (2.5 * offset) + longestNameWidth), (scaleY * (amount + 1)));
         //$(svg.node).appendTo($("#mainDiv"));
-        if (alignLabels) {
-            maxX = (scaleX * maxLength) + (3.5 * offset) + longestNameWidth;
-        } else {
-            maxX = (scaleX * maxLength) - offset + longestNameWidth;
-        }
+        maxX = (scaleX * maxLength) + (3.5 * offset) + longestNameWidth;
         maxY = scaleY * (amount + 1);
         svg = Snap(maxWidth, maxHeight);
         $(svg.node).appendTo($("#mainDiv"));
@@ -1241,6 +1231,7 @@ $(function () {
                 $("#zoom-in-button").show();
                 $("#zoom-out-button").show();
                 $("#lengths-button").show();
+                $("#labels-button").show();
                 $("#search").css("display", "flex");
 
                 $("#undo-button").click(function (event) {
@@ -1322,6 +1313,14 @@ $(function () {
                     toggleLength();
                 });
 
+                $("#labels-button").click(function (event) {
+                    toggleLabel();
+                });
+                $("#context-labels").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    toggleLabel();
+                });
+
                 $("#search-button").click(function (event) {
                     search($("#search-text").val());
                 });
@@ -1357,7 +1356,7 @@ $(function () {
             data.forEach(function(item, index, array) {
                 if (typeof item.name !== 'undefined' && item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
                     svg.select("text[data-id='" + item.id + "']").attr('fill', 'red');
-                    if (!(optionsJSON["align-labels"])) {
+                    if (!(alignLabels)) {
                         setTransform("translate", -(item["total_length"] * scaleX + offset) + maxWidth / 2, -((index + 1) * scaleY) * scale + maxHeight / 2);
                     } else {
                         setTransform("translate", -(maxX - offset) * scale + maxWidth / 2, -((index + 1) * scaleY) * scale + maxHeight / 2);
@@ -1400,9 +1399,13 @@ $(function () {
         function toggleLength() {
             if (enableLengths) {
                 draw(JSON.parse(trees[counter_of_trees - 1][1]));
+                $("#lengths-button-hide").hide();
+                $("#lengths-button-show").show();
             } else {
                 if (trees[counter_of_trees - 1][2] != null) {
                     draw(JSON.parse(trees[counter_of_trees - 1][2]));
+                    $("#lengths-button-show").hide();
+                    $("#lengths-button-hide").show();
                 } else {
                     $("#info-modal-label").text("Tree without branch lengths!")
                     $("#info-modal-body").text("Please compute the branch lengths for this tree first under the options tab!")
@@ -1410,6 +1413,46 @@ $(function () {
                 }
             }
         }
+
+        /**
+         * Aligns the labels or attaches them to the branches
+         */
+        function toggleLabel() {
+            if (alignLabels) {
+                $("#labels-button-align").hide();
+                $("#labels-button-attach").show();
+                alignLabels = false;
+            } else {
+                $("#labels-button-attach").hide();
+                $("#labels-button-align").show();
+                alignLabels = true;
+            }
+            if (!enableLengths) {
+                draw(JSON.parse(trees[counter_of_trees - 1][1]));
+            } else if (trees[counter_of_trees - 1][2] != null) {
+                draw(JSON.parse(trees[counter_of_trees - 1][2]));
+            }
+        }
+
+        /**
+         * Resizes the divs when the window gets resized
+         */
+        $( window ).resize(function() {
+            console.log("test1");
+            maxHeight = $(window).height();
+            maxWidth = $(window).width();
+            $( "#mainDiv" ).height($( window ).height());
+            $( "#slideDivs" ).height($( window ).height());
+            $(svg.node).height($( window ).height());
+            //$(svg).height($( window ).height());
+            svg.attr({
+                height: $( window ).height()
+            });
+        });
+
+        $( document ).resize(function() {
+            console.log("test2");
+        });
     }
 
     //TODO this can be simplified!
@@ -1541,7 +1584,6 @@ $(function () {
                 $("#info-modal").modal("show");
             }
             optionsJSON = {
-                "align-labels": $("#align-labels")[0].checked,
                 "working-directory": $("#working-directory").val()
             }
             if (dnaProtein == "dna") {
