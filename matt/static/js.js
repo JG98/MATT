@@ -536,6 +536,7 @@ $(function () {
                 $("#info-modal").modal("hide");
 
                 data = JSON.parse(data);
+                testPath = data.pop();
 
                 $("#tests").empty();
                 data.forEach(function (value, index) {
@@ -562,6 +563,7 @@ $(function () {
                     row += '</tr>';
                     $("#tests").append(row);
                 });
+                $("#test-path").append("The test results are also available under: \"" + testPath + "\"");
                 $("#test-modal").modal("show");
                 $('[data-toggle="popover"]').popover();
             }

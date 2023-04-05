@@ -20,7 +20,7 @@ html, body {
 .tabs {
     background-color: darkgray;
     width: 25vw;
-    height: 100vh;
+    height: calc(100vh - 20px);
     float: right;
     display: none;
     padding: 10px;

@@ -124,7 +124,7 @@ def download(tree_id):
         file.write(tree + "\n")
         file.close()
         return send_from_directory(os.path.join(session["working-directory"]), "download.nck", as_attachment=True,
-                                   attachment_filename=tree_description + ".nck")
+                                   download_name=tree_description + ".nck")
     else:
         tree_without = Tree(tree_json).to_newick()
         path_without = os.path.join(session["working-directory"], "without_lengths.nck")
@@ -145,7 +145,7 @@ def download(tree_id):
         zipfolder.write(path_with, arcname="with_lengths.nck")
         zipfolder.close()
 
-        return send_file(zip_path, mimetype='zip', attachment_filename=tree_description + '.zip', as_attachment=True)
+        return send_file(zip_path, mimetype='zip', download_name=tree_description + '.zip', as_attachment=True)
 
 
 @app.route("/description", methods=["POST"])
@@ -482,6 +482,7 @@ def testsresults(job_id):
                 while (result_line := next(file)) != "\n":
                     results.append(result_line.strip().split())
         file.close()
+        results.append(os.path.join(session["working-directory"], "alignment.phy.iqtree"))
         response = make_response(dumps(results))
         response.headers["Cache-Control"] = "no-store"
         return response
