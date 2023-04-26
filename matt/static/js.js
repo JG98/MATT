@@ -41,12 +41,15 @@ $(function () {
     let enableLengths;
     let alignLabels = true;
 
-    $("#logo-main").offset({
-        left: maxWidth / 2 - $("#logo-main").width() / 2,
-        top: maxHeight / 2 - $("#logo-main").height() / 2
-    });
-
     getOptions();
+
+    $("#options-button").click(function (event) {
+        $("#options-modal").modal("show");
+    });
+    $("#context-options").click(function (event) {
+        $("#context-menu").removeClass("visible");
+        $("#options-modal").modal("show");
+    });
 
     /**
      * Handles the alignment and/or tree file after the import button has been clicked
@@ -227,7 +230,8 @@ $(function () {
     /**
      * Takes the options and sends them to the backend
      */
-    $("#save-options").click(function () {
+    $("#options-modal-button").click(function () {
+        $("#options-modal").modal("hide");
         optionsJSON = {
             "working-directory": $("#working-directory").val()
         }
@@ -249,7 +253,8 @@ $(function () {
     /**
      * Tests the selected snapshots by sending them to the backend
      */
-    $("#test-snapshots").click(function () {
+    $("#snapshots-modal-button").click(function () {
+        $("#snapshots-modal").modal("hide");
         var snapshots = [];
         $.each($("#snapshots input:checked"), function () {
             snapshots.push($(this).val());
@@ -268,27 +273,16 @@ $(function () {
     /**
      * Redraws the tree showing the branch lengths
      */
-    $("#compute-branch-lengths").click(function () {
+    $("#compute-modal-button").click(function () {
         if (!(enableLengths)) {
             load("get", {
                 'lengths': "enabled"
-            });
-        } else {
-            $("#info-modal-label").text("Tree already has branch lengths!")
-            $("#info-modal-body").text("The branch lengths for this tree have already been computed! Use the \"Show/Hide branch lengths\" button!")
-            $("#info-modal").modal("show");
+            }); // TODO LOADING BAR
         }
     });
 
     /**
-     * Adds a blur effect to the tabs
-     */
-    $(".btn").mouseup(function () {
-        $(this).blur();
-    })
-
-    /**
-     * Gets the options from the backend and shows them in the options tab
+     * Gets the options from the backend and shows them in the options
      */
     function getOptions() {
         $.get("get-options", "", function (data) {
@@ -376,10 +370,10 @@ $(function () {
      */
     function set_testing(testing) {
         if (testing == "enabled") {
-            $("#test-snapshots").prop("disabled", false);
+            $("#snapshots-modal-button").prop("disabled", false);
             $("#testing-disabled-message").hide();
         } else if (testing == "disabled") {
-            $("#test-snapshots").prop("disabled", true);
+            $("#snapshots-modal-button").prop("disabled", true);
             $("#testing-disabled-message").show();
         }
     }
@@ -439,7 +433,7 @@ $(function () {
     function snapshots(data) {
         $("#no-entries").remove();
         $("#snapshots").empty();
-        $("#snapshots").append('<thead><tr><th>Select</th><th>Name</th><th>Change Name</th><th>Download</th></tr></thead>');
+        $("#snapshots").append('<thead><tr><th>Select for testing</th><th>Jump to</th><th>Change Name</th><th>Download</th></tr></thead>');
         $("#snapshots").append('<tbody>');
         data.forEach(function (value) {
             text = '<tr>';
@@ -460,6 +454,7 @@ $(function () {
                 update(JSON.stringify([snapshotTrees.find(tree => tree[0] == snapshotId)]));
             });
             $("#snapshot-edit-" + value[0]).click(function () {
+                $("#snapshots-modal").modal("hide");
                 snapshotId = $(this).attr("id").split("-")[2];
                 $("#change-snapshot-label").val(value[3]);
                 $("#change-modal").modal("show");
@@ -658,10 +653,10 @@ $(function () {
 
         activate_buttons();
 
-        minimapMaxWidth = $("#tab1").width();
-        minimapMaxHeight = $("#tab1").height();
+        minimapMaxWidth = $("#minimapDiv").width();
+        minimapMaxHeight = $("#minimapDiv").height();
         minimap = Snap(minimapMaxWidth, minimapMaxHeight);
-        $(minimap.node).appendTo($("#tab1"));
+        $(minimap.node).appendTo($("#minimapDiv"));
 
         minimapOffset = 1;
         minimapMinX = minimapOffset;
@@ -1227,14 +1222,14 @@ $(function () {
          */
         function activate_buttons() {
             if (!(buttons_activated)) {
-                $("#undo-button").show();
-                $("#redo-button").show();
-                $("#save-button").show();
-                $("#zoom-in-button").show();
-                $("#zoom-out-button").show();
-                $("#lengths-button").show();
-                $("#labels-button").show();
-                $("#search").css("display", "flex");
+                $("#save-button").prop("disabled", false);
+                $("#zoom-in-button").prop("disabled", false);
+                $("#zoom-out-button").prop("disabled", false);
+                $("#search-text").prop("disabled", false);
+                $("#search-button").prop("disabled", false);
+                $("#lengths-button").prop("disabled", false);
+                $("#labels-button").prop("disabled", false);
+                $("#snapshots-button").prop("disabled", false);
 
                 $("#undo-button").click(function (event) {
                     undo();
@@ -1291,6 +1286,14 @@ $(function () {
                     }
                 });
 
+                $("#snapshots-button").click(function (event) {
+                    $("#snapshots-modal").modal("show");
+                });
+                $("#context-snapshots").click(function (event) {
+                    $("#context-menu").removeClass("visible");
+                    $("#snapshots-modal").modal("show");
+                });
+
                 $("#zoom-in-button").click(function (event) {
                     setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
                 });
@@ -1307,6 +1310,16 @@ $(function () {
                     setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
                 });
 
+                $("#search-button").click(function (event) {
+                    search($("#search-text").val());
+                });
+
+                $('#search-text').keypress(function (event) {
+                    if (event.which == '13') {
+                        search($("#search-text").val());
+                    }
+                });
+
                 $("#lengths-button").click(function (event) {
                     toggleLength();
                 });
@@ -1321,16 +1334,6 @@ $(function () {
                 $("#context-labels").click(function (event) {
                     $("#context-menu").removeClass("visible");
                     toggleLabel();
-                });
-
-                $("#search-button").click(function (event) {
-                    search($("#search-text").val());
-                });
-
-                $('#search-text').keypress(function (event) {
-                    if (event.which == '13') {
-                        search($("#search-text").val());
-                    }
                 });
 
                 $("#outgroup-button").click(function (event) {
@@ -1409,9 +1412,7 @@ $(function () {
                     $("#lengths-button-show").hide();
                     $("#lengths-button-hide").show();
                 } else {
-                    $("#info-modal-label").text("Tree without branch lengths!")
-                    $("#info-modal-body").text("Please compute the branch lengths for this tree first under the options tab!")
-                    $("#info-modal").modal("show");
+                    $("#compute-modal").modal("show");
                 }
             }
         }
@@ -1440,126 +1441,16 @@ $(function () {
          * Resizes the divs when the window gets resized
          */
         $( window ).resize(function() {
-            console.log("test1");
             maxHeight = $(window).height();
             maxWidth = $(window).width();
             $( "#mainDiv" ).height($( window ).height());
-            $( "#slideDivs" ).height($( window ).height());
             $(svg.node).height($( window ).height());
             //$(svg).height($( window ).height());
             svg.attr({
                 height: $( window ).height()
             });
         });
-
-        $( document ).resize(function() {
-            console.log("test2");
-        });
     }
-
-    //TODO this can be simplified!
-
-    var onOffBtn1 = "off";
-    var onOffBtn2 = "off";
-    var onOffBtn3 = "off";
-    var onOffBtn4 = "off";
-    var exnum = 0;
-    var num = 0;
-
-    /**
-     * Handles tab clicking
-     */
-    $("#btnClose").click(function () {
-        onOffBtn1 = "off";
-        onOffBtn2 = "off";
-        onOffBtn3 = "off";
-        exnum = 0;
-        num = 0;
-        $("#tab1").hide("fast");
-        $("#tab2").hide("fast");
-        $("#tab3").hide("fast");
-    });
-
-    /**
-     * Handles the clicking of the overview tab
-     */
-    $("#btn1").click(function () {
-        num = 1;
-        switch (onOffBtn1) {
-            case "off": {
-                $("#tab" + exnum).hide("fast");
-                $("#tab" + num).show("fast");
-                onOffBtn3 = "off";
-                onOffBtn2 = "off";
-                onOffBtn1 = "on";
-                exnum = 1;
-                break;
-            }
-            case "on": {
-                $("#tab" + num).hide("fast");
-                $("#tab" + exnum).hide("fast");
-                onOffBtn3 = "off";
-                onOffBtn2 = "off";
-                onOffBtn1 = "off";
-                break;
-            }
-        }
-    });
-
-    /**
-     * Handles the clicking of the options tab
-     */
-    $("#btn2").click(function () {
-        num = 2;
-        switch (onOffBtn2) {
-            case "off": {
-                $("#tab" + exnum).hide("fast");
-                $("#tab" + num).show("fast");
-                onOffBtn3 = "off";
-                onOffBtn2 = "on";
-                onOffBtn1 = "off";
-                exnum = 2;
-                break;
-            }
-            case "on": {
-                $("#tab" + num).hide("fast");
-                $("#tab" + exnum).hide("fast");
-                onOffBtn3 = "off";
-                onOffBtn2 = "off";
-                onOffBtn1 = "off";
-                break;
-            }
-        }
-    });
-
-    /**
-     * Handles the clicking of the snapshots tab
-     */
-    $("#btn3").click(function () {
-        num = 3;
-        switch (onOffBtn3) {
-            case "off": {
-                $("#tab" + exnum).hide("fast");
-                $("#tab" + num).show("fast");
-                onOffBtn3 = "on";
-                onOffBtn2 = "off";
-                onOffBtn1 = "off";
-                exnum = 3;
-                break;
-            }
-            case "on": {
-                $("#tab" + num).hide("fast");
-                $("#tab" + exnum).hide("fast");
-                onOffBtn3 = "off";
-                onOffBtn2 = "off";
-                onOffBtn1 = "off";
-                break;
-            }
-        }
-    });
-
-    // Opens the options tab on launch
-    $("#btn2").click();
 
     /**
      * Enables the custom buttons for alignment file handling

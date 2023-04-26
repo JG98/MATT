@@ -4,95 +4,87 @@ html, body {
     background-color: lightgray;
 }
 
-#mainDiv {
-    /*padding: 10px;*/
-}
-
-#slideDivs {
-    right: 0;
+#logo-main {
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-.comp {
-    display: inline-block;
+#logo-slide {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.tabs {
-    background-color: darkgray;
-    width: 25vw;
-    height: calc(100vh - 20px);
-    float: right;
-    display: none;
-    padding: 10px;
-}
-
-#btnTabs {
-    width: 0;
-    margin-top: 10vh;
-}
-
-.btnTab {
-    transform: translateX(-50%) rotate(-90deg);
-    float: left;
-    margin-left: -20px;
-    margin-top: 70px;
-    width: 100px;
+#minimapDiv {
+    width: 15vw;
+    height: 30vh;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: 2px solid;
 }
 
 #undo-button {
     position: absolute;
     top: 10px;
     left: 10px;
-    display: none;
 }
 
 #redo-button {
     position: absolute;
     top: 10px;
     left: 54px;
-    display: none;
 }
 
 #save-button {
     position: absolute;
     top: 10px;
-    left: 98px;
-    display: none;
+    left: 102px;
+}
+
+#snapshots-button {
+    position: absolute;
+    top: 10px;
+    left: 146px;
 }
 
 #zoom-in-button {
     position: absolute;
     top: 10px;
-    left: 146px;
-    display: none;
+    left: 194px;
 }
 
 #zoom-out-button {
     position: absolute;
     top: 10px;
-    left: 190px;
-    display: none;
-}
-
-#lengths-button {
-    position: absolute;
-    top: 10px;
     left: 238px;
-    display: none;
-}
-
-#labels-button {
-    position: absolute;
-    top: 10px;
-    left: 286px;
-    display: none;
 }
 
 #search {
     position: absolute;
     top: 10px;
-    left: 334px;
-    display: none;
+    left: 282px;
+    display: flex;
+}
+
+#lengths-button {
+    position: absolute;
+    top: 10px;
+    right: calc(15vw + 112px);
+}
+
+#labels-button {
+    position: absolute;
+    top: 10px;
+    right: calc(15vw + 68px);
+}
+
+#options-button {
+    position: absolute;
+    top: 10px;
+    right: calc(15vw + 20px);
 }
 
 #outgroup-button {
@@ -120,11 +112,15 @@ html, body {
     font-size: 15px;
     color: #eee;
     cursor: pointer;
-    border-radius: inherit;
+    border-radius: unset;
 }
 
 #context-menu .item:hover {
     background: #343434;
+}
+
+#context-menu .line {
+    border-bottom: 1px solid;
 }
 
 .snapshots-table-checkbox {
