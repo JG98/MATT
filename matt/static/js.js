@@ -558,6 +558,7 @@ $(function () {
                     row += '</tr>';
                     $("#tests").append(row);
                 });
+                $("#test-path").empty();
                 $("#test-path").append("The test results are also available under: \"" + testPath + "\"");
                 $("#test-modal").modal("show");
                 $('[data-toggle="popover"]').popover();
