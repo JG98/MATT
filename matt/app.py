@@ -119,21 +119,21 @@ def download(tree_id):
 
     if tree_lengths_json is None:
         tree = Tree(tree_json).to_newick()
-        path = os.path.join(session["working-directory"], "download.nck")
+        path = os.path.join(session["working-directory"], "download.tree")
         file = open(path, "w")
         file.write(tree + "\n")
         file.close()
-        return send_from_directory(os.path.join(session["working-directory"]), "download.nck", as_attachment=True,
-                                   download_name=tree_description + ".nck")
+        return send_from_directory(os.path.join(session["working-directory"]), "download.tree", as_attachment=True,
+                                   download_name=tree_description + ".tree")
     else:
         tree_without = Tree(tree_json).to_newick()
-        path_without = os.path.join(session["working-directory"], "without_lengths.nck")
+        path_without = os.path.join(session["working-directory"], "without_lengths.tree")
         file_without = open(path_without, "w")
         file_without.write(tree_without + "\n")
         file_without.close()
 
         tree_with = Tree(tree_lengths_json).to_newick()
-        path_with = os.path.join(session["working-directory"], "with_lengths.nck")
+        path_with = os.path.join(session["working-directory"], "with_lengths.tree")
         file_with = open(path_with, "w")
         file_with.write(tree_with + "\n")
         file_with.close()
@@ -141,8 +141,8 @@ def download(tree_id):
         zip_path = os.path.join(session["working-directory"], tree_description + '.zip')
 
         zipfolder = zipfile.ZipFile(zip_path, 'w', compression=zipfile.ZIP_STORED)
-        zipfolder.write(path_without, arcname="without_lengths.nck")
-        zipfolder.write(path_with, arcname="with_lengths.nck")
+        zipfolder.write(path_without, arcname="without_lengths.tree")
+        zipfolder.write(path_with, arcname="with_lengths.tree")
         zipfolder.close()
 
         return send_file(zip_path, mimetype='zip', download_name=tree_description + '.zip', as_attachment=True)
@@ -280,7 +280,7 @@ def load():
                 tree = Tree(tree_branch_json).to_json()
             else:
                 tree = Tree(tree_json, enable_lengths=True).to_newick(True)
-                path = os.path.join(session["working-directory"], "tree.nck")
+                path = os.path.join(session["working-directory"], "tree.tree")
                 file = open(path, "w")
                 file.write(tree + "\n")
                 file.close()
@@ -405,7 +405,7 @@ def tests():
             return response
         else:
             snapshots.append(str(session["trees"][0]))
-    path = os.path.join(session["working-directory"], "tests.nck")
+    path = os.path.join(session["working-directory"], "tests.trees")
     file = open(path, "w")
     conn = sqlite3.connect(root_folder + 'trees.db')
     c = conn.cursor()
