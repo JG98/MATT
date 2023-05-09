@@ -24,6 +24,7 @@ html, body {
     top: 10px;
     right: 10px;
     border: 2px solid;
+    background: lightgray;
 }
 
 #undo-button {

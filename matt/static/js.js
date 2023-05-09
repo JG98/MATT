@@ -51,6 +51,32 @@ $(function () {
         $("#options-modal").modal("show");
     });
 
+    instructions = Snap(maxWidth, maxHeight);
+    $(instructions.node).appendTo($("#mainDiv"));
+    instructions_g = instructions.g();
+    instructions_lines = instructions_g.g();
+    instructions_texts = instructions_g.g();
+
+    buttons_names = ["undo", "redo", "save", "snapshots", "zoom-in", "zoom-out", "search", "lengths", "labels", "options"];
+
+    buttons_names.forEach(function (value, index) {
+        current_button = $("#" + value + "-button");
+
+        current_length = 25 + 25 * (index % 2);
+
+        current_x = current_button.offset().left + current_button.outerWidth() / 2;
+        current_y = current_button.offset().top + current_button.outerHeight() + 15;
+        instructions_lines.add(instructions.path("M" + current_x + "," + current_y + "V" + (current_y + current_length)).attr({
+            stroke: 'black'
+        }));
+        instructions_lines.add(instructions.polyline((current_x - 3.5) + "," + current_y + " " + current_x + "," + (current_y - 5) + " " + (current_x + 3.5) + "," + current_y));
+        instructions_texts.add(instructions.text(current_x, (current_y + current_length), current_button.attr("title")).attr({
+            dominantBaseline: 'hanging',
+            fontSize: '0.625em',
+            textAnchor: 'middle'
+        }));
+    });
+
     /**
      * Handles the alignment and/or tree file after the import button has been clicked
      */
@@ -606,6 +632,10 @@ $(function () {
 
         if (typeof minimap !== "undefined") {
             minimap.remove();
+        }
+
+        if (typeof instructions !== "undefined") {
+            instructions.remove();
         }
 
         svg = Snap(maxWidth, maxHeight);
@@ -1451,6 +1481,52 @@ $(function () {
                 height: $( window ).height()
             });
         });
+
+        /**
+         * Stops the context menu from being drawn out of bounds
+         * @param mouseX x position of the mouse
+         * @param mouseY y position of the mouse
+         * @returns {{normalizedY: number, normalizedX: number}} new mouse position
+         */
+        function normalizePosition(mouseX, mouseY) {
+            let normalizedX = mouseX;
+            let normalizedY = mouseY;
+            if (mouseX + $("#context-menu").outerWidth() > $("#mainDiv").outerWidth()) {
+                normalizedX = $("#mainDiv").outerWidth() - $("#context-menu").outerWidth();
+            }
+            if (mouseY + $("#context-menu").outerHeight() > $("#mainDiv").outerHeight()) {
+                normalizedY = $("#mainDiv").outerHeight() - $("#context-menu").outerHeight();
+            }
+            return {normalizedX, normalizedY};
+        }
+
+        /**
+         * Changes the context menu to the custom one
+         */
+        $("#mainDiv").contextmenu(function (event) {
+            if (event.target.tagName == "line" || event.target.tagName == "svg" || event.target.tagName == "path") {
+                event.preventDefault();
+                const {clientX: mouseX, clientY: mouseY} = event;
+                const {normalizedX, normalizedY} = normalizePosition(mouseX, mouseY);
+                $("#context-menu").css({top: normalizedY, left: normalizedX});
+                $("#context-menu").addClass("visible");
+                if (event.target.tagName == "path") {
+                    $("#context-outgroup").show();
+                    context_id = $(event.target).data("id");
+                } else {
+                    $("#context-outgroup").hide();
+                }
+            }
+        });
+
+        /**
+         * Hides the context menu on click
+         */
+        $("#mainDiv").mousedown(function (event) {
+            if (event.target.offsetParent != $("#context-menu")) {
+                $("#context-menu").removeClass("visible");
+            }
+        });
     }
 
     /**
@@ -1508,52 +1584,6 @@ $(function () {
         $('label[for="tree-file-button"]').html($(this)[0].files[0].name);
         var path = (window.URL || window.webkitURL).createObjectURL($(this)[0].files[0]);
         console.log('path', path);
-    });
-
-    /**
-     * Stops the context menu from being drawn out of bounds
-     * @param mouseX x position of the mouse
-     * @param mouseY y position of the mouse
-     * @returns {{normalizedY: number, normalizedX: number}} new mouse position
-     */
-    function normalizePosition(mouseX, mouseY) {
-        let normalizedX = mouseX;
-        let normalizedY = mouseY;
-        if (mouseX + $("#context-menu").outerWidth() > $("#mainDiv").outerWidth()) {
-            normalizedX = $("#mainDiv").outerWidth() - $("#context-menu").outerWidth();
-        }
-        if (mouseY + $("#context-menu").outerHeight() > $("#mainDiv").outerHeight()) {
-            normalizedY = $("#mainDiv").outerHeight() - $("#context-menu").outerHeight();
-        }
-        return {normalizedX, normalizedY};
-    }
-
-    /**
-     * Changes the context menu to the custom one
-     */
-    $("#mainDiv").contextmenu(function (event) {
-        if (event.target.tagName == "line" || event.target.tagName == "svg" || event.target.tagName == "path") {
-            event.preventDefault();
-            const {clientX: mouseX, clientY: mouseY} = event;
-            const {normalizedX, normalizedY} = normalizePosition(mouseX, mouseY);
-            $("#context-menu").css({top: normalizedY, left: normalizedX});
-            $("#context-menu").addClass("visible");
-            if (event.target.tagName == "path") {
-                $("#context-outgroup").show();
-                context_id = $(event.target).data("id");
-            } else {
-                $("#context-outgroup").hide();
-            }
-        }
-    });
-
-    /**
-     * Hides the context menu on click
-     */
-    $("#mainDiv").mousedown(function (event) {
-        if (event.target.offsetParent != $("#context-menu")) {
-            $("#context-menu").removeClass("visible");
-        }
     });
 
 });
