@@ -132,22 +132,19 @@ def download(tree_id):
                                    download_name=tree_description + ".tree")
     else:
         tree_without = Tree(tree_json).to_newick()
-        path_without = os.path.join(session["working-directory"], (session["session-name"] + "_" if session[
-            "session-name"] else "") + "without_lengths.tree")
+        path_without = os.path.join(session["working-directory"], (session["session-name"] + "_" if session["session-name"] else "") + "without_lengths.tree")
         file_without = open(path_without, "w")
         file_without.write(tree_without + "\n")
         file_without.close()
 
         tree_with = Tree(tree_lengths_json).to_newick()
         path_with = os.path.join(session["working-directory"],
-                                 (session["session-name"] + "_" if session[
-                                     "session-name"] else "") + "with_lengths.tree")
+                                 (session["session-name"] + "_" if session["session-name"] else "") + "with_lengths.tree")
         file_with = open(path_with, "w")
         file_with.write(tree_with + "\n")
         file_with.close()
 
-        zip_path = os.path.join(session["working-directory"], (session["session-name"] + "_" if session[
-            "session-name"] else "") + tree_description + '.zip')
+        zip_path = os.path.join(session["working-directory"], (session["session-name"] + "_" if session["session-name"] else "") + tree_description + '.zip')
 
         zipfolder = zipfile.ZipFile(zip_path, 'w', compression=zipfile.ZIP_STORED)
         zipfolder.write(path_without, arcname="without_lengths.tree")
@@ -244,8 +241,7 @@ def load():
 
         if alignment is not None and tree is not None:  # Case 1, alignment and tree given, default behaviour
             with open(os.path.join(session["working-directory"],
-                                   (
-                                   session["session-name"] + "_" if session["session-name"] else "") + "alignment.phy"),
+                                   session["session-name"] + ".phy" if session["session-name"] else "alignment.phy"),
                       "w") as alignment_file:
                 alignment_file.write(alignment)
             if tree.find(":") != -1:
@@ -254,16 +250,14 @@ def load():
             session["disable_testing"] = False
         elif alignment is not None:  # Case 2, only alignment given, construct ml-tree
             with open(os.path.join(session["working-directory"],
-                                   (
-                                   session["session-name"] + "_" if session["session-name"] else "") + "alignment.phy"),
+                                   session["session-name"] + ".phy" if session["session-name"] else "alignment.phy"),
                       "w") as alignment_file:
                 alignment_file.write(alignment)
             if model is not None:
                 print("Starting IQTree. This could take some time!")
                 sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
                                      os.path.join(session["working-directory"],
-                                                  (session["session-name"] + "_" if session[
-                                                      "session-name"] else "") + "alignment.phy"), "-m", model, "-nt",
+                                                  session["session-name"] + ".phy" if session["session-name"] else "alignment.phy"), "-m", model, "-nt",
                                      "AUTO", "-redo"])
                 print(sp)
                 if sp.returncode == 2:
@@ -272,12 +266,10 @@ def load():
                 print("Starting IQTree. This could take some time!")
                 sp = subprocess.run([os.path.join(app_location, "bin", "iqtree"), "-s",
                                      os.path.join(session["working-directory"],
-                                                  (session["session-name"] + "_" if session[
-                                                      "session-name"] else "") + "alignment.phy"), "-nt", "AUTO",
+                                                  ["session-name"] + ".phy" if session["session-name"] else "alignment.phy"), "-nt", "AUTO",
                                      "-redo"])
                 print(sp)
-            with open(os.path.join(session["working-directory"], (session["session-name"] + "_" if session[
-                "session-name"] else "") + "alignment.phy.treefile"), "r") as tree_file:
+            with open(os.path.join(session["working-directory"], session["session-name"] + ".phy.treefile" if session["session-name"] else "alignment.phy.treefile"), "r") as tree_file:
                 tree = tree_file.readline()
             tree_lengths = Tree(tree[:-1], enable_lengths=True).to_json()
             tree = Tree(tree[:-1]).to_json()
@@ -312,15 +304,13 @@ def load():
                 print("Starting IQTree. This could take some time!")
                 sp = subprocess.run(
                     [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
-                                                                                     (session["session-name"] + "_" if
-                                                                                      session[
-                                                                                          "session-name"] else "") + "alignment.phy"),
+                                                                                     session["session-name"] + ".phy" if
+                                                                                      session["session-name"] else "alignment.phy"),
                      "-te", path, "-nt", "AUTO", "-m", model, "-redo"], capture_output=True)
                 print(sp)
                 if sp.returncode == 2:
                     print("WRONG DECISION DNA/PROTEIN")
-                with open(os.path.join(session["working-directory"], (session["session-name"] + "_" if session[
-                    "session-name"] else "") + "alignment.phy.treefile"), "r") as tree_file:
+                with open(os.path.join(session["working-directory"], session["session-name"] + ".phy.treefile" if session["session-name"] else "alignment.phy.treefile"), "r") as tree_file:
                     tree = tree_file.readline()
                 if request.args.get("lengths") == "enabled":
                     tree = Tree(tree[:-1], enable_lengths=True).to_json()
@@ -476,8 +466,7 @@ def tests():
     print("Starting IQTree. This could take some time!")
     sp = subprocess.Popen(
         [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
-                                                                         (session["session-name"] + "_" if session[
-                                                                             "session-name"] else "") + "alignment.phy"),
+                                                                         session["session-name"] + ".phy" if session["session-name"] else "alignment.phy"),
          "-z",
          path, "-n", "0", "-zb", "10000", "-zw", "-au", "-m", model, "-redo"], stdout=subprocess.PIPE)
     key = str(sp.__hash__())
@@ -507,7 +496,7 @@ def testsresults(job_id):
     else:
         results = []
         path = os.path.join(session["working-directory"],
-                            (session["session-name"] + "_" if session["session-name"] else "") + "alignment.phy.iqtree")
+                            session["session-name"] + ".phy.iqtree" if session["session-name"] else "alignment.phy.iqtree")
         file = open(path, "r")
         for line in file:
             if line.startswith(
@@ -515,8 +504,7 @@ def testsresults(job_id):
                 while (result_line := next(file)) != "\n":
                     results.append(result_line.strip().split())
         file.close()
-        results.append(os.path.join(session["working-directory"], (session["session-name"] + "_" if session[
-            "session-name"] else "") + "alignment.phy.iqtree"))
+        results.append(os.path.join(session["working-directory"], session["session-name"] + ".phy.iqtree" if session["session-name"] else "alignment.phy.iqtree"))
         response = make_response(dumps(results))
         response.headers["Cache-Control"] = "no-store"
         return response

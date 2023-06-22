@@ -51,31 +51,7 @@ $(function () {
         $("#options-modal").modal("show");
     });
 
-    instructions = Snap(maxWidth, maxHeight);
-    $(instructions.node).appendTo($("#mainDiv"));
-    instructions_g = instructions.g();
-    instructions_lines = instructions_g.g();
-    instructions_texts = instructions_g.g();
-
-    buttons_names = ["undo", "redo", "save", "snapshots", "zoom-in", "zoom-out", "search", "lengths", "labels", "options"];
-
-    buttons_names.forEach(function (value, index) {
-        current_button = $("#" + value + "-button");
-
-        current_length = 25 + 25 * (index % 2);
-
-        current_x = current_button.offset().left + current_button.outerWidth() / 2;
-        current_y = current_button.offset().top + current_button.outerHeight() + 15;
-        instructions_lines.add(instructions.path("M" + current_x + "," + current_y + "V" + (current_y + current_length)).attr({
-            stroke: 'black'
-        }));
-        instructions_lines.add(instructions.polyline((current_x - 3.5) + "," + current_y + " " + current_x + "," + (current_y - 5) + " " + (current_x + 3.5) + "," + current_y));
-        instructions_texts.add(instructions.text(current_x, (current_y + current_length), current_button.attr("title")).attr({
-            dominantBaseline: 'hanging',
-            fontSize: '0.625em',
-            textAnchor: 'middle'
-        }));
-    });
+    drawInstructions(maxWidth, maxHeight);
 
     /**
      * Handles the alignment and/or tree file after the import button has been clicked
@@ -1478,6 +1454,7 @@ $(function () {
          * Resizes the divs when the window gets resized
          */
         $( window ).resize(function() {
+            console.log(window);
             maxHeight = $(window).height();
             maxWidth = $(window).width();
             $( "#mainDiv" ).height($( window ).height());
@@ -1590,6 +1567,51 @@ $(function () {
         $('label[for="tree-file-button"]').html($(this)[0].files[0].name);
         var path = (window.URL || window.webkitURL).createObjectURL($(this)[0].files[0]);
         console.log('path', path);
+    });
+
+    /**
+     * Draws the instructions visible before importing
+     */
+    function drawInstructions(maxWidth, maxHeight) {
+        console.log(maxWidth);
+        if (typeof instructions !== "undefined") {
+            instructions.remove();
+        }
+
+        instructions = Snap(maxWidth, maxHeight);
+        $(instructions.node).appendTo($("#mainDiv"));
+        instructions_g = instructions.g();
+        instructions_lines = instructions_g.g();
+        instructions_texts = instructions_g.g();
+
+        buttons_names = ["undo", "redo", "save", "snapshots", "zoom-in", "zoom-out", "search", "lengths", "labels", "options"];
+
+        buttons_names.forEach(function (value, index) {
+            current_button = $("#" + value + "-button");
+
+            current_length = 25 + 25 * (index % 2);
+
+            current_x = current_button.offset().left + current_button.outerWidth() / 2;
+            current_y = current_button.offset().top + current_button.outerHeight() + 15;
+            instructions_lines.add(instructions.path("M" + current_x + "," + current_y + "V" + (current_y + current_length)).attr({
+                stroke: 'black'
+            }));
+            instructions_lines.add(instructions.polyline((current_x - 3.5) + "," + current_y + " " + current_x + "," + (current_y - 5) + " " + (current_x + 3.5) + "," + current_y));
+            instructions_texts.add(instructions.text(current_x, (current_y + current_length), current_button.attr("title")).attr({
+                dominantBaseline: 'hanging',
+                fontSize: '0.625em',
+                textAnchor: 'middle'
+            }));
+        });
+    }
+
+    /**
+     * Handles resizing
+     */
+    $( window ).resize(function() {
+        maxHeight = $(window).height();
+        maxWidth = $(window).width();
+        drawInstructions(maxWidth, maxHeight);
     });
 
 });
