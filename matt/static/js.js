@@ -97,6 +97,9 @@ $(function () {
         else if (!input.files[0]) {
           alert("Please select a file before clicking 'Load'");
         } else {*/
+
+        let sessionName = $("#session-name").val();
+
         let alignmentFile = $("#alignment-file")[0].files[0];
         let treeFile = $("#tree-file")[0].files[0];
 
@@ -153,7 +156,8 @@ $(function () {
                         tree: {
                             data: senddataTree.fileData,
                             name: senddataTree.name
-                        }
+                        },
+                        session: sessionName
                     });
                 }
             } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
@@ -171,7 +175,8 @@ $(function () {
                             alignment: {
                                 data: senddataAlignment.fileData,
                                 name: senddataAlignment.name
-                            }
+                            },
+                            session: sessionName
                         });
                         $("#warning-modal").modal("hide");
                     });
@@ -195,7 +200,8 @@ $(function () {
                             tree: {
                                 data: senddataTree.fileData,
                                 name: senddataTree.name
-                            }
+                            },
+                            session: sessionName
                         });
                         $("#warning-modal").modal("hide");
                     });
