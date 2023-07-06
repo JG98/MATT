@@ -341,6 +341,12 @@ $(function () {
     function update(data, status, xhr) {
         //alert("Data: " + data + "\nStatus: " + status);
         // TODO work with status?!
+        if (data == "WRONG DATA") {
+            $("#info-modal-label").text("Data mismatch!");
+            $("#info-modal-body").text("The data you provided does not match. Either Alignment and Tree do not suit each other or you chose the wrong sequence type. Please reload and enter correct data.");
+            $("#info-modal").modal("show");
+            return;
+        }
         data = JSON.parse(data);
         trees = data;
         number_of_trees = trees.length;

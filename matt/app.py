@@ -309,7 +309,10 @@ def load():
                      "-te", path, "-nt", "AUTO", "-m", model, "-redo"], capture_output=True)
                 print(sp)
                 if sp.returncode == 2:
-                    print("WRONG DECISION DNA/PROTEIN")
+                    print("WRONG DATA")
+                    response = make_response("WRONG DATA")
+                    response.headers["Cache-Control"] = "no-store"
+                    return response
                 with open(os.path.join(session["working-directory"], session["session-name"] + ".phy.treefile" if session["session-name"] else "alignment.phy.treefile"), "r") as tree_file:
                     tree = tree_file.readline()
                 if request.args.get("lengths") == "enabled":
