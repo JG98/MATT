@@ -16,7 +16,7 @@
 
 # Installation
 *MATT* is distributed as a python package called *phylo-matt*. *MATT* requires a
-[Python](https://www.python.org/downloads/) version of 3.5 or higher.
+[Python](https://www.python.org/downloads/) version of 3.8 or higher.
 
 Once python and the included package manager are installed, *MATT* can be installed using the `pip` command in a
 console:

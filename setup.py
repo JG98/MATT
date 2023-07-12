@@ -18,13 +18,13 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={'': ['*']},
     include_package_data=True,
-    install_requires=["flask"],
+    install_requires=["flask>=2.0.0"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
+    python_requires='>=3.8',
     entry_points={
         'console_scripts': ["matt = matt.app:main"]
     }
