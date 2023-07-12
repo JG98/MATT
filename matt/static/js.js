@@ -51,6 +51,14 @@ $(function () {
         $("#options-modal").modal("show");
     });
 
+    $("#help-button").click(function (event) {
+        window.open("https://github.com/BIONF/MATT/blob/master/README.md", target="_blank");
+    });
+    $("#context-help").click(function (event) {
+        $("#context-menu").removeClass("visible");
+        window.open("https://github.com/BIONF/MATT/blob/master/README.md", target="_blank");
+    });
+
     drawInstructions(maxWidth, maxHeight);
 
     /**
@@ -1590,7 +1598,7 @@ $(function () {
         instructions_lines = instructions_g.g();
         instructions_texts = instructions_g.g();
 
-        buttons_names = ["undo", "redo", "save", "snapshots", "zoom-in", "zoom-out", "search", "lengths", "labels", "options"];
+        buttons_names = ["undo", "redo", "save", "snapshots", "zoom-in", "zoom-out", "search", "lengths", "labels", "options", "help"];
 
         buttons_names.forEach(function (value, index) {
             current_button = $("#" + value + "-button");

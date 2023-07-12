@@ -73,16 +73,22 @@ html, body {
 #lengths-button {
     position: absolute;
     top: 10px;
-    right: calc(15vw + 112px);
+    right: calc(15vw + 156px);
 }
 
 #labels-button {
     position: absolute;
     top: 10px;
-    right: calc(15vw + 68px);
+    right: calc(15vw + 112px);
 }
 
 #options-button {
+    position: absolute;
+    top: 10px;
+    right: calc(15vw + 64px);
+}
+
+#help-button {
     position: absolute;
     top: 10px;
     right: calc(15vw + 20px);
