@@ -42,7 +42,8 @@ Once open *MATT* can be used via the GUI in the browser.
 To close *MATT* after usage, simply kill the server by hitting <kbd>Ctrl</kbd> + <kbd>C</kbd> in the console.
 
 ## Import
-Make sure to set all the needed options under the options tab first.
+Make sure to set all the needed options under the "Options" button in the top right corner first.
+You will also find a reference to this file there.
 
 Afterwards optionally set a session name and import your alignment and/or tree file.
 Alternatively you can import the example files.
