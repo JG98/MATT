@@ -1,6 +1,6 @@
 /*
 * MATT - A Framework For Modifying And Testing Topologies
-* Copyright (C) 2021 Jeff Raffael Gower
+* Copyright (C) 2021-2023 Jeff Raffael Gower
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+
 /**
  * Main function that runs after the document is ready
  */
@@ -41,8 +42,10 @@ $(function () {
     let enableLengths;
     let alignLabels = true;
 
+    // Gets the options initially
     getOptions();
 
+    // The options and help buttons have to be activated here, since they should always work
     $("#options-button").click(function (event) {
         $("#options-modal").modal("show");
     });
@@ -59,6 +62,7 @@ $(function () {
         window.open("https://github.com/BIONF/MATT/blob/master/README.md", target="_blank");
     });
 
+    // Draws the instructions on the screen before an import happened
     drawInstructions(maxWidth, maxHeight);
 
     /**
@@ -82,6 +86,7 @@ $(function () {
           alert("Please select a file before clicking 'Load'");
         } else {*/
 
+        // Instantiates variables
         let sessionName = $("#session-name").val();
 
         let alignmentFile = $("#alignment-file")[0].files[0];
@@ -93,6 +98,7 @@ $(function () {
         let senddataAlignment;
         let senddataTree;
 
+        // Gets the data from the alignment file and calls the sendAlignmentAndTree function
         if (typeof alignmentFile !== "undefined") {
             senddataAlignment = {
                 name: alignmentFile.name,
@@ -108,6 +114,7 @@ $(function () {
             alignmentReader.readAsDataURL(alignmentFile);
         }
 
+        // Gets the data from the tree file and calls the sendAlignmentAndTree function
         if (typeof treeFile != "undefined") {
             senddataTree = {
                 name: treeFile.name,
@@ -127,11 +134,14 @@ $(function () {
          * Sends the alignment and/or tree to the backend
          */
         function sendAlignmentAndTree() {
+            // Shows different modals for user feedback and sends different data depending on the imported files
             if ((typeof alignmentFile !== "undefined") && (typeof treeFile !== "undefined")) {
                 if ((typeof senddataAlignment.fileData !== "undefined") && (typeof senddataTree.fileData !== "undefined")) {
+                    // Shows the info modal
                     $("#info-modal-label").text("Import started!");
                     $("#info-modal-body").text("The sequence alignment was saved and the tree is drawn!");
                     $("#info-modal").modal("show");
+                    // Sends the data to the backend
                     load("post", {
                         alignment: {
                             data: senddataAlignment.fileData,
@@ -146,15 +156,18 @@ $(function () {
                 }
             } else if ((typeof alignmentFile !== "undefined") && (typeof treeFile === "undefined")) {
                 if (typeof senddataAlignment.fileData !== "undefined") {
+                    // Shows the warning modal
                     $("#warning-modal-label").text("Only an alignment is provided!");
                     $("#warning-modal-body").text("Please also provide a tree file. Otherwise, MATT can calculate the ML-tree, which may take some time!");
                     $("#warning-modal-continue-button").text("Compute tree");
                     $("#warning-modal-cancel-button").text("Upload tree");
                     $("#warning-modal").modal("show");
+                    // Shows the info modal if the continues button is clicked after the warning
                     $("#warning-modal-continue-button").click(function (event) {
                         $("#info-modal-label").text("Import started!");
                         $("#info-modal-body").text("The alignment was saved and the tree will be computed.");
                         $("#info-modal").modal("show");
+                        // Sends the data to the backend
                         load("post", {
                             alignment: {
                                 data: senddataAlignment.fileData,
@@ -164,6 +177,7 @@ $(function () {
                         });
                         $("#warning-modal").modal("hide");
                     });
+                    // Hides the warning modal if canceled
                     $("#warning-modal-cancel-button").click(function (event) {
                         $("#warning-modal").modal("hide");
                         $("#tree-file-button").trigger("click");
@@ -171,15 +185,18 @@ $(function () {
                 }
             } else if ((typeof alignmentFile === "undefined") && (typeof treeFile !== "undefined")) {
                 if (typeof senddataTree.fileData !== "undefined") {
+                    // Shows the warning modal
                     $("#warning-modal-label").text("Only a tree is provided!");
                     $("#warning-modal-body").text("Please also provide an alignment file. Otherwise you cannot use MATT for topology testing!");
                     $("#warning-modal-continue-button").text("Display tree only");
                     $("#warning-modal-cancel-button").text("Upload alignment");
                     $("#warning-modal").modal("show");
+                    // Shows the info modal if the continues button is clicked after the warning
                     $("#warning-modal-continue-button").click(function (event) {
                         $("#info-modal-label").text("Import started!");
                         $("#info-modal-body").text("The tree was saved and will be displayed. Tests are disabled! ");
                         $("#info-modal").modal("show");
+                        // Sends the data to the backend
                         load("post", {
                             tree: {
                                 data: senddataTree.fileData,
@@ -189,6 +206,7 @@ $(function () {
                         });
                         $("#warning-modal").modal("hide");
                     });
+                    // Hides the warning modal if canceled
                     $("#warning-modal-cancel-button").click(function (event) {
                         $("#warning-modal").modal("hide");
                         $("#alignment-file-button").trigger("click");
@@ -202,6 +220,7 @@ $(function () {
     });
 
     let dnaProtein;
+
     /**
      * Switches to dna when a dna file has been detected
      */
@@ -210,6 +229,7 @@ $(function () {
         $("#protein-options").hide();
         dnaProtein = "dna";
     });
+
     /**
      * Switches to protein when a protein file has been detected
      */
@@ -224,6 +244,7 @@ $(function () {
      */
     $("#example-import").click(function () {
         $("#dna").trigger("click");
+        // Saves the options
         optionsJSON = {
             "working-directory": $("#working-directory").val()
         }
@@ -240,6 +261,7 @@ $(function () {
             optionsJSON["protein-rhas"] = $("#selectAARHAS").val();
         }
         options(optionsJSON);
+        // Sends the example request to the backend
         load("post", "example");
     });
 
@@ -280,6 +302,7 @@ $(function () {
                 "snapshots": snapshots
             });
         } else {
+            // Shows the info modal
             $("#info-modal-label").text("No tree selected!")
             $("#info-modal-body").text("Please select at least one tree first!")
             $("#info-modal").modal("show");
@@ -350,21 +373,31 @@ $(function () {
         //alert("Data: " + data + "\nStatus: " + status);
         // TODO work with status?!
         if (data == "WRONG DATA") {
+            // Shows the info modal
             $("#info-modal-label").text("Data mismatch!");
             $("#info-modal-body").text("The data you provided does not match. Either Alignment and Tree do not suit each other or you chose the wrong sequence type. Please reload and enter correct data.");
             $("#info-modal").modal("show");
             return;
         }
         data = JSON.parse(data);
+
+        // Holds all the trees
         trees = data;
+
+        // Holds the number of trees for the undoing and redoing
         number_of_trees = trees.length;
+
         if (typeof xhr !== "undefined") {
             counter_of_trees = parseInt(counter_of_trees);
+            // Increase the number of trees only if there was not a call for branch lengths only
             if (!(xhr.getResponseHeader("Length"))) {
                 counter_of_trees += 1;
             }
+            // Enables or disables the testing option
             set_testing(xhr.getResponseHeader("Testing"));
         }
+
+        // Enables the undo and redo buttons (depending on edge cases)
         if (counter_of_trees > 1) {
             $("#undo-button").prop("disabled", false);
         }
@@ -374,11 +407,15 @@ $(function () {
         if (counter_of_trees == number_of_trees) {
             $("#redo-button").prop("disabled", true);
         }
+
+        // Saves the first snapshot
         // TODO This should be toggleable in options
         if (snapshotTrees.length == 0) {
             snapshotTrees.push(trees[counter_of_trees - 1]);
             description(trees[counter_of_trees - 1][0], "Original");
         }
+
+        // Calls the draw function with the chosen tree (with or without branch lengths)
         if (typeof xhr !== "undefined" && xhr.getResponseHeader("Length")) {
             draw(JSON.parse(trees[counter_of_trees - 1][2]));
         } else {
@@ -407,11 +444,13 @@ $(function () {
     function options(data) {
         $.post("options", data, function (response) {
             if (response == "Invalid directory") {
+                // Shows the info modal
                 $("#info-modal-label").text("Invalid working directory set!")
                 $("#info-modal-body").text("Please select an existing working directory!")
                 $("#info-modal").modal("show");
             }
         });
+        // Reloads
         if (typeof trees !== "undefined") {
             load("get", null);
         }
@@ -435,6 +474,7 @@ $(function () {
      */
     function save() {
         if (snapshotTrees.find(element => element[0] == trees[counter_of_trees - 1][0])) {
+            // Shows the info modal
             $("#info-modal-label").text("This snapshot already exists!")
             $("#info-modal-body").text("This tree has already been snapshot.")
             $("#info-modal").modal("show");
@@ -465,6 +505,7 @@ $(function () {
             text += '<td><button type="button" class="btn btn-link" id="snapshot-download-' + value[0] + '"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg></button></td>';
             text += '</tr>';
             $("#snapshots").append(text);
+            // Configures the link to jump to the chosen tree
             $("#snapshot-" + value[0]).click(function () {
                 snapshotId = $(this).attr("id").split("-")[1];
                 draw(JSON.parse(snapshotTrees.find(tree => tree[0] == snapshotId)[1]));
@@ -475,6 +516,7 @@ $(function () {
                 $("#redo-button").prop("disabled", true);
                 update(JSON.stringify([snapshotTrees.find(tree => tree[0] == snapshotId)]));
             });
+            // Configures the link to call the change modal for chosen tree
             $("#snapshot-edit-" + value[0]).click(function () {
                 $("#snapshots-modal").modal("hide");
                 snapshotId = $(this).attr("id").split("-")[2];
@@ -498,6 +540,7 @@ $(function () {
                     }
                 });
             });
+            // Configures the link to download the chosen tree
             $("#snapshot-download-" + value[0]).click(function () {
                 snapshotId = $(this).attr("id").split("-")[2];
                 download(snapshotId);
@@ -511,6 +554,7 @@ $(function () {
      * @param data tree informations
      */
     function tests(data) {
+        // Shows the info modal
         $("#info-modal-label").text("Tree topology testing started!")
         $("#info-modal-body").text("Tree topology testing in progress.")
         $("#info-modal-body").append('<div id="progress-bar-wrapper" class="progress"><div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div></div>');
@@ -520,11 +564,13 @@ $(function () {
 
         $.post("tests", data, function (data) {
             if (data == "NO") {
+                // Shows the info modal
                 $("#info-modal-label").text("Initial tree selected!")
                 $("#info-modal-body").text("When selecting only one tree, please do not select the initially provided tree!")
                 $("#info-modal").modal("show");
                 return;
             }
+            // Checks every 500ms (0,5s) for the progress of the requested test
             interval = window.setInterval(function () {
                 check_test_progress(data);
             }, 500);
@@ -539,14 +585,17 @@ $(function () {
             if(data == "NO") {
                 window.clearInterval(interval);
                 $("#progress-bar-wrapper").remove();
+                // Shows the info modal
                 $("#info-modal-label").text("Something went wrong!")
                 $("#info-modal-body").text("Please try again!")
                 $("#info-modal").modal("show");
                 return;
             }
+            // Updates the progress bar
             if (["20", "40", "60", "80", "100"].includes(data)) {
                 $("#progress-bar").css("width", data + "%");
             } else {
+                // Shows the test results after some cleanup
                 window.clearInterval(interval);
                 $("#progress-bar-wrapper").remove();
 
@@ -634,19 +683,20 @@ $(function () {
             instructions.remove();
         }
 
+        // Main svg holding all others
         svg = Snap(maxWidth, maxHeight);
         $(svg.node).appendTo($("#mainDiv"));
 
+        // Some meta information for correct sizings
         extraData = data.pop();
-
         enableLengths = extraData["enable_lengths"];
-
         maxLength = extraData["max_length"];
         longestName = extraData["longest_name"];
 
         let fontSize = '1.375em';
         let strokeWidth = 4;
 
+        // Calculates the width of the longest name in the tree
         longestNameTester = svg.text(0, 0, longestName).attr({
             fontSize: fontSize
         });
@@ -668,10 +718,16 @@ $(function () {
         //$(svg.node).appendTo($("#mainDiv"));
         maxX = (scaleX * maxLength) + (3.5 * offset) + longestNameWidth;
         maxY = scaleY * (amount + 1);
+
+        // Redraws the main svg
         svg = Snap(maxWidth, maxHeight);
         $(svg.node).appendTo($("#mainDiv"));
+
+        // Prepares groups for later use
         g = svg.g();
         lines = g.g();
+
+        // Draws the frame around the tree
         g.add(svg.path("M0,0H" + maxX + "V" + maxY + "H0Z").attr({
             fill: 'none',
             stroke: 'black',
@@ -680,6 +736,7 @@ $(function () {
 
         activate_buttons();
 
+        // Calculates info for and draws the minimap
         minimapMaxWidth = $("#minimapDiv").width();
         minimapMaxHeight = $("#minimapDiv").height();
         minimap = Snap(minimapMaxWidth, minimapMaxHeight);
@@ -702,6 +759,7 @@ $(function () {
         minimapWindowMaxX = $(window).width() / ratio;
         minimapWindowMaxY = $(window).height() / ratio;
 
+        // The projection of the full window in the minimap
         minimapWindow = minimap.path("M" + minimapMinX + "," + minimapMinY + "H" + minimapWindowMaxX + "V" + minimapWindowMaxY + "H" + minimapMinX + "Z").attr({
             fill: 'lightgray',
             fillOpacity: 0.5,
@@ -710,12 +768,14 @@ $(function () {
             'vector-effect': 'non-scaling-stroke'
         });
 
+        // The border around the minimap
         border = minimap.path("M" + minimapMinX + "," + minimapMinY + "H" + minimapMaxX + "V" + minimapMaxY + "H" + minimapMinX + "Z").attr({
             fill: 'transparent',
             stroke: 'black',
             strokeWidth: 1
         });
 
+        // Jumps to the projected location when clicked inside the border of the minimap (basically, when clicked inside the minimap)
         border.click(function (event) {
             posX = event.offsetX * scale;
             posY = event.offsetY * scale;
@@ -724,6 +784,7 @@ $(function () {
             setTransform("translate", -moveX + maxWidth / 2, -moveY + maxHeight / 2);
         });
 
+        // Draws the lines showing the distances
         // TODO write this nicer
         topBottom = [-5, maxY + 15];
         let topBottomLine;
@@ -786,19 +847,24 @@ $(function () {
          * Handles rerooting
          */
         function outgroup() {
+            // The outgroup has been called through the context menu on a branch
             if (context_id != null) {
+                // Calls the backend providing the selected path and the current tree
                 load("get", {
                     'id': context_id,
                     'current': counter_of_trees
                 });
                 context_id = null;
+            // The outgroup has been called through the button after a path has been selected
             } else if (!(typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath))) {
+                // Calls the backend providing the selected path and the current tree
                 load("get", {
                     'id': clicked_id,
                     'current': counter_of_trees
                 });
                 clicked_id = null;
                 clickedPath = null;
+            // Legacy
             } else if (clickedPath.attr("data-parent") != 0) {
                 clickedPath.attr({
                     strokeOpacity: ''
@@ -830,11 +896,15 @@ $(function () {
             toggleOutgroupButton();
         }
 
+        // Draws the branches and texts
         data.forEach(function (item, index, array) {
+            // Text
             if (item["name"] != "None") {
                 // TODO draw all texts at the right
                 // with path stroke dasharray
                 //g.add(svg.text(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({dominantBaseline: 'middle', fontSize: fontSize, 'data-id': item["id"]}));
+
+                // Draw at the far right with a dashed line
                 if (alignLabels) {
                     nameText = svg.text(maxX - offset, (index + 1) * scaleY, item["name"]).attr({
                         dominantBaseline: 'middle',
@@ -851,6 +921,7 @@ $(function () {
                             strokeDasharray: 4
                         }));
                     }
+                // Draw next to the leaf without a dashed line
                 } else {
                     nameText = svg.text(item["total_length"] * scaleX + (1.5 * offset), (index + 1) * scaleY, item["name"]).attr({
                         dominantBaseline: 'middle',
@@ -859,7 +930,9 @@ $(function () {
                     });
                     g.add(nameText);
                 }
+            // Branch
             } else {
+                // Draw bootstrap on the line if provided
                 if (item["bootstrap"] != "None" && item["bootstrap"] != "") {
                     parent = array.findIndex((elem) => elem.id == item["parent"]);
                     // TODO could be put exactly in the middle, now only puts the beginning in the middle
@@ -878,6 +951,7 @@ $(function () {
                 mYLeft = (index + 1) * scaleY - strokeWidth;
                 mYRight = (index + 1) * scaleY + strokeWidth;
 
+                // The "root"
                 if (item["id"] == 0) {
                     mYLeft += strokeWidth / 2;
                     mYRight -= strokeWidth / 2;
@@ -888,6 +962,7 @@ $(function () {
                 hLeft = array[l_child]["total_length"] * scaleX + offset;
                 hRight = array[r_child]["total_length"] * scaleX + offset;
 
+                // Draw the two branches
                 left = svg.path("M" + mX + "," + mYLeft + "V" + vLeft + "H" + hLeft).attr({
                     "data-id": array[l_child]["id"],
                     "data-parent": item["id"]
@@ -898,6 +973,7 @@ $(function () {
                 });
                 g.add(left, right);
 
+                // Repeat almost everything for the minimap
                 mXMinimap = minimapMinX + mX / ratio;
                 mYLeftMinimap = minimapMinY + mYLeft / ratio;
                 vLeftMinimap = minimapMinY + vLeft / ratio;
@@ -939,15 +1015,18 @@ $(function () {
                     });
                 }
 
+                // Configure path hovering and clicking
                 paths = [left, right];
 
                 paths.forEach(function (itemPath, indexPath, arrayPath) {
+                    // Stlye the paths
                     itemPath.attr({
                         fill: 'none',
                         stroke: 'black',
                         strokeWidth: strokeWidth,
                         strokeLinecap: 'square'
                     });
+                    // Change style when hovered
                     itemPath.mouseover(function () {
                         itemPath.attr({
                             stroke: 'dodgerblue',
@@ -959,6 +1038,7 @@ $(function () {
                             });
                         }
                     });
+                    // Change style when hover ended
                     itemPath.mouseout(function () {
                         itemPath.attr({
                             stroke: 'black',
@@ -967,6 +1047,7 @@ $(function () {
                         hoveredPath.remove();
                         hoveredPath = null;
                     });
+                    // Handle clicking of paths
                     itemPath.click(function () {
                         // Select first path
                         if (typeof clickedPath === "undefined" || (typeof clickedPath === "object" && !clickedPath)) {
@@ -1034,6 +1115,7 @@ $(function () {
                             clickedPath = null;
                             toggleOutgroupButton();
                         } else {
+                            // Send data to the backend either with the last tree
                             if (counter_of_trees == number_of_trees) {
                                 load("get", {
                                     'from': clickedPath.attr("data-id"),
@@ -1041,6 +1123,7 @@ $(function () {
                                 });
                                 clicked_id = null;
                                 clickedPath = null;
+                            // or with the currently shown tree
                             } else {
                                 load("get", {
                                     'from': clickedPath.attr("data-id"),
@@ -1057,14 +1140,13 @@ $(function () {
             }
         });
 
+        // Sets the initial position
         if (typeof xBefore === "undefined") {
             xBefore = 20;
         }
-
         if (typeof yBefore === "undefined") {
             yBefore = 20;
         }
-
         if (typeof scaleBefore === "undefined") {
             setTransform("translate", xBefore, yBefore);
         } else {
@@ -1077,7 +1159,7 @@ $(function () {
         let step = 0.1;
 
         /**
-         * Detect mouse movement start and change cursor appearence
+         * Detect mouse movement start and change cursor appearance
          * @param event mousedownevent
          */
         function funcMouseDown(event) {
@@ -1089,7 +1171,7 @@ $(function () {
         }
 
         /**
-         * Detect mouse movement end and change cursor appearence
+         * Detect mouse movement end and change cursor appearance
          * @param event mouseupevent
          */
         function funcMouseUp(event) {
@@ -1133,14 +1215,13 @@ $(function () {
             posX = event.originalEvent.clientX;
             posY = event.originalEvent.clientY;
 
+            // Handles edge cases
             if (posX == 0) {
                 posX = 1;
             }
-
             if (posY == 0) {
                 posY = 1;
             }
-
             if (event.originalEvent.deltaY < 0) {
                 newScale = currentScale + step;
             } else {
@@ -1164,6 +1245,7 @@ $(function () {
             originalTranslateY = getTransform("y");
             originalScale = getTransform("scale");
 
+            // Either move or zoom
             if (arguments[0] == "translate") {
                 scale = originalScale;
                 translateX = arguments[1];
@@ -1258,6 +1340,7 @@ $(function () {
                 $("#labels-button").prop("disabled", false);
                 $("#snapshots-button").prop("disabled", false);
 
+                // Calls the undo function for button and context option
                 $("#undo-button").click(function (event) {
                     undo();
                 });
@@ -1266,6 +1349,7 @@ $(function () {
                     undo();
                 });
 
+                // Calls the redo function for button and context option
                 $("#redo-button").click(function (event) {
                     redo();
                 });
@@ -1274,16 +1358,20 @@ $(function () {
                     redo();
                 });
 
+                // Shows the info modal if a snapshot already exists or shows the save modal for button and context option
                 $("#save-button").click(function (event) {
                     $("#snapshot-label").val("");
                     if (snapshotTrees.find(element => element[0] == trees[counter_of_trees - 1][0])) {
+                        // Shows the info modal
                         $("#info-modal-label").text("This snapshot already exists!")
                         $("#info-modal-body").text("This tree has already been snapshot.")
                         $("#info-modal").modal("show");
                         return;
                     }
+                    // Shows the save modal
                     $("#save-modal").modal("show");
                     $("#save-modal").on("shown.bs.modal", function () {
+                        // Puts the cursor in the input field
                         $("#snapshot-label").focus();
                     });
                 });
@@ -1291,17 +1379,21 @@ $(function () {
                     $("#context-menu").removeClass("visible");
                     $("#snapshot-label").val("");
                     if (snapshotTrees.find(element => element[0] == trees[counter_of_trees - 1][0])) {
+                        // Shows the info modal
                         $("#info-modal-label").text("This snapshot already exists!")
                         $("#info-modal-body").text("This tree has already been snapshot.")
                         $("#info-modal").modal("show");
                         return;
                     }
+                    // Shows the save modal
                     $("#save-modal").modal("show");
                     $("#save-modal").on("shown.bs.modal", function () {
+                        // Puts the cursor in the input field
                         $("#snapshot-label").focus();
                     });
                 });
 
+                // Calls the save function for button and context option
                 $("#save-modal-button").click(function (event) {
                     save();
                     $("#save-modal").modal("hide");
@@ -1313,6 +1405,7 @@ $(function () {
                     }
                 });
 
+                // Shows the snapthots modal for button and context option
                 $("#snapshots-button").click(function (event) {
                     $("#snapshots-modal").modal("show");
                 });
@@ -1321,6 +1414,7 @@ $(function () {
                     $("#snapshots-modal").modal("show");
                 });
 
+                // Zooms in around the center for button and context option
                 $("#zoom-in-button").click(function (event) {
                     setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
                 });
@@ -1329,6 +1423,7 @@ $(function () {
                     setTransform("scale", getTransform("scale") + step, getTransform("x"), getTransform("y"));
                 });
 
+                // Zooms out around the center for button and context option
                 $("#zoom-out-button").click(function (event) {
                     setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
                 });
@@ -1337,6 +1432,7 @@ $(function () {
                     setTransform("scale", getTransform("scale") - step, getTransform("x"), getTransform("y"));
                 });
 
+                // Calls the search function with input from the search field for button and context option
                 $("#search-button").click(function (event) {
                     search($("#search-text").val());
                 });
@@ -1347,6 +1443,7 @@ $(function () {
                     }
                 });
 
+                // Calls the toggleLength function for button and context option
                 $("#lengths-button").click(function (event) {
                     toggleLength();
                 });
@@ -1355,6 +1452,7 @@ $(function () {
                     toggleLength();
                 });
 
+                // Calls the toggleLabel function for button and context option
                 $("#labels-button").click(function (event) {
                     toggleLabel();
                 });
@@ -1363,6 +1461,7 @@ $(function () {
                     toggleLabel();
                 });
 
+                // Calls the outgroup function for button and context option
                 $("#outgroup-button").click(function (event) {
                     outgroup();
                 });
@@ -1371,6 +1470,7 @@ $(function () {
                     outgroup();
                 });
 
+                // Sets the flag for button activation
                 buttons_activated = true;
             }
         }
@@ -1380,12 +1480,14 @@ $(function () {
          * @param value the searched leaf
          */
         function search(value) {
+            // Different x coordinate depending on whether branch lengths are shown
             if (!(enableLengths)) {
                 data = JSON.parse(trees[counter_of_trees - 1][1]);
             } else {
                 data = JSON.parse(trees[counter_of_trees - 1][2]);
             }
             data.forEach(function(item, index, array) {
+                // Searches through the all texts, colors all and jumps to the last match
                 if (typeof item.name !== 'undefined' && item.name != "None" && item.name.toLowerCase().includes(value.toLowerCase())) {
                     svg.select("text[data-id='" + item.id + "']").attr('fill', 'red');
                     if (!(alignLabels)) {
@@ -1394,6 +1496,7 @@ $(function () {
                         setTransform("translate", -(maxX - offset) * scale + maxWidth / 2, -((index + 1) * scaleY) * scale + maxHeight / 2);
                     }
                 } else if (typeof item.name !== 'undefined' && item.name != "None") {
+                    // Resets texts that have not been searched for to black
                     svg.select("text[data-id='" + item.id + "']").attr('fill', null);
                 }
             });
@@ -1541,11 +1644,13 @@ $(function () {
             text = atob(data.target.result.split("base64,")[1]);
             if ((text.match(/[ACGT]/g) || []).length > text.length / 2) {
                 $("#dna").trigger("click");
+                // Shows the info modal
                 $("#info-modal-label").text("DNA sequence detected!");
                 $("#info-modal-body").text("A DNA sequence has been auto-detected and the options have been set to DNA. You can overrule this manually by checking PROTEIN in the options.");
                 $("#info-modal").modal("show");
             } else {
                 $("#protein").trigger("click");
+                // Shows the info modal
                 $("#info-modal-label").text("Protein sequence detected!");
                 $("#info-modal-body").text("A protein file has been detected and the options have been set to protein. You can overrule this manually by checking DNA in the options.");
                 $("#info-modal").modal("show");

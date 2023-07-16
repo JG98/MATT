@@ -1,5 +1,5 @@
 # MATT - A Framework For Modifying And Testing Topologies
-# Copyright (C) 2021 Jeff Raffael Gower
+# Copyright (C) 2021-2023 Jeff Raffael Gower
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ from matt.node import Node
 from json import dumps, loads
 from decimal import Decimal, getcontext
 
+# Sets the precision of decimals to 10
 getcontext().prec = 10
 
 
@@ -35,6 +36,7 @@ class Tree:
         """
         self.node_counter = 0
         self.enable_lengths = enable_lengths
+        # Detects a newick file
         if string.rstrip()[-1] == ";":
             self.from_newick(string.rstrip()[1:-2])
             # TODO PREPARE newick, e.g. remove all \n
@@ -54,6 +56,7 @@ class Tree:
         last_comma = -1
         last_colon = newick.rfind(":")
 
+        # Finds the last comma in the highest level (closest to the root)
         for i, char in enumerate(newick[::-1]):
             if char == "(":
                 level += 1
@@ -69,10 +72,12 @@ class Tree:
             elif char == ")":
                 level -= 1
             elif char == "," and level == 0:
+                # Makes the content left to the comma the left node and vice versa
                 if i == last_comma:
                     self.root.l_child = self.make_node_from_newick(newick[:i], self.root)
                     self.root.r_child = self.make_node_from_newick(newick[i + 1:], self.root)
                     return
+                # Introduces a new branch if there is three nodes closest to the root
                 else:
                     if self.enable_lengths:
                         length = Decimal(newick[last_colon + 1:]) / 2
@@ -100,6 +105,8 @@ class Tree:
         json = loads(string)
         json.pop()
         nodes = {}
+
+        # Builds node objects from the json string
         for node in json:
             length = node.get("length")
             total_length = node.get("total_length")
@@ -108,6 +115,8 @@ class Tree:
                                           node.get("name"), node.get("bootstrap"))
             if self.node_counter <= int(node.get("id")):
                 self.node_counter = int(node.get("id")) + 1
+
+        # Configures the relationships between the nodes
         for node in nodes.values():
             if node.parent != "":
                 node.parent = nodes[int(node.parent)]
@@ -117,6 +126,7 @@ class Tree:
                 node.r_child = nodes[int(node.r_child)]
         self.root = nodes[0]
 
+        # Runs when the outgroup or rehang options have been called (relocation of a branch)
         if json_args:
             if len(json_args) == 1:
                 # OUTGROUP

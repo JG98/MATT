@@ -1,5 +1,5 @@
 # MATT - A Framework For Modifying And Testing Topologies
-# Copyright (C) 2021 Jeff Raffael Gower
+# Copyright (C) 2021-2023 Jeff Raffael Gower
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 class Node:
     """
     Node class representing nodes on a topology tree

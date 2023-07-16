@@ -1,5 +1,5 @@
 # MATT - A Framework For Modifying And Testing Topologies
-# Copyright (C) 2021 Jeff Raffael Gower
+# Copyright (C) 2021-2023 Jeff Raffael Gower
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 from flask import Flask, make_response, render_template, request, session, send_from_directory, send_file
 from base64 import b64decode
 from matt.tree import Tree
@@ -27,6 +28,7 @@ import threading
 import time
 import zipfile
 
+# Sets various constants
 # TODO constants like app_location to APP_LOCATION
 app = Flask(__name__, static_url_path="/static")
 app.secret_key = b'H.\xf8\xd7|J\x98\x16/(\x86\x05X\xf8")\x11\x9dM\x08\xcc\xfe\xa2\x03'
@@ -39,10 +41,13 @@ if platform.system() == "Windows":
     addition = ".exe"
 else:
     addition = ""
-os.chmod(os.path.join(app_location, "bin", "iqtree" + addition), 0o755)
 config = configparser.ConfigParser()
 config_path = os.path.join(root_folder, "config.ini")
 
+# Sets file rights for the IQTree path
+os.chmod(os.path.join(app_location, "bin", "iqtree" + addition), 0o755)
+
+# Dictionary for the status of the topology tests
 jobs = {}
 
 
@@ -57,6 +62,7 @@ def home():
     version = ""
     with open(os.path.join(root_folder, "version.txt"), "r") as vf:
         version = vf.read()
+    # Also provides the current version to display it in the frontend
     response = make_response(render_template("index.html", data=version))
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -119,6 +125,9 @@ def download(tree_id):
     tree_lengths_json = tree_db[0][1]
     tree_description = tree_db[0][2]
 
+    # If the branch lengths for the given tree have not been calculated, download the tree file
+    # Builds the newick string from the json representation, writes it to a file in the working directory
+    # and then sends it to the browser via flask's send_from_directory function
     if tree_lengths_json is None:
         tree = Tree(tree_json).to_newick()
         path = os.path.join(session["working-directory"],
@@ -130,6 +139,9 @@ def download(tree_id):
                                    (session["session-name"] + "_" if session["session-name"] else "") + "download.tree",
                                    as_attachment=True,
                                    download_name=tree_description + ".tree")
+    # If they have been calculated, create a zip archive with both tree files (with and without branch lengths)
+    # Builds the newick strings from the json representations, writes them to a file in the working directory,
+    # then writes a zip archive containing these files and sends it to the browser via flask's send_file function
     else:
         tree_without = Tree(tree_json).to_newick()
         path_without = os.path.join(session["working-directory"], (session["session-name"] + "_" if session["session-name"] else "") + "without_lengths.tree")
@@ -216,6 +228,7 @@ def load():
                 model += "+" + protein_rhas
     # TODO not POST/GET rather one or two form args or none if it is just a reload from saving options (TODO)
 
+    # Import
     if request.method == "POST":
         # TODO always delete tmp afterwards maybe??
         alignment = None
@@ -279,21 +292,28 @@ def load():
                 tree_lengths = Tree(tree, enable_lengths=True).to_json()
             tree = Tree(tree).to_json()
             session["disable_testing"] = True
+    # Reload, length calculation, rehang, reroot
     elif request.method == "GET":  # TODO post too?
         if request.args.get("current") is not None:
             current = request.args.get("current")
         else:
             current = None
+        # Delete all trees after the current one to break the redo chain
         if current is not None:
             del session["trees"][int(current):]
             session["tree"] = session["trees"][-1]
+        # Get the session tree
         c.execute('SELECT json, json_lengths FROM trees WHERE id = ?', [session["tree"]])
         tree_json, tree_branch_json = c.fetchone()
+        # Reload
         if len(request.args) == 0:
             json_args = None
+        # Length calculation
         if request.args.get("lengths") is not None:
+            # Get the tree with branch lengths from the database
             if tree_branch_json is not None:
                 tree = Tree(tree_branch_json).to_json()
+            # Run IQTree
             else:
                 tree = Tree(tree_json, enable_lengths=True).to_newick(True)
                 path = os.path.join(session["working-directory"],
@@ -313,6 +333,7 @@ def load():
                     response = make_response("WRONG DATA")
                     response.headers["Cache-Control"] = "no-store"
                     return response
+                # Read the resulting tree file and construct a tree from it
                 with open(os.path.join(session["working-directory"], session["session-name"] + ".phy.treefile" if session["session-name"] else "alignment.phy.treefile"), "r") as tree_file:
                     tree = tree_file.readline()
                 if request.args.get("lengths") == "enabled":
@@ -320,8 +341,10 @@ def load():
                 else:
                     tree = Tree(tree[:-1], enable_lengths=False).to_json()
         else:
+            # Reroot
             if request.args.get("id") is not None:
                 json_args = [request.args.get("id")]
+            # Rehang
             elif request.args.get("from") is not None:
                 json_args = [request.args.get("from"), request.args.get("to")]
             else:
@@ -330,6 +353,7 @@ def load():
     else:
         pass  # TODO
 
+    # Update the database
     if request.method == "GET" and request.args.get("lengths") is not None:
         c.execute('UPDATE trees SET json_lengths = ? WHERE id = ?', (tree, session["tree"]))
     else:
@@ -420,13 +444,17 @@ def tests():
     """
     # TODO handle that testing is disabled but ppl still try to test
     snapshots = request.form.getlist("snapshots[]")
+    # Only one tree has been selected
     if len(snapshots) == 1:
+        # Only the initial tree has been selected
         if snapshots[0] == str(session["trees"][0]):
             response = make_response("NO")
             response.headers["Cache-Control"] = "no-store"
             return response
+        # Add the initial tree to the trees that should be tested, since only one other tree has been selected
         else:
             snapshots.append(str(session["trees"][0]))
+    # Write the trees to a trees file with the json data from the database
     path = os.path.join(session["working-directory"],
                         (session["session-name"] + "_" if session["session-name"] else "") + "tests.trees")
     file = open(path, "w")
@@ -466,6 +494,7 @@ def tests():
                 model += "+" + protein_aaf
             if protein_rhas != "-":
                 model += "+" + protein_rhas
+    # Run IQTree
     print("Starting IQTree. This could take some time!")
     sp = subprocess.Popen(
         [os.path.join(app_location, "bin", "iqtree"), "-s", os.path.join(session["working-directory"],
@@ -476,6 +505,7 @@ def tests():
     jobs[key] = 0
     thread = threading.Thread(target=testsupdate, args=[sp])
     thread.start()
+    # Return the id for the thread to keep track of the status
     response = make_response(str(key))
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -488,14 +518,17 @@ def testsresults(job_id):
     :param job_id: id of job of the test
     :return: response
     """
+    # Returns that there is no such test in the threads
     if job_id not in jobs:
         response = make_response("NO")
         response.headers["Cache-Control"] = "no-store"
         return response
+    # Returns the current status if the thread has not finished
     if jobs[job_id] != 120:
         response = make_response(str(jobs[job_id]))
         response.headers["Cache-Control"] = "no-store"
         return response
+    # Reads the results from the iqtree file and sends them to the frontend
     else:
         results = []
         path = os.path.join(session["working-directory"],

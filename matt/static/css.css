@@ -1,9 +1,29 @@
+/*
+* MATT - A Framework For Modifying And Testing Topologies
+* Copyright (C) 2021-2023 Jeff Raffael Gower
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/* Configures the window */
 html, body {
     height: 100%;
     width: 100%;
     background-color: lightgray;
 }
 
+/* Positions the alternative logo in the center of the main window */
 #logo-main {
     position: absolute;
     top: 50%;
@@ -11,12 +31,14 @@ html, body {
     transform: translate(-50%, -50%);
 }
 
+/* Positions the logo in the center of the minimap */
 #logo-slide {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
 }
 
+/* Configures the minimap */
 #minimapDiv {
     width: 15vw;
     height: 30vh;
@@ -26,6 +48,9 @@ html, body {
     border: 2px solid;
     background: lightgray;
 }
+
+/* BUTTONS START */
+/* The upper left buttons are put in position from left to right */
 
 #undo-button {
     position: absolute;
@@ -67,8 +92,10 @@ html, body {
     position: absolute;
     top: 10px;
     left: 282px;
-    display: flex;
+    display: flex; /* has to be flex */
 }
+
+/* the upper right buttons are put in position from right to left (although here from left to right), accounting for the minimap */
 
 #lengths-button {
     position: absolute;
@@ -101,6 +128,10 @@ html, body {
     display: none;
 }
 
+/* BUTTONS END */
+
+/* CONTEXT MENU START */
+
 #context-menu {
     position: fixed;
     z-index: 10000;
@@ -130,11 +161,15 @@ html, body {
     border-bottom: 1px solid;
 }
 
+/* CONTEXT MENU END */
+
+/* Places the checkboxes in the snapthot modal appropiately */
 .snapshots-table-checkbox {
     text-align: center !important;
     vertical-align: middle !important;
 }
 
+/* Aligns the path to the test results in the tests modal */
 .tests-results {
     text-align: right;
 }

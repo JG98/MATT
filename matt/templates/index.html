@@ -1,6 +1,6 @@
 <!--
 - MATT - A Framework For Modifying And Testing Topologies
-- Copyright (C) 2021 Jeff Raffael Gower
+- Copyright (C) 2021-2023 Jeff Raffael Gower
 -
 - This program is free software: you can redistribute it and/or modify
 - it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 - You should have received a copy of the GNU General Public License
 - along with this program. If not, see <https://www.gnu.org/licenses/>.
 -->
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -35,24 +36,32 @@
     <script src="/static/js.js"></script>
 </head>
 <body>
+<!-- The main window that the snap svg is put into -->
 <div id="mainDiv">
+    <!-- The window for the logo and the import that gets deleted once an import happened -->
     <div id="logo-main" class="text-center">
+        <!-- Shows the current version -->
         <h1>Version {{data}}</h1>
+        <!-- Shows the alternative logo -->
         <img id="logo-main-img" src="/static/logo_alt.png" class="img-responsive" alt="MATT Logo">
         <br>
         <h3>Import</h3>
         <b>Make sure you set your options before importing!</b>
         <!-- TODO https://codepen.io/Sebus059/pen/MwMQbP -->
+        <!-- Import form -->
         <form enctype="multipart/form-data">
             <div class="form-group">
+                <!-- Optional session name -->
                 <label for="session-name" class="col-form-label">Name your session</label>
                 <input type="text" class="form-control" id="session-name"
                        placeholder="If left empty, older files might be overridden">
             </div>
             <div class="form-group">
+                <!-- Alignment file to import -->
                 <label for="alignment-file">Choose alignment file</label>
                 <input type="file" class="form-control-file" id="alignment-file" style="display:none">
                 <br>
+                <!-- Custom file choose button -->
                 <button class="btn btn-light" type="button" id="alignment-file-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
@@ -60,12 +69,15 @@
                         <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
                     </svg>
                 </button>
+                <!-- Gets overridden with the file name once a file is selected -->
                 <label for="alignment-file-button">No file chosen</label>
             </div>
             <div class="form-group">
+                <!-- Tree file to import -->
                 <label for="tree-file">Choose tree file</label>
                 <input type="file" class="form-control-file" id="tree-file" style="display:none">
                 <br>
+                <!-- Custom file choose button -->
                 <button class="btn btn-light" type="button" id="tree-file-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
@@ -73,15 +85,22 @@
                         <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
                     </svg>
                 </button>
+                <!-- Gets overridden with the file name once a file is selected -->
                 <label for="tree-file-button">No file chosen</label>
             </div>
+            <!-- Button to import the chosen files -->
             <input type="button" class="btn btn-primary" id="import" value="Import">
+            <!-- Button to show the example files -->
             <input type="button" class="btn btn-secondary" id="example-import" value="Example">
         </form>
     </div>
+    <!-- The window for the minimap -->
     <div id="minimapDiv">
+        <!-- Shows the logo until an import has happened -->
         <img id="logo-slide" src="/static/logo.svg" class="img-responsive" alt="MATT Logo">
     </div>
+    <!-- BUTTONS START -->
+    <!-- Shows the individual buttons in the upper left and upper right corner -->
     <button id="undo-button" type="button" class="btn btn-secondary" title="Undo" disabled>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-left"
              viewBox="0 0 16 16">
@@ -175,10 +194,16 @@
             <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
         </svg>
     </button>
+    <!-- Special outgroup button that is only shown once a branch is selected -->
     <button id="outgroup-button" type="button" class="btn btn-primary" title="Set Root">
         Set Root
     </button>
+    <!-- BUTTONS END -->
 </div>
+<!-- MODALS START -->
+<!-- Configures the modals that are shown to ask for user feedback and provide extra information -->
+
+<!-- Info modal that is individually filled with extra information -->
 <div class="modal fade" id="info-modal" tabindex="-1" role="dialog" aria-labelledby="info-modal-label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -198,6 +223,7 @@
         </div>
     </div>
 </div>
+<!-- Warning modal that explicitely asks for user confirmation -->
 <div class="modal fade" id="warning-modal" tabindex="-1" role="dialog" aria-labelledby="warning-modal-label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -218,6 +244,7 @@
         </div>
     </div>
 </div>
+<!-- Options modal with the options and a save buttons for saving the options to the config -->
 <div class="modal fade" id="options-modal" tabindex="-1" role="dialog" aria-labelledby="options-modal-label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -231,10 +258,12 @@
             <div id="options-modal-body" class="modal-body">
                 <form enctype="multipart/form-data">
                     <h4>Working directory</h4>
+                    <!-- The path to the working directory, where IQTree tasks run and files are cached -->
                     <div class="form-group">
                         <label for="working-directory" class="col-form-label">Full path to the working directory</label>
                         <input type="text" class="form-control" id="working-directory">
                     </div>
+                    <!-- Secuency type picker -->
                     <h4>Sequence type</h4>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="dna-protein" id="dna" value="dna">
@@ -244,6 +273,7 @@
                         <input class="form-check-input" type="radio" name="dna-protein" id="protein" value="protein">
                         <label class="form-check-label" for="protein">Protein</label>
                     </div>
+                    <!-- Pickers for base substitution rates, base frequencies and rate heterogeneity across sites, see http://www.iqtree.org/doc/Substitution-Models#dna-models -->
                     <div id="dna-options" style="display:none">
                         <div class="form-group">
                             <label for="selectBSR">Base substitution rates</label>
@@ -296,6 +326,7 @@
                             </select>
                         </div>
                     </div>
+                    <!-- Pickers for amino-acid exchange rate matrices, protein mixture models, amino-acid frequencies and rate heterogeneity across sites, see http://www.iqtree.org/doc/Substitution-Models#protein-models -->
                     <div id="protein-options" style="display:none">
                         <div class="form-group">
                             <label for="selectAAERM">Amino-acid exchange rate matrices</label>
@@ -374,6 +405,7 @@
                     </div>
                 </form>
                 <hr>
+                <!-- A link to the MATT GitHub page -->
                 <a href="https://github.com/BIONF/MATT" target="_blank">About</a>
             </div>
             <div class="modal-footer">
@@ -383,6 +415,7 @@
         </div>
     </div>
 </div>
+<!-- Save modal for (naming and) saving snapshots -->
 <div class="modal fade" id="save-modal" tabindex="-1" role="dialog" aria-labelledby="save-modal-label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -406,6 +439,7 @@
         </div>
     </div>
 </div>
+<!-- Change modal for renaming of saved snapshots -->
 <div class="modal fade" id="change-modal" tabindex="-1" role="dialog" aria-labelledby="change-modal-label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -431,6 +465,7 @@
         </div>
     </div>
 </div>
+<!-- Snapshots modal showing the table that gets filled with all the modals and allows for choosing for testing, jumping to, name changing and downloading of snapshots -->
 <div class="modal fade" id="snapshots-modal" tabindex="-1" role="dialog" aria-labelledby="snapshots-modal-label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -456,6 +491,7 @@
         </div>
     </div>
 </div>
+<!-- Tests modal showing the results of the tree topology tests -->
 <div class="modal fade" id="test-modal" tabindex="-1" role="dialog" aria-labelledby="test-modal-label"
      aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
@@ -514,6 +550,7 @@
         </div>
     </div>
 </div>
+<!-- Compute modal asking the user to let IQTree compute the branch lengths for the current tree -->
 <div class="modal fade" id="compute-modal" tabindex="-1" role="dialog" aria-labelledby="compute-modal-label"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -535,6 +572,7 @@
         </div>
     </div>
 </div>
+<!-- The custom context menu -->
 <div id="context-menu">
     <div class="item line" id="context-outgroup">Set Root</div>
     <div class="item" id="context-undo">Undo</div>
